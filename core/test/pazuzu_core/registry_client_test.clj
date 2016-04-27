@@ -1,7 +1,7 @@
-(ns pazuzu-core.rest-test
+(ns pazuzu-core.registry-client-test
   (:require [clojure.test :refer :all]
             [clj-http.client :as client]
-            [pazuzu-core.rest :as rest]
+            [pazuzu-core.registry-client :as rest]
             [midje.sweet :refer :all]))
 
 (def correct-sorted-features

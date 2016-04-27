@@ -8,4 +8,4 @@
     [clj-http "2.1.0"]
     [org.clojure/data.json "0.2.6"]]
   :profiles {:dev {:plugins      [[lein-midje "3.2"]]
-                   :dependencies [[midje "1.6.3"]]}})
+                   :dependencies [[midje "1.8.3"]]}})
