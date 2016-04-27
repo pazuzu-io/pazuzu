@@ -1,6 +1,6 @@
 (ns pazuzu-core.docker-test
-  (:require [clojure.test :refer :all]
-            [pazuzu-core.docker :as docker]))
+  (:require [pazuzu-core.docker :as docker]
+            [midje.sweet :refer :all]))
 
 (def features
   [{"name" "cool-feature-0", "docker_data" "RUN echo 1", "test_instruction" "RUN echo  \"test echo\""}
@@ -16,6 +16,7 @@
             "# cool-feature-2\nRUN echo 2"
             "# cool-feature-1\nRUN echo 1"
             "CMD /bin/bash"))
-(deftest generate-dockerfile
-  (is (= (docker/generate-dockerfile features) dockerfile)))
+
+(fact "generate-dockerfile should return the string with dockerfile based on the list of features"
+      (docker/generate-dockerfile features) => dockerfile)
 

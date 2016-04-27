@@ -12,7 +12,6 @@
     (clojure.string/join "\n\n" (concat
                                   [comment-str from-str]
                                   (map feature->string features)
-                                  [cmd-str])))
-  )
+                                  [cmd-str]))))
 
 

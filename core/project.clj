@@ -7,6 +7,5 @@
     [org.clojure/clojure "1.8.0"]
     [clj-http "2.1.0"]
     [org.clojure/data.json "0.2.6"]]
-  :profiles {:dev {:dependencies [
-                                  [midje "1.6.3"]
-                                  [clj-http-fake "1.0.2"]]}})
+  :profiles {:dev {:plugins      [[lein-midje "3.2"]]
+                   :dependencies [[midje "1.6.3"]]}})
