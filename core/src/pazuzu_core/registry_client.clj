@@ -1,4 +1,4 @@
-(ns pazuzu-core.rest
+(ns pazuzu-core.registry-client
   (:require
     [clj-http.client :as client]
     [clojure.data.json :as json]
