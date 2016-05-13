@@ -1,8 +1,8 @@
 (ns pazuzu-core.registry-client
   (:require
     [clj-http.client :as client]
-    [clojure.data.json :as json]
-    ))
+    [clojure.data.json :as json]))
+
 
 (def features-resource "/api/features")
 
