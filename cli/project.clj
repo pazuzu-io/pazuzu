@@ -4,9 +4,14 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [pazuzu-core "0.1.0-SNAPSHOT"]]
+                 [pazuzu-core "0.1.0-SNAPSHOT"]
+                 [org.clojure/data.json "0.2.6"]]
   :main ^:skip-aot pazuzu-cli.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
-             :dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]]}})
+             :dev {:plugins      [[lein-midje "3.2"]]
+                   :dependencies [[midje "1.8.3"]
+                                  [org.clojure/tools.namespace "0.2.11"]]}})
+
+
 
