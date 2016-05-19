@@ -12,15 +12,13 @@
 (def test-url "http://localhost:8080/api/features")
 
 ; Parameters sent to client/get
-(def params-map {:py-scala {"sorted" 1 "name" "Python,scala"}
-                 :empty ""})
+(def params-map {:py-scala {"sorted" 1 "name" "Python,scala"}})
 
 ; Response map to be returned by the Pazuzu-registry
 (def return-response
   {:py-scala [{:name "java" :docker_data "Java-Data" :test_instruction "jvm-test"}
               {:name "scala" :docker_data "scala" :test_instruction "scala-data"}
-              {:name "Python" :docker_data "Python-Data" :test_instruction "py-test"}]
-   :empty    ""})
+              {:name "Python" :docker_data "Python-Data" :test_instruction "py-test"}]})
 
 ; Generate the response for given key
 (defn http-response
@@ -29,14 +27,16 @@
    :headers {}
    :body (json/write-str (query-key return-response))})
 
+(def expected-docker-data
+  "# Auto-generated DockerFile by Pazuzu2\n\n"
+  "FROM ubuntu:latest\n\n# java\nJava-Data\n\n"
+  "# scala\nscala\n\n# Python\nPython-Data\n\nCMD /bin/bash")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests for console/fetch-and-compile-features
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fact "we have a proper docker file"
-      (fetch-and-compile-features ["Python", "scala"]) => (str "# Auto-generated DockerFile by Pazuzu2\n\n"
-                                                               "FROM ubuntu:latest\n\n# java\nJava-Data\n\n"
-                                                               "# scala\nscala\n\n# Python\nPython-Data\n\nCMD /bin/bash")
-      ;(fetch-and-compile-features []) => ""
+      (fetch-and-compile-features ["Python", "scala"]) => (str)
       (provided
         (client/get test-url {:query-params (:py-scala params-map )}) => (http-response :py-scala)))
 
@@ -53,7 +53,6 @@
   [dir-path]
   (let
      [test-docker-files (get-test-docker-files dir-path)]
-    (println test-docker-files)
     (map #(io/delete-file %) test-docker-files)))
 
 (def docker-data "Hello This is docker Data")
@@ -66,5 +65,3 @@
 (with-state-changes [(after :facts (println (clean-up-docker-files ".")))]
                     (fact "Dockerfile is generated for given docker-data"
                           (save-and-check-for-dockerfile) => true))
-
-
