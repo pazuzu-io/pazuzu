@@ -65,5 +65,5 @@
 
 (with-state-changes [(after :facts (clean-up-docker-files "."))]
                     (fact "Dockerfile is generated for given docker-data"
-                          (save-and-check-for-dockerfile) => true)
-                          (save-and-check-for-dockerfile "./doc" => true))
+                          (save-and-check-for-dockerfile) => true
+                          (save-and-check-for-dockerfile "./doc" => true)))
