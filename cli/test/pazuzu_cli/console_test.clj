@@ -28,15 +28,16 @@
    :body (json/write-str (query-key return-response))})
 
 (def expected-docker-data
-  "# Auto-generated DockerFile by Pazuzu2\n\n"
-  "FROM ubuntu:latest\n\n# java\nJava-Data\n\n"
-  "# scala\nscala\n\n# Python\nPython-Data\n\nCMD /bin/bash")
+  (str "# Auto-generated DockerFile by Pazuzu2\n\n"
+       "FROM ubuntu:latest\n\n# java\nJava-Data\n\n"
+       "# scala\nscala\n\n# Python\nPython-Data\n\nCMD /bin/bash"))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests for console/fetch-and-compile-features
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fact "we have a proper docker file"
-      (fetch-and-compile-features ["Python", "scala"]) => (str)
+      (fetch-and-compile-features ["Python", "scala"]) => expected-docker-data
       (provided
         (client/get test-url {:query-params (:py-scala params-map )}) => (http-response :py-scala)))
 
