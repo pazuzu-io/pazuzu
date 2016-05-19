@@ -47,22 +47,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn get-test-docker-files
   [dir-path]
-  (filter #(re-find #"Dockerfile-" %)
+  (filter #(re-find #"Dockerfile" %)
           (map #(str %) (file-seq (io/file dir-path)))))
 
 (defn clean-up-docker-files
   [dir-path]
   (let
      [test-docker-files (get-test-docker-files dir-path)]
-    (map #(io/delete-file %) test-docker-files)))
+    (doall (map #(io/delete-file %) test-docker-files))))
 
 (def docker-data "Hello This is docker Data")
 
 (defn save-and-check-for-dockerfile
-  [& path]
+  [& [path]]
   (let [saved-file-name (save-docker-file docker-data path)]
     (.exists (io/as-file saved-file-name))))
 
-(with-state-changes [(after :facts (println (clean-up-docker-files ".")))]
+(with-state-changes [(after :facts (clean-up-docker-files "."))]
                     (fact "Dockerfile is generated for given docker-data"
-                          (save-and-check-for-dockerfile) => true))
+                          (save-and-check-for-dockerfile) => true)
+                          (save-and-check-for-dockerfile "./doc" => true))

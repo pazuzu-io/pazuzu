@@ -16,7 +16,7 @@
 (defn save-docker-file
   [docker-file-data  [& path]]
   (let [save-path (case path
-                    nil (str "Dockerfile-" (System/currentTimeMillis))
-                    path)]
+                    nil (str "Dockerfile" (System/currentTimeMillis))
+                    (str (clojure.string/join "" path) "/Dockerfile"))]
     (spit save-path docker-file-data)
     save-path))
