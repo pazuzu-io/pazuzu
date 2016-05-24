@@ -5,5 +5,17 @@
 
 
 (fact "main fcn triggers only for build"
-      (execute-command ["build" "-f" "a" "b" "-p" "123/f"]) => {:feature `("b" "a") :path ["123/f"]}
       (execute-command ["wrong-command"]) => "wrong-command not found")
+
+
+(fact "build-dockerfile sends a correct arguments."
+      (execute-command ["build" "-f" "Python" "Scala"]) => true
+      (provided
+        (create-dockerfile ["Python" "Scala"]) => true
+        (create-dockerfile anything) => false :times 0))
+
+
+(fact "build-dockerfile doesn't build on --dry-run flag."
+      (execute-command ["build" "-f" "Python" "Scala" "--dry-run"]) => true
+      (provided
+        (build-docker-image anything) => true))

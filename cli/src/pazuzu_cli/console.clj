@@ -13,11 +13,9 @@
               any-url)]
     ((comp docker/generate-dockerfile registry/get-sorted-features) url features)))
 
-(defn save-docker-file
-  "Given Dockerfile data & path to save at
-  (or defaults to Dockerfile<timestamp>),
-  creates the Dockerfile on disk.
-  Returns the saved path."
+(defn save-dockerfile
+  "Given Dockerfile data & path to save at (or defaults to Dockerfile<timestamp>),
+  creates the Dockerfile on disk. Returns the saved path."
   [docker-file-data  & [ path]]
   (let [save-path (case path
                     nil (str "Dockerfile" (System/currentTimeMillis))
@@ -26,23 +24,21 @@
     save-path))
 
 
-(def feature-flags {"-f" :feature "-p" :path})
+(def feature-flags {"-f" :features "-p" :path "--dry-run" :dry-run})
 
 
 (defn to-args-map
-  "Convert the list of args into an "
+  "Convert the list of args into a Hash Map charting all the arguments & flags.
+  Case empty?: Argument List is empty => Either no arguments provided or the arg-list is done processing.
+  Case - : First arg starts with - => First arg is a flag and following it are arguments.
+  Case default: First arg is a value to be set for the existing flag.
+                  If a flag is not provided, they are values @ nil."
   [args]
   (loop [args-map {}
          flag nil
          args-list args]
     (cond
       (empty? args-list) args-map
-      (nil? flag) (recur
-                    args-map
-                    (get feature-flags (first args-list))
-                    (rest args-list))
-
-      ; If flag, update args-map to have k: flag & v: []
       (= \- (->> args-list first first)) (recur (update
                                                   args-map
                                                   (get feature-flags (first args-list))

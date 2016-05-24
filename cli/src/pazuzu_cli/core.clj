@@ -2,23 +2,39 @@
   (:gen-class)
   (:require [pazuzu-cli.console :as console]))
 
-(defn create-docker-features
+
+(defn create-dockerfile
   [& [features]]
   (println "Dockerfile created @ "
-           ((comp
-              console/save-docker-file
-              console/fetch-and-compile-features) features)))
-;
-;(defn build-docker-image
-;  [& features]
-;  (sh "docker build " (create-docker-features features)))
+           (->> features console/fetch-and-compile-features console/save-dockerfile)))
 
-(def command-map {"build" console/to-args-map})
+
+; TODO: STUB!! Rewrite this function once we have function that will actually build a dockerfile.
+(def build-docker-image create-dockerfile)
+
+
+(def does-not-contain? (complement contains?))
+
+
+(defn build-dockerfile
+  [args]
+  (let [args-map (console/to-args-map args)
+        features (:features args-map)
+        to-build? (does-not-contain? args-map :dry-run)]
+    (if to-build?
+      (create-dockerfile features)
+      (build-docker-image features))))
+
+
+(def command-map {"build" build-dockerfile})
+
 
 (defn execute-command
   [args]
-  (let [command (get command-map (first args) (fn [_] (str (first args) " not found")))]
-    (command (rest args))))
+  (let [command (get command-map
+                     (first args)
+                     (fn [_] (str (first args) " not found")))]
+    (->> args rest command)))
 
 
 (defn -main

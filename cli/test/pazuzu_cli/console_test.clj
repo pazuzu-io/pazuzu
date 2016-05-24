@@ -39,7 +39,7 @@
 (fact "we have a proper docker file"
       (fetch-and-compile-features ["Python", "scala"]) => expected-docker-data
       (provided
-        (client/get test-url {:query-params (:py-scala params-map )}) => (http-response :py-scala)))
+        (client/get test-url {:query-params (:py-scala params-map)}) => (http-response :py-scala)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,7 +60,7 @@
 
 (defn save-and-check-for-dockerfile
   [& [path]]
-  (let [saved-file-name (save-docker-file docker-data path)]
+  (let [saved-file-name (save-dockerfile docker-data path)]
     (.exists (io/as-file saved-file-name))))
 
 (with-state-changes [(after :facts (clean-up-docker-files "."))]
@@ -73,10 +73,18 @@
 ;; Tests for console/to-args-map
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fact "the args parser works"
-      (to-args-map `("-f" "a" "b")) => {:feature ["a" "b"]}
-      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile")) =>  {:feature ["a" "b"]
-                                                                       :path ["path/to/new-dockerfile"]}
-      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile" "-f" "123")) =>  {:feature ["a" "b" "123"]  :path ["path/to/new-dockerfile"]}
-      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile" "-f" "123" "-p" "asdf")) =>  {:feature ["a" "b"  "123"] :path ["path/to/new-dockerfile" "asdf"]})
+      (to-args-map `("-f" "a" "b")) => {:features ["a" "b"]}
+
+      (to-args-map `("-f" "a" "b"
+                      "-p" "path/to/new-dockerfile")) => {:features ["a" "b"] :path ["path/to/new-dockerfile"]}
+
+      (to-args-map `("-f" "a" "b"
+                      "-p" "path/to/new-dockerfile"
+                      "-f" "123")) => {:features ["a" "b" "123"] :path ["path/to/new-dockerfile"]}
+      (to-args-map `("-f" "a" "b"
+                      "-p" "path/to/new-dockerfile"
+                      "-f" "123"
+                      "-p" "asdf")) => {:features ["a" "b"  "123"] :path ["path/to/new-dockerfile" "asdf"]}
+      (to-args-map ["a" "b" "c"]) => {nil ["a" "b" "c"]})
 
 
