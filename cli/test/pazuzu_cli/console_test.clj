@@ -73,8 +73,10 @@
 ;; Tests for console/to-args-map
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (fact "the args parser works"
-      (to-args-map `("-f" "a" "b")) => {:feature `("b" "a")}
-      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile")) =>  {:feature `("b" "a")
-                                                                       :path `("path/to/new-dockerfile")}
-      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile" "-f" "123")) =>  {:feature `("123" "b" "a")}
-      :path `("path/to/new-dockerfile"))
+      (to-args-map `("-f" "a" "b")) => {:feature ["a" "b"]}
+      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile")) =>  {:feature ["a" "b"]
+                                                                       :path ["path/to/new-dockerfile"]}
+      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile" "-f" "123")) =>  {:feature ["a" "b" "123"]  :path ["path/to/new-dockerfile"]}
+      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile" "-f" "123" "-p" "asdf")) =>  {:feature ["a" "b"  "123"] :path ["path/to/new-dockerfile" "asdf"]})
+
+

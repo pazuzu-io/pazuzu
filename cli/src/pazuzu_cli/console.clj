@@ -43,12 +43,14 @@
                     (rest args-list))
 
       ; If flag, update args-map to have k: flag & v: []
-      (= \- (->> args-list first first)) (recur (update args-map (get feature-flags (first args-list)) (fn [_] []))
+      (= \- (->> args-list first first)) (recur (update
+                                                  args-map
+                                                  (get feature-flags (first args-list))
+                                                  #(if (nil? %) [] %))
                                                 (get feature-flags (first args-list))
                                                 (rest args-list))
 
-
       :default (recur
-                 (update args-map flag #(conj % (first args-list)))
+                 (update args-map flag #(conj (if (nil? %) [] %) (first args-list)))
                  flag
                  (rest args-list)))))
