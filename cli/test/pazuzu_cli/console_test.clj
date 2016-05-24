@@ -53,7 +53,7 @@
 (defn clean-up-docker-files
   [dir-path]
   (let
-     [test-docker-files (get-test-docker-files dir-path)]
+    [test-docker-files (get-test-docker-files dir-path)]
     (doall (map #(io/delete-file %) test-docker-files))))
 
 (def docker-data "Hello This is docker Data")
@@ -67,3 +67,14 @@
                     (fact "Dockerfile is generated for given docker-data"
                           (save-and-check-for-dockerfile) => true
                           (save-and-check-for-dockerfile "./doc") => true))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Tests for console/to-args-map
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(fact "the args parser works"
+      (to-args-map `("-f" "a" "b")) => {:feature `("b" "a")}
+      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile")) =>  {:feature `("b" "a")
+                                                                       :path `("path/to/new-dockerfile")}
+      (to-args-map `("-f" "a" "b" "-p" "path/to/new-dockerfile" "-f" "123")) =>  {:feature `("123" "b" "a")}
+      :path `("path/to/new-dockerfile"))
