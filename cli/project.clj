@@ -7,11 +7,9 @@
                  [pazuzu-core "0.1.0"]
                  [org.clojure/data.json "0.2.6"]]
   :main ^:skip-aot pazuzu-cli.core
-  :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
-             :dev {:plugins      [[lein-midje "3.2"]]
+             :dev {:plugins      [[lein-midje "3.2"]
+                                  [lein-bin "0.3.4"]]
                    :dependencies [[midje "1.8.3"]
-                                  [org.clojure/tools.namespace "0.2.11"]]}})
-
-
-
+                                  [org.clojure/tools.namespace "0.2.11"]]}}
+  :bin { :name "pazuzu" })
