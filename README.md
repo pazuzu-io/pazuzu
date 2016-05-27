@@ -10,6 +10,14 @@ for building and testing. Pazuzu can significantly ease that process, by letting
 choose from a wide selection of predefined Dockerfile snippets that represent 
 those dependencies (e.g. Golang, Python, Android SDK, customized NPM installs). 
 
+## How to build pazuzu executable
+
+```
+lein bin
+```
+
+This will produce the executable `target/pazuzu`.
+
 License
 -------
 
