@@ -15,6 +15,7 @@ import (
 	"github.com/fsouza/go-dockerclient"
 )
 
+// Pazuzu defines pazuzu config.
 type Pazuzu struct {
 	registry       string
 	dockerfile     string
@@ -22,6 +23,7 @@ type Pazuzu struct {
 	dockerEndpoint string
 }
 
+// Feature defines a feature fetched from pazuzu-registry.
 type Feature struct {
 	Name            string
 	DockerData      string `json:"docker_data"`
@@ -48,6 +50,7 @@ func (p *Pazuzu) Generate(features []string) error {
 	return nil
 }
 
+// generate dockerfile from list of features.
 func (p *Pazuzu) generateDockerfile(features []Feature) error {
 	f, err := os.Create(p.dockerfile)
 	if err != nil {
@@ -82,6 +85,7 @@ func (p *Pazuzu) generateDockerfile(features []Feature) error {
 	return w.Flush()
 }
 
+// generate test script from list of features.
 func (p *Pazuzu) generateTestScript(features []Feature) error {
 	f, err := os.Create(p.testScript)
 	if err != nil {
@@ -106,12 +110,14 @@ func (p *Pazuzu) generateTestScript(features []Feature) error {
 	return w.Flush()
 }
 
+// APIError defines error response from pazuzu-registry.
 type APIError struct {
 	Code            string
 	Message         string
 	DetailedMessage string
 }
 
+// get a list of features given the feature names.
 func (p *Pazuzu) getFeatures(features []string) ([]Feature, error) {
 	resp, err := http.Get(fmt.Sprintf("%s/features?name=%s", p.registry, strings.Join(features, ",")))
 	if err != nil {
@@ -142,6 +148,7 @@ func (p *Pazuzu) getFeatures(features []string) ([]Feature, error) {
 	return res, nil
 }
 
+// DockerBuild builds a docker image based on the generated Dockerfile.
 func (p *Pazuzu) DockerBuild(name string) error {
 	client, err := docker.NewClient(p.dockerEndpoint)
 	if err != nil {
