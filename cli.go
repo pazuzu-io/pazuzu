@@ -13,6 +13,13 @@ var buildCmd = cli.Command{
 	Name:   "build",
 	Usage:  "build docker image",
 	Action: buildFeatures,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "image-name, n",
+			Value: "pazuzu-img",
+			Usage: "Set docker image name",
+		},
+	},
 }
 
 // Fetches and builds features into a docker image.
@@ -32,7 +39,7 @@ func buildFeatures(c *cli.Context) error {
 		return err
 	}
 
-	err = pazuzu.DockerBuild("test")
+	err = pazuzu.DockerBuild(c.String("image-name"))
 	if err != nil {
 		return err
 	}
