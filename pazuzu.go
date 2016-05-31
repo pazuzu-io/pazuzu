@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -18,7 +17,7 @@ import (
 // Pazuzu defines pazuzu config.
 type Pazuzu struct {
 	registry       string
-	dockerfile     string
+	dockerfile     []byte
 	testScript     string
 	dockerEndpoint string
 }
@@ -50,39 +49,35 @@ func (p *Pazuzu) Generate(features []string) error {
 	return nil
 }
 
-// generate dockerfile from list of features.
+// generate in-memory Dockerfile from list of features.
 func (p *Pazuzu) generateDockerfile(features []Feature) error {
-	f, err := os.Create(p.dockerfile)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+	var buf bytes.Buffer
 
-	w := bufio.NewWriter(f)
-
-	_, err = w.WriteString("FROM ubuntu:latest\n")
+	_, err := buf.WriteString("FROM ubuntu:latest\n")
 	if err != nil {
 		return err
 	}
 
 	for _, feature := range features {
-		_, err = w.WriteString(fmt.Sprintf("# %s\n", feature.Name))
+		_, err = buf.WriteString(fmt.Sprintf("# %s\n", feature.Name))
 		if err != nil {
 			return err
 		}
 
-		_, err = w.WriteString(fmt.Sprintf("%s\n", feature.DockerData))
+		_, err = buf.WriteString(fmt.Sprintf("%s\n", feature.DockerData))
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = w.WriteString("CMD /bin/bash\n")
+	_, err = buf.WriteString("CMD /bin/bash\n")
 	if err != nil {
 		return err
 	}
 
-	return w.Flush()
+	p.dockerfile = buf.Bytes()
+
+	return nil
 }
 
 // generate test script from list of features.
@@ -155,33 +150,23 @@ func (p *Pazuzu) DockerBuild(name string) error {
 		return err
 	}
 
-	f, err := os.Open(p.dockerfile)
-	if err != nil {
-		return err
-	}
-
-	content, err := ioutil.ReadAll(f)
-	if err != nil {
-		return err
-	}
-
 	t := time.Now()
 	inputBuf := bytes.NewBuffer(nil)
 	tr := tar.NewWriter(inputBuf)
 	tr.WriteHeader(&tar.Header{
 		Name:       "Dockerfile",
-		Size:       int64(len(content)),
+		Size:       int64(len(p.dockerfile)),
 		ModTime:    t,
 		AccessTime: t,
 		ChangeTime: t,
 	})
-	tr.Write(content)
+	tr.Write(p.dockerfile)
 	tr.Close()
 
 	opts := docker.BuildImageOptions{
 		Name:         name,
 		InputStream:  inputBuf,
-		OutputStream: bytes.NewBuffer(nil),
+		OutputStream: os.Stdout,
 	}
 
 	err = client.BuildImage(opts)
