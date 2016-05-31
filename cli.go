@@ -7,12 +7,15 @@ import (
 	"github.com/urfave/cli"
 )
 
+var version = "0.1"
+
 var buildCmd = cli.Command{
 	Name:   "build",
 	Usage:  "build docker image",
 	Action: buildFeatures,
 }
 
+// Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
 	pazuzu := Pazuzu{
 		registry:       "http://localhost:8080/api",
@@ -40,7 +43,7 @@ func buildFeatures(c *cli.Context) error {
 func main() {
 	app := cli.NewApp()
 	app.Name = "pazuzu"
-	app.Version = "0.1"
+	app.Version = version
 	app.Usage = "Build Docker features from pazuzu-registry"
 	app.Commands = []cli.Command{
 		buildCmd,
@@ -48,6 +51,7 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
