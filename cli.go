@@ -20,7 +20,7 @@ func buildFeatures(c *cli.Context) error {
 	pazuzu := Pazuzu{
 		registry:       "http://localhost:8080/api",
 		testScript:     "test.spec",
-		dockerEndpoint: "unix:///var/run/docker.sock",
+		dockerEndpoint: c.GlobalString("docker-endpoint"),
 	}
 
 	if len(c.Args()) == 0 {
@@ -47,6 +47,13 @@ func main() {
 	app.Usage = "Build Docker features from pazuzu-registry"
 	app.Commands = []cli.Command{
 		buildCmd,
+	}
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "docker-endpoint, e",
+			Value: "unix:///var/run/docker.sock",
+			Usage: "Set the docker endpoint",
+		},
 	}
 
 	err := app.Run(os.Args)
