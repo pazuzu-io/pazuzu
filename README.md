@@ -3,12 +3,13 @@
 
 What is Pazuzu?
 ---------------
-Pazuzu is a tool that builds Docker images from feature snippets, while 
-resolving all dependencies between them. One of the common use cases is 
-Continuous Integration environment, where jobs require specific tooling present 
-for building and testing. Pazuzu can significantly ease that process, by letting user 
-choose from a wide selection of predefined Dockerfile snippets that represent 
-those dependencies (e.g. Golang, Python, Android SDK, customized NPM installs). 
+Pazuzu is a tool that builds Docker images from feature snippets, while
+resolving all dependencies between them. One of the common use cases is
+Continuous Integration environment, where jobs require specific tooling present
+for building and testing. Pazuzu can significantly ease that process, by
+letting user choose from a wide selection of predefined Dockerfile snippets
+that represent those dependencies (e.g. Golang, Python, Android SDK, customized
+NPM installs).
 
 ### Build
 Make sure you setup Go acording to: https://golang.org/doc/install#install
