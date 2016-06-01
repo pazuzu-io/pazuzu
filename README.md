@@ -21,7 +21,24 @@ go build
 ### Usage
 
 ```
-pazuzu build [FEATURES]
+pazuzu -h
+NAME:
+   pazuzu - Build Docker features from pazuzu-registry
+
+USAGE:
+   pazuzu [global options] command [command options] [arguments...]
+
+VERSION:
+   0.1
+
+COMMANDS:
+     build	build docker image
+     verify	verify docker image against
+
+GLOBAL OPTIONS:
+   --docker-endpoint value, -e value	Set the docker endpoint (default: "unix:///var/run/docker.sock")
+   --help, -h				show help
+   --version, -v			print the version
 ```
 
 License
