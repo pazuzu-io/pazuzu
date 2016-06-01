@@ -5,9 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/fsouza/go-dockerclient"
@@ -15,23 +13,16 @@ import (
 
 // Pazuzu defines pazuzu config.
 type Pazuzu struct {
-	registry       string
+	registry       PazuzuRegistry
 	dockerfile     []byte
 	testSpec       string
 	dockerEndpoint string
 	docker         *docker.Client
 }
 
-// Feature defines a feature fetched from pazuzu-registry.
-type Feature struct {
-	Name            string
-	DockerData      string `json:"docker_data"`
-	TestInstruction string `json:"test_instruction"`
-}
-
 // Generate generates Dockfiler and test.spec file base on list of features
 func (p *Pazuzu) Generate(features []string) error {
-	fs, err := p.getFeatures(features)
+	fs, err := p.registry.GetFeatures(features)
 	if err != nil {
 		return err
 	}
@@ -125,45 +116,6 @@ func (p *Pazuzu) readTestSpec() ([]TestSpec, error) {
 	}
 
 	return specs, nil
-}
-
-// APIError defines error response from pazuzu-registry.
-type APIError struct {
-	Code            string
-	Message         string
-	DetailedMessage string
-}
-
-// get a list of features given the feature names.
-func (p *Pazuzu) getFeatures(features []string) ([]Feature, error) {
-	resp, err := http.Get(fmt.Sprintf("%s/features?name=%s", p.registry,
-		strings.Join(features, ",")))
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		var errResp APIError
-
-		dec := json.NewDecoder(resp.Body)
-		err = dec.Decode(&errResp)
-		if err != nil {
-			return nil, err
-		}
-
-		return nil, fmt.Errorf(errResp.Message)
-	}
-
-	var res []Feature
-
-	dec := json.NewDecoder(resp.Body)
-	err = dec.Decode(&res)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
 }
 
 // DockerBuild builds a docker image based on the generated Dockerfile.

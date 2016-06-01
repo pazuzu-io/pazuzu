@@ -48,7 +48,7 @@ var verifyCmd = cli.Command{
 // spec.
 func verifyImage(c *cli.Context) error {
 	pazuzu := Pazuzu{
-		registry:       "http://localhost:8080/api",
+		registry:       HttpRegistry("http://localhost:8080/api"),
 		testSpec:       c.String("test-spec"),
 		dockerEndpoint: c.GlobalString("docker-endpoint"),
 	}
@@ -64,7 +64,7 @@ func verifyImage(c *cli.Context) error {
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
 	pazuzu := Pazuzu{
-		registry:       "http://localhost:8080/api",
+		registry:       HttpRegistry("http://localhost:8080/api"),
 		testSpec:       c.String("test-spec"),
 		dockerEndpoint: c.GlobalString("docker-endpoint"),
 	}
