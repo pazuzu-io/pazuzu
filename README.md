@@ -1,5 +1,5 @@
 # pazuzu
-------------------------------------------------------------
+[![Travis BuildStatus](https://travis-ci.org/zalando/pazuzu.svg?branch=master)](https://travis-ci.org/zalando/pazuzu)
 
 What is Pazuzu?
 ---------------
