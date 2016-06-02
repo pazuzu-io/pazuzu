@@ -3,20 +3,43 @@
 
 What is Pazuzu?
 ---------------
-Pazuzu is a tool that builds Docker images from feature snippets, while 
-resolving all dependencies between them. One of the common use cases is 
-Continuous Integration environment, where jobs require specific tooling present 
-for building and testing. Pazuzu can significantly ease that process, by letting user 
-choose from a wide selection of predefined Dockerfile snippets that represent 
-those dependencies (e.g. Golang, Python, Android SDK, customized NPM installs). 
+Pazuzu is a tool that builds Docker images from feature snippets, while
+resolving all dependencies between them. One of the common use cases is
+Continuous Integration environment, where jobs require specific tooling present
+for building and testing. Pazuzu can significantly ease that process, by
+letting user choose from a wide selection of predefined Dockerfile snippets
+that represent those dependencies (e.g. Golang, Python, Android SDK, customized
+NPM installs).
 
-## How to build pazuzu executable
+### Build
+Make sure you setup Go acording to: https://golang.org/doc/install#install
+```
+go get -v
+go build
+```
+
+### Usage
 
 ```
-lein bin
-```
+pazuzu -h
+NAME:
+   pazuzu - Build Docker features from pazuzu-registry
 
-This will produce the executable `target/pazuzu`.
+USAGE:
+   pazuzu [global options] command [command options] [arguments...]
+
+VERSION:
+   0.1
+
+COMMANDS:
+     build	build docker image
+     verify	verify docker image against
+
+GLOBAL OPTIONS:
+   --docker-endpoint value, -e value	Set the docker endpoint (default: "unix:///var/run/docker.sock")
+   --help, -h				show help
+   --version, -v			print the version
+```
 
 License
 -------
@@ -41,4 +64,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
