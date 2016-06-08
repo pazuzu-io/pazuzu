@@ -34,6 +34,8 @@ VERSION:
 COMMANDS:
      build	build docker image
      verify	verify docker image against
+     search	search for features in registry
+     list	list all features in registry
 
 GLOBAL OPTIONS:
    --docker-endpoint value, -e value	Set the docker endpoint (default: "unix:///var/run/docker.sock")

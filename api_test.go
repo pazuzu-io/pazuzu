@@ -32,7 +32,7 @@ func TestGetFeatures(t *testing.T) {
 	)
 	defer ts.Close()
 
-	fs, err := getFeatures(ts.URL, []string{"python"})
+	fs, err := getFeatures(ts.URL)
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
 	}
@@ -51,7 +51,7 @@ func TestGetFeaturesError(t *testing.T) {
 	)
 	defer ts.Close()
 
-	_, err := getFeatures(ts.URL, []string{"fake-feature"})
+	_, err := getFeatures(ts.URL)
 	if err == nil {
 		t.Errorf("should fail")
 	}
