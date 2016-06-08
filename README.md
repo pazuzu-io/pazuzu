@@ -37,6 +37,7 @@ COMMANDS:
 
 GLOBAL OPTIONS:
    --docker-endpoint value, -e value	Set the docker endpoint (default: "unix:///var/run/docker.sock")
+   --registry value, -r value		Set the registry URL (default: "http://localhost:8080/api") [$PAZUZU_REGISTRY]
    --help, -h				show help
    --version, -v			print the version
 ```
