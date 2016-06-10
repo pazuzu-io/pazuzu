@@ -28,6 +28,10 @@ var buildCmd = cli.Command{
 			Name:  "verify",
 			Usage: "Run test spec as part of the build",
 		},
+		cli.BoolFlag{
+			Name:  "dry-run",
+			Usage: "Show resulting Dockerfile without building image",
+		},
 	},
 }
 
@@ -46,6 +50,11 @@ func buildFeatures(c *cli.Context) error {
 	err := pazuzu.Generate(c.Args())
 	if err != nil {
 		return err
+	}
+
+	if c.Bool("dry-run") {
+		fmt.Printf("%s\n", pazuzu.dockerfile)
+		return nil
 	}
 
 	err = pazuzu.DockerBuild(c.String("image-name"))
