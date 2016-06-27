@@ -21,7 +21,10 @@ type PazuzuRegistry interface {
 }
 
 // HttpRegistry is a wrapper for the Pazuzu registry API.
-type HttpRegistry string
+type HttpRegistry struct {
+	URL           string
+	Authenticator Authenticator
+}
 
 // APIError defines error response from pazuzu-registry.
 type APIError struct {
@@ -32,47 +35,74 @@ type APIError struct {
 
 // GetFeatures gets features from the pazuzu-registry.
 func (r HttpRegistry) GetFeatures(features []string) ([]Feature, error) {
-	return getFeatures(fmt.Sprintf("%s/features?name=%s", r,
+	return r.getFeatures(fmt.Sprintf("%s/features?name=%s", r.URL,
 		strings.Join(features, ",")))
 }
 
 // SearchFeatures searches for features based on name.
 func (r HttpRegistry) SearchFeatures(query string) ([]Feature, error) {
-	return getFeatures(fmt.Sprintf("%s/features/search/%s", r, query))
+	return r.getFeatures(fmt.Sprintf("%s/features/search/%s", r.URL, query))
 }
 
 // ListFeatures lists all features from registry.
 func (r HttpRegistry) ListFeatures() ([]Feature, error) {
-	return getFeatures(fmt.Sprintf("%s/features", r))
+	return r.getFeatures(fmt.Sprintf("%s/features", r.URL))
 }
 
 // Makes HTTP request to pazuzu registry and decodes the json response.
-func getFeatures(url string) ([]Feature, error) {
-	resp, err := http.Get(url)
+func (r HttpRegistry) getFeatures(url string) ([]Feature, error) {
+
+	auth, err := r.authenticate()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := makeRequest(url, auth)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		var errResp APIError
-
-		dec := json.NewDecoder(resp.Body)
-		err = dec.Decode(&errResp)
-		if err != nil {
-			return nil, err
-		}
-
-		return nil, fmt.Errorf(errResp.Message)
+		return nil, decodeError(resp)
 	}
+	return decodeFeatures(resp)
+}
 
-	var res []Feature
+func (r HttpRegistry) authenticate() (Authentication, error) {
+	if r.Authenticator != nil {
+		return r.Authenticator.Authenticate()
+	}
+	return nil, nil
+}
 
-	dec := json.NewDecoder(resp.Body)
-	err = dec.Decode(&res)
+func makeRequest(url string, auth Authentication) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
+	if auth != nil {
+		auth.Enrich(req)
+	}
+	return client.Do(req)
+}
 
+func decodeError(resp *http.Response) error {
+	var errResp APIError
+	dec := json.NewDecoder(resp.Body)
+	err := dec.Decode(&errResp)
+	if err != nil {
+		return err
+	}
+	return fmt.Errorf(errResp.Message)
+}
+
+func decodeFeatures(resp *http.Response) ([]Feature, error) {
+	var res []Feature
+	dec := json.NewDecoder(resp.Body)
+	err := dec.Decode(&res)
+	if err != nil {
+		return nil, err
+	}
 	return res, nil
 }
