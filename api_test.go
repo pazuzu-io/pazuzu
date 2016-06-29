@@ -32,7 +32,8 @@ func TestGetFeatures(t *testing.T) {
 	)
 	defer ts.Close()
 
-	fs, err := getFeatures(ts.URL)
+	registry := HttpRegistry{URL: ts.URL}
+	fs, err := registry.getFeatures(ts.URL)
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
 	}
@@ -51,7 +52,8 @@ func TestGetFeaturesError(t *testing.T) {
 	)
 	defer ts.Close()
 
-	_, err := getFeatures(ts.URL)
+	registry := HttpRegistry{URL: ts.URL}
+	_, err := registry.getFeatures(ts.URL)
 	if err == nil {
 		t.Errorf("should fail")
 	}
