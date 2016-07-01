@@ -33,16 +33,18 @@ VERSION:
    0.1
 
 COMMANDS:
-     build	build docker image
-     verify	verify docker image against
-     search	search for features in registry
-     list	list all features in registry
+     build   build docker image
+     verify  verify docker image against
+     search  search for features in registry
+     list    list all features in registry
 
 GLOBAL OPTIONS:
-   --docker-endpoint value, -e value	Set the docker endpoint (default: "unix:///var/run/docker.sock")
-   --registry value, -r value		Set the registry URL (default: "http://localhost:8080/api") [$PAZUZU_REGISTRY]
-   --help, -h				show help
-   --version, -v			print the version
+   --docker-endpoint value, -e value     Set the docker endpoint (default: "unix:///var/run/docker.sock")
+   --registry value, -r value            Set the registry URL (default: "http://localhost:8080/api") [$PAZUZU_REGISTRY]
+   --tokeninfo-endpoint value, -t value  Sets the OAuth2 token info URL (default: "https://token.auth.zalando.com/access_token")
+   --user value, -u value                Sets the OAuth2 user name
+   --help, -h                            show help
+   --version, -v                         print the version
 ```
 
 License

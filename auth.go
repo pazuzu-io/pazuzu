@@ -32,14 +32,12 @@ type Authenticator interface {
 
 // BearerTokenAuthentication the OAuth2 Bearer token authentication
 type bearerTokenAuthentication struct {
-	token *string
+	token string
 }
 
 // Enrich allows to add the authentication details to the request
 func (auth bearerTokenAuthentication) Enrich(req *http.Request) {
-	if auth.token != nil {
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", auth.token))
-	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", auth.token))
 }
 
 // OAuth2Authenticator hides all of the details of authenticating against authorization server
@@ -56,14 +54,12 @@ func NewOAuth2Authenticator(url, user, password string) Authenticator {
 
 // Authenticate against the configured OAuth2 authorization server
 func (auth oauth2Authenticator) Authenticate() (Authentication, error) {
-	// TODO implement credentials
-
 	req := tokenRequest{user: auth.user, password: string(auth.password), scopes: []string{"uid"}}
 	token, err := auth.requestToken(req)
 	if err != nil {
 		return nil, err
 	}
-	return &bearerTokenAuthentication{token: token}, nil
+	return &bearerTokenAuthentication{token: *token}, nil
 }
 
 func (auth oauth2Authenticator) requestToken(tokReq tokenRequest) (*string, error) {
