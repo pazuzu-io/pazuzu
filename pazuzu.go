@@ -21,13 +21,13 @@ type Pazuzu struct {
 }
 
 // Generate generates Dockfiler and test.spec file base on list of features
-func (p *Pazuzu) Generate(features []string) error {
+func (p *Pazuzu) Generate(baseimage string, features []string) error {
 	fs, err := p.registry.GetFeatures(features)
 	if err != nil {
 		return err
 	}
 
-	err = p.generateDockerfile(fs)
+	err = p.generateDockerfile(baseimage, fs)
 	if err != nil {
 		return err
 	}
@@ -41,10 +41,10 @@ func (p *Pazuzu) Generate(features []string) error {
 }
 
 // generate in-memory Dockerfile from list of features.
-func (p *Pazuzu) generateDockerfile(features []Feature) error {
+func (p *Pazuzu) generateDockerfile(baseimage string, features []Feature) error {
 	var buf bytes.Buffer
 
-	_, err := buf.WriteString("FROM ubuntu:latest\n")
+	_, err := buf.WriteString(fmt.Sprintf("FROM %s\n", baseimage))
 	if err != nil {
 		return err
 	}
