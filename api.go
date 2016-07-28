@@ -28,9 +28,10 @@ type HttpRegistry struct {
 
 // APIError defines error response from pazuzu-registry.
 type APIError struct {
-	Code            string
-	Message         string
-	DetailedMessage string `json:"detailed_message"`
+	Type   string `json:"type"`
+	Title  string `json:"title"`
+	Status int    `json:"status"`
+	Detail string `json:"detail"`
 }
 
 // GetFeatures gets features from the pazuzu-registry.
@@ -94,7 +95,7 @@ func decodeError(resp *http.Response) error {
 	if err != nil {
 		return err
 	}
-	return fmt.Errorf(errResp.Message)
+	return fmt.Errorf(errResp.Detail)
 }
 
 func decodeFeatures(resp *http.Response) ([]Feature, error) {
