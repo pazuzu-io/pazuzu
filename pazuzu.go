@@ -5,10 +5,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/fsouza/go-dockerclient"
+	"io"
 	"os"
 	"time"
-
-	"github.com/fsouza/go-dockerclient"
+	"log"
 )
 
 // Pazuzu defines pazuzu config.
@@ -18,11 +19,17 @@ type Pazuzu struct {
 	testSpec       string
 	dockerEndpoint string
 	docker         *docker.Client
+	files          map[string]string
 }
 
 // Generate generates Dockfiler and test.spec file base on list of features
 func (p *Pazuzu) Generate(features []string) error {
 	fs, err := p.registry.GetFeatures(features)
+	if err != nil {
+		return err
+	}
+
+	err = p.fetchFiles(fs)
 	if err != nil {
 		return err
 	}
@@ -40,33 +47,61 @@ func (p *Pazuzu) Generate(features []string) error {
 	return nil
 }
 
+// Delete downloaded files
+func (p *Pazuzu) Cleanup() {
+	for _, filePath := range p.files {
+		err := os.Remove(filePath)
+		if err != nil {
+			log.Printf("Can't remove file '%s': %s", filePath, err)
+		}
+	}
+}
+
+func (p *Pazuzu) fetchFiles(features []Feature) error {
+	files := make(map[string]string)
+	for _, feature := range features {
+		featureFiles, err := p.registry.FetchFiles(feature)
+		if err != nil {
+			return err
+		}
+
+		for origFName, tmpFName := range featureFiles {
+			files[feature.Name+"/"+origFName] = tmpFName
+		}
+	}
+
+	p.files = files
+
+	return nil
+}
+
 // generate in-memory Dockerfile from list of features.
 func (p *Pazuzu) generateDockerfile(features []Feature) error {
-	var buf bytes.Buffer
+	writer := NewDockerfileWriter()
 
-	_, err := buf.WriteString("FROM ubuntu:latest\n")
+	err := writer.AppendRaw("FROM ubuntu:latest\n")
 	if err != nil {
 		return err
 	}
 
 	for _, feature := range features {
-		_, err = buf.WriteString(fmt.Sprintf("# %s\n", feature.Name))
+		err = writer.AppendRaw(fmt.Sprintf("# %s\n", feature.Name))
 		if err != nil {
 			return err
 		}
 
-		_, err = buf.WriteString(fmt.Sprintf("%s\n", feature.DockerData))
+		err = writer.AppendFeature(feature)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = buf.WriteString("CMD /bin/bash\n")
+	err = writer.AppendRaw("CMD /bin/bash\n")
 	if err != nil {
 		return err
 	}
 
-	p.dockerfile = buf.Bytes()
+	p.dockerfile = writer.Bytes()
 
 	return nil
 }
@@ -118,6 +153,45 @@ func (p *Pazuzu) readTestSpec() ([]TestSpec, error) {
 	return specs, nil
 }
 
+func (p *Pazuzu) appendFeaturesFiles(tr *tar.Writer) error {
+	for fileName, filePath := range p.files {
+		tmpFile, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+
+		stat, err := tmpFile.Stat()
+		if err != nil {
+			return err
+		}
+
+		now := time.Now()
+
+		err = tr.WriteHeader(&tar.Header{
+			Name:       fileName,
+			Size:       stat.Size(),
+			ModTime:    now,
+			AccessTime: now,
+			ChangeTime: now,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(tr, tmpFile)
+		if err != nil {
+			return err
+		}
+
+		err = tmpFile.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // DockerBuild builds a docker image based on the generated Dockerfile.
 func (p *Pazuzu) DockerBuild(name string) error {
 	client, err := docker.NewClient(p.dockerEndpoint)
@@ -128,15 +202,31 @@ func (p *Pazuzu) DockerBuild(name string) error {
 	t := time.Now()
 	inputBuf := bytes.NewBuffer(nil)
 	tr := tar.NewWriter(inputBuf)
-	tr.WriteHeader(&tar.Header{
+	err = tr.WriteHeader(&tar.Header{
 		Name:       "Dockerfile",
 		Size:       int64(len(p.dockerfile)),
 		ModTime:    t,
 		AccessTime: t,
 		ChangeTime: t,
 	})
-	tr.Write(p.dockerfile)
-	tr.Close()
+	if err != nil {
+		return err
+	}
+
+	_, err = tr.Write(p.dockerfile)
+	if err != nil {
+		return err
+	}
+
+	err = p.appendFeaturesFiles(tr)
+	if err != nil {
+		return err
+	}
+
+	err = tr.Close()
+	if err != nil {
+		return err
+	}
 
 	opts := docker.BuildImageOptions{
 		Name:         name,
