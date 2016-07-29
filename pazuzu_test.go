@@ -14,13 +14,19 @@ func (r TestRegistry) GetFeatures(features []string) ([]Feature, error) {
 	}, nil
 }
 
+func (r TestRegistry) FetchFiles(features Feature) (map[string]string, error) {
+	return make(map[string]string), nil
+}
+
 // Test generating a Dockerfile from a list of features.
 func TestGenerate(t *testing.T) {
 	pazuzu := Pazuzu{
 		registry: TestRegistry{},
 		testSpec: "test_spec.json",
 	}
+
 	err := pazuzu.Generate("ubuntu", []string{"python"})
+	defer pazuzu.Cleanup()
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
 	}

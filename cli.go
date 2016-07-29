@@ -59,6 +59,7 @@ func buildFeatures(c *cli.Context) error {
 	}
 
 	err := pazuzu.Generate(c.String("base-image"),c.Args())
+	defer pazuzu.Cleanup()
 	if err != nil {
 		return err
 	}
