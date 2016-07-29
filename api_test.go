@@ -17,9 +17,10 @@ const (
 }]`
 	featureRespError = `
 {
-  "code": "feature_not_found",
-  "message": "Feature was not found",
-  "detailed_message": null
+   "type" : "http://pazuzu.io/error/feature_not_found",
+   "title" : "Feature not found",
+   "status" : 400,
+   "detail": "Feature was not found"
 }`
 )
 

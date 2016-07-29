@@ -21,6 +21,11 @@ var buildCmd = cli.Command{
 			Value: "pazuzu-img",
 			Usage: "Set docker image name",
 		},
+                cli.StringFlag{
+                        Name:  "base-image, b",
+                        Value: "ubuntu",
+                        Usage: "Set the docker base image",
+                },
 		cli.StringFlag{
 			Name:  "test-spec, t",
 			Value: "test_spec.json",
@@ -53,7 +58,7 @@ func buildFeatures(c *cli.Context) error {
 		return fmt.Errorf("no features specified")
 	}
 
-	err := pazuzu.Generate(c.Args())
+	err := pazuzu.Generate(c.String("base-image"),c.Args())
 	defer pazuzu.Cleanup()
 	if err != nil {
 		return err

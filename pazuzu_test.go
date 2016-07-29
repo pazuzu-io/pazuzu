@@ -24,7 +24,8 @@ func TestGenerate(t *testing.T) {
 		registry: TestRegistry{},
 		testSpec: "test_spec.json",
 	}
-	err := pazuzu.Generate([]string{"python"})
+
+	err := pazuzu.Generate("ubuntu", []string{"python"})
 	defer pazuzu.Cleanup()
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
