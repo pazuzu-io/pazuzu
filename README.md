@@ -47,6 +47,24 @@ GLOBAL OPTIONS:
    --version, -v                         print the version
 ```
 
+```
+pazuzu build -h
+
+NAME:
+   pazuzu build - build docker image
+
+USAGE:
+   pazuzu build [command options] [arguments...]
+
+OPTIONS:
+   --image-name value, -n value  Set docker image name (default: "pazuzu-img")
+   --base-image value, -b value  Set the docker base image (default: "ubuntu")
+   --test-spec value, -t value   Set path to test spec file (default: "test_spec.json")
+   --verify                      Run test spec as part of the build
+   --dry-run                     Show resulting Dockerfile without building image
+   --authenticate                Authenticates the user against the configured OAuth2 provider
+```
+
 License
 -------
 
