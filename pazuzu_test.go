@@ -20,7 +20,7 @@ func TestGenerate(t *testing.T) {
 		registry: TestRegistry{},
 		testSpec: "test_spec.json",
 	}
-	err := pazuzu.Generate([]string{"python"})
+	err := pazuzu.Generate("ubuntu", []string{"python"})
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
 	}
