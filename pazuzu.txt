@@ -1,0 +1,135 @@
+.TH PAZUZU 1
+.SH NAME
+pazuzu \- Build Docker features from pazuzu-registry
+
+.SH SYNOPSIS
+.LP
+.nf
+\fBpazuzu\fR [\fB-hv\fR] [\fB-e\fR value] [\fB-r\fR value] [\fB-t\fR value] [\fB-u\fR value]
+.fi
+
+.LP
+.nf
+\fBpazuzu\fR \fBbuild\fR [\fB-n\fR value] [\fB-b\fR value] [\fB-t\fR value] [\fB--verify\fR] [\fB--dry-run\fR] [\fB--authenticate\fR]
+.fi
+
+.LP
+.nf
+\fBpazuzu\fR \fBverify
+.fi
+
+.LP
+.nf
+\fBpazuzu\fR \fBsearch\fR [\fB-q\fR]
+.fi
+
+.LP
+.nf
+\fBpazuzu\fR \fBlist\fR [\fB-q\fR]
+.fi
+
+.SH DESCRIPTION
+.LP
+\fBPazuzu\fR is a tool that builds Docker images from feature snippets,
+while resolving all dependencies between them. One of the common
+use cases is Continuous Integration environment, where jobs require
+specific tooling present for building and testing. Pazuzu can
+significantly ease that process, by letting user choose from a wide
+selection of predefined Dockerfile snippets that represent those
+dependencies (e.g. Golang, Python, Android SDK, customized NPM installs).
+
+.SH GLOBAL OPTIONS
+.TP
+\fB-e, --docker-endpoint\fR value
+Set the docker endpoint (default: "unix:///var/run/docker.sock")
+.TP
+\fB-r, --registry\fR value
+Set the registry URL (default: "http://localhost:8080/api")
+.fi
+If the \fBPAZUZU_REGISTRY\fR environment variable is set it will be used instead of a given
+command line option.
+.TP
+\fB-t, --tokeninfo-endpoint\fR value
+Sets the OAuth2 token info URL (default: "https://token.auth.zalando.com/access_token")
+.TP
+\fB-u, --user value
+Sets the OAuth2 user name
+.TP
+\fB-h, --help
+show help
+.TP
+\fB-v, --version
+print the version
+
+.SH SUBCOMMANDS
+.SS \fBpazuzu\fR \fBbuild\fR [\fB-n\fR value] [\fB-b\fR value] [\fB-t\fR value] [\fB--verify\fR] [\fB--dry-run\fR] [\fB--authenticate\fR]
+build docker image
+.TP
+\fB-n, --image-name\fR value
+Set docker image name (default: "pazuzu-img")
+.TP
+\fB-b, --base-image\fR  value
+Set the docker base image (default: "ubuntu")
+.TP
+\fB-t, --test-spec\fR value
+Set path to test spec file (default: "test_spec.json")
+.TP
+\fB--verify
+Run test spec as part of the build
+.TP
+\fB--dry-run
+Show resulting Dockerfile without building image
+.TP
+\fB--authenticate
+Authenticates the user against the configured OAuth2 provider
+.SS \fBpazuzu\fR \fBverify
+verify docker image against
+.SS \fBpazuzu\fR \fBsearch\fR [\fB-q\fR]
+Search for features in registry
+.TP
+\fB-q
+only print feature names
+.SS \fBpazuzu\fR \fBlist\fR [\fB-q\fR]
+list all features in registry
+.TP
+\fB-q
+only print feature names
+
+.SH ENVIRONMENT
+This section describes the environment variables used by the pazuzu cli
+.LP
+.nf
+\fBPAZUZU_REGISTRY\fR
+.in +2
+Sets the registry URL
+.in -2
+.fi
+
+.SH BUGS
+Since this is not a final release expect a lot of bugs!
+.fi
+More information at https://github.com/zalando/pazuzu/issues
+
+.SH NOTES
+.LP
+The source code of pazuzu can be found at https://github.com/zalando/pazuzu
+.fi
+Copyright © 2016 Zalando SE, https://tech.zalando.com
+
+
+.SH SEE ALSO
+docker(1)
+
+.SH HISTORY
+This manual page was initially written in 2016/08
+.fi
+The last update was in 2016/08
+
+.SH AUTHORS
+Michael Hupp, <michael.hupp@zalando.de>
+
+.\ SH EXIT STATUS
+.\ SH NOTES
+.\ SH FILES
+.\ SH BUGS
+.\ SH EXAMPLES
