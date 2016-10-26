@@ -35,7 +35,7 @@ type StorageReader interface {
 
 // SearchParams define parameters for searching for the Features
 type SearchParams struct {
-	Name   regexp.Regexp
+	Name   *regexp.Regexp
 	Limit  int64
 	Offset int64
 }
