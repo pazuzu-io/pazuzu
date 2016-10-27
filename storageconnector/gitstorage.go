@@ -156,7 +156,7 @@ func getMeta(commit *git.Commit, name string) (FeatureMeta, error) {
 	}, nil
 }
 
-func (storage *gitStorage) Get(name string) (Feature, error) {
+func (storage *gitStorage) GetFeature(name string) (Feature, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
 		return Feature{}, err

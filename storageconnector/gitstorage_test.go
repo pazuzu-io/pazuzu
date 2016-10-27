@@ -134,7 +134,7 @@ func TestGitStorage_GetMeta(t *testing.T) {
 
 func TestGitStorage_Get(t *testing.T) {
 	t.Run("ExistingFeatureWithoutSnippet", func(t *testing.T) {
-		feature, err := storage.Get("A-java-lein")
+		feature, err := storage.GetFeature("A-java-lein")
 		if err != nil {
 			t.Error(err)
 		}
@@ -149,7 +149,7 @@ func TestGitStorage_Get(t *testing.T) {
 	})
 
 	t.Run("ExistingFeatureWithSnippet", func(t *testing.T) {
-		feature, err := storage.Get("java")
+		feature, err := storage.GetFeature("java")
 		if err != nil {
 			t.Error(err)
 		}
@@ -164,7 +164,7 @@ func TestGitStorage_Get(t *testing.T) {
 	})
 
 	t.Run("NonExistingFeature", func(t *testing.T) {
-		_, err := storage.Get("reallynotafeature")
+		_, err := storage.GetFeature("reallynotafeature")
 		if err == nil {
 			t.Error("Error expected when getting non existing feature")
 		}
