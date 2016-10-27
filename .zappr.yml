@@ -8,5 +8,6 @@ approvals:
     # a public zalando org member
     orgs:
       - zalando
+      - zalando-incubator
     # a collaborator of the repo
     collaborators: true

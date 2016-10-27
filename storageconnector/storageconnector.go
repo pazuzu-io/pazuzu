@@ -16,7 +16,7 @@ type StorageReader interface {
 
 	// Get returns a full feature data from a storage. This operation is a way slower than GetMeta, so for
 	// quick lookups GetMeta is better to be used.
-	Get(name string) (Feature, error)
+	GetFeature(name string) (Feature, error)
 
 	// Resolve resolves dependencies for a given Feature and returns an **ordered** list of Features.
 	// Ordering is critical here, it defines a way how Features should be executed.
@@ -35,7 +35,7 @@ type StorageReader interface {
 
 // SearchParams define parameters for searching for the Features
 type SearchParams struct {
-	Name   regexp.Regexp
+	Name   *regexp.Regexp
 	Limit  int64
 	Offset int64
 }
