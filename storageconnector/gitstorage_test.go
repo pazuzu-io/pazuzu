@@ -1,11 +1,10 @@
 package storageconnector
 
 import (
-	"testing"
-	"regexp"
 	"os"
+	"regexp"
+	"testing"
 )
-
 
 const (
 	// TODO setup and use a dedicated (local?) test repository
@@ -172,16 +171,6 @@ func TestGitStorage_Get(t *testing.T) {
 }
 
 func TestGitStorage_Resolve(t *testing.T) {
-	// helper to get index of a feature
-	idx := func(features []Feature, name string) int {
-		for i, f := range features {
-			if f.Meta.Name == name {
-				return i
-			}
-		}
-		return -1
-	}
-
 	t.Run("FeatureWithoutDependencies", func(t *testing.T) {
 		expected := 1
 
@@ -192,6 +181,9 @@ func TestGitStorage_Resolve(t *testing.T) {
 
 		if len(features) != expected {
 			t.Errorf("Feature count should be %d but was %d", expected, len(features))
+		}
+		if _, ok := features["java"]; !ok {
+			t.Error("Missing feature 'java'")
 		}
 	})
 
@@ -207,13 +199,14 @@ func TestGitStorage_Resolve(t *testing.T) {
 			t.Errorf("Feature count should be %d but was %d", expected, len(features))
 		}
 
-		idxA := idx(features, "java")
-		idxB := idx(features, "A-java-lein")
-		if idxA < 0 || idxB < 0 {
-			t.Error("Feature not found")
+		if _, ok := features["A-java-lein"]; !ok {
+			t.Error("Missing feature 'A-java-lein")
 		}
-		if idxA > idxB {
-			t.Error("Features sorted incorrectly")
+		if _, ok := features["leiningen"]; !ok {
+			t.Error("Missing feature 'leiningen")
+		}
+		if _, ok := features["java"]; !ok {
+			t.Error("Missing feature 'java")
 		}
 	})
 }
