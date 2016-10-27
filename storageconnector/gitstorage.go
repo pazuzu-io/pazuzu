@@ -100,8 +100,11 @@ func (storage *gitStorage) SearchMeta(params SearchParams) ([]FeatureMeta, error
 	//               the following Sort call could be omitted.
 	sort.Sort(sort.StringSlice(matchedNamesList))
 	matchedFeatures := []FeatureMeta{}
-	for i := params.Offset; i < params.Offset + params.Limit && i < int64(len(matchedNamesList)); i++ {
-		meta, _ := getMeta(commit, matchedNamesList[i])
+	matchedNamesList = matchedNamesList[
+		minInt(params.Offset, int64(len(matchedNamesList) - 1)):
+		minInt(params.Offset + params.Limit, int64(len(matchedNamesList)))]
+	for _, name := range matchedNamesList{
+		meta, _ := getMeta(commit, name)
 		matchedFeatures = append(matchedFeatures, meta)
 	}
 
@@ -267,4 +270,12 @@ func (storage *gitStorage) latestCommit() (*git.Commit, error) {
 	}
 
 	return commit, nil
+}
+
+// minInt returns the lower of two integers
+func minInt(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
 }
