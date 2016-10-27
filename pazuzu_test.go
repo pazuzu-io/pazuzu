@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"strings"
+	"bytes"
+	)
 
 type TestRegistry struct{}
 
@@ -29,6 +33,34 @@ func TestGenerate(t *testing.T) {
 	defer pazuzu.Cleanup()
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
+	}
+}
+
+func TestRead(t *testing.T) {
+	str := `Base: ubuntuCommon\r\nFeatures:\r\n  - Java8\r\n  - anotherFeature\r\n  - oneMoreFeature`
+
+	reader := strings.NewReader(str)
+
+	_, err := Read(reader)
+
+	if(err != nil){
+		t.Errorf("should not fail: %s", err);
+	}
+
+}
+
+func TestWrite(t *testing.T){
+	pazuzuFile := PazuzuFile{
+		Base: "ubuntuCommon",
+		Features: []string{"java8", "anotherFeature", "oneMoreFeature"},
+	}
+
+	b := []byte{}
+	ioWriter := bytes.NewBuffer(b)
+	err := Write(ioWriter, pazuzuFile)
+
+	if(err != nil){
+		t.Errorf("should not fail: %s", err);
 	}
 }
 
