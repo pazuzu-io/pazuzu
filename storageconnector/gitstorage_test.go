@@ -12,6 +12,10 @@ const (
 )
 
 var (
+<<<<<<< HEAD
+=======
+	testRepository = filepath.Join("fixtures", "git")
+>>>>>>> 4ec77a1... Move fixtures for storageconnector
 	storage StorageReader
 )
 
