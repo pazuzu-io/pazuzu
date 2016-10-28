@@ -21,6 +21,7 @@ const (
 // yamlFeatureMeta is used for unmarshalling of meta.yml files.
 type yamlFeatureMeta struct {
 	Description string
+	Author string
 	Dependencies []string
 }
 
@@ -150,9 +151,9 @@ func getMeta(commit *git.Commit, name string) (FeatureMeta, error) {
 	return FeatureMeta{
 		Name: name,
 		Dependencies: meta.Dependencies,
+		Description: meta.Description,
+		Author: meta.Author,
 		UpdatedAt: commit.Committer.When,
-		// FIX: CreatedAt is missing
-		// FIX: Description from meta.yml is ignored
 	}, nil
 }
 

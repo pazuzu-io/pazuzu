@@ -44,8 +44,8 @@ type SearchParams struct {
 // This piece of data better to be indexed by a storage.
 type FeatureMeta struct {
 	Name          string
+	Description   string
 	Author        string
-	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	Dependencies []string
 }
