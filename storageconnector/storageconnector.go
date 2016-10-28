@@ -7,8 +7,8 @@ import (
 
 // StorageReader defines an interface to get Features from data sources
 type StorageReader interface {
-	// SearchMeta returns an arbitrary ordered list of FeatureMeta records using given SearchParams
-	SearchMeta(SearchParams) ([]FeatureMeta, error)
+	// SearchMeta returns an arbitrary ordered list of FeatureMeta records using given expression
+	SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error)
 
 	// GetMeta returns a single FeatureMeta by given Name. Meta is a small piece of data,
 	// so it should be indexed by a storage and accessed rather quickly.
@@ -26,13 +26,6 @@ type StorageReader interface {
 	//
 	// If a feature can't be found or a dependency can't be resolved an error is returned.
 	Resolve(names ...string) (map[string]Feature, error)
-}
-
-// SearchParams define parameters for searching for the Features
-type SearchParams struct {
-	Name   *regexp.Regexp
-	Limit  int64
-	Offset int64
 }
 
 // FeatureMeta provides short information about the Feature.
