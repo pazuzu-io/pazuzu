@@ -67,7 +67,7 @@ Execute `docker build` command to actually create image
 
 ---
 ## Installation and Configuration
-All set configuration will be stored ` ~/.pazuzu_conf`
+All set configuration will be stored ` ~/.pazuzu/config`
 
 -  Setup snippets provider:
 
@@ -81,7 +81,37 @@ All set configuration will be stored ` ~/.pazuzu_conf`
   $ pazuzu config set base-image ubuntu:16.04
   ```
   
+## Helpers
 
+- Switch on verbose mode using `-v/--verbose`:
+    ```
+	$ pazuzu -v compose node npm
+	```
+- Getting help message:
+	```
+	$ pazuzu help
+	NAME:
+	   pazuzu - Build Docker features from pazuzu-registry
+	
+	USAGE:
+	   pazuzu [global options] command [command options] [arguments...]
+	
+	VERSION:
+	   0.1
+	
+	COMMANDS:
+	     search   search for features in registry
+	     compose  Compose Pazuzufile out of the selected features
+	     build    build Dockerfile out of Pazuzufile
+	     config   Configure pazuzu
+	     help, h  Shows a list of commands or help for one command
+	
+	GLOBAL OPTIONS:
+	   --verbose, -v  Verbose output
+	   --help, -h     show help
+	   --version      Print version
+	
+	```
 
 ---
 License
