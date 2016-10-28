@@ -4,3 +4,6 @@ test_spec.json
 # IntelliJ Idea project files
 .idea
 *.iml
+
+# vscode files
+.vscode
