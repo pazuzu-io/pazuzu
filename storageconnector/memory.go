@@ -1,10 +1,9 @@
 package storageconnector
 
 import (
-	"sort"
 	"fmt"
+	"sort"
 )
-
 
 // Memory is a simple in-memory storage of features
 // usable for writing tests
@@ -28,8 +27,12 @@ func NewMemory(features []Feature) *Memory {
 }
 
 func (m *Memory) SearchMeta(params SearchParams) ([]FeatureMeta, error) {
+	if params.Limit == 0 {
+		params.Limit = defaultSearchParamsLimit
+	}
+	// TODO: add processing of negative params.Limit (in order to get ALL Metas maybe?)
 	limit := int64(len(m.featureNames))
-	if limit > params.Offset + params.Limit {
+	if limit > params.Offset+params.Limit {
 		limit = params.Offset + params.Limit
 	}
 	// TODO: optimize memory allocation by allocating slice size of `limit - params.Offset`

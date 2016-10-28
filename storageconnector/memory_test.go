@@ -27,7 +27,7 @@ func TestMemoryGet(t *testing.T) {
 
 	t.Run("Run search and find 1 Feature", func(t *testing.T) {
 		result, err := storage.SearchMeta(SearchParams{
-			Name: regexp.MustCompile("FeatureA*"),
+			Name: regexp.MustCompile("FeatureA.*"),
 		})
 
 		assert.Nil(t, err)
@@ -67,15 +67,13 @@ func TestMemoryGet(t *testing.T) {
 		result, err := storage.GetFeature("FeatureA")
 
 		assert.Nil(t, err)
-		assert.Equal(t, []Feature{
-			{
-				Meta: FeatureMeta{
-					Name:         "FeatureA",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureB", "FeatureC"},
-				},
-				Snippet: "",
+		assert.Equal(t, Feature{
+			Meta: FeatureMeta{
+				Name:         "FeatureA",
+				Author:       "SomeAuthor",
+				Dependencies: []string{"FeatureB", "FeatureC"},
 			},
+			Snippet: "",
 		}, result)
 	})
 
@@ -191,14 +189,6 @@ func TestMemoryResolve(t *testing.T) {
 				},
 				Snippet: "",
 			},
-			"FeatureC": {
-				Meta: FeatureMeta{
-					Name:         "FeatureC",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureD"},
-				},
-				Snippet: "",
-			},
 			"FeatureD": {
 				Meta: FeatureMeta{
 					Name:   "FeatureD",
@@ -213,7 +203,7 @@ func TestMemoryResolve(t *testing.T) {
 		assert.Equal(t, expected, result)
 	})
 
-	t.Run("Resolve features with the same dependencies should result in duplicates", func(t *testing.T) {
+	t.Run("Resolve features with the same dependencies should NOT result in duplicates", func(t *testing.T) {
 		expected := map[string]Feature{
 
 			"FeatureC": {
@@ -233,22 +223,15 @@ func TestMemoryResolve(t *testing.T) {
 			},
 			"FeatureE": {
 				Meta: FeatureMeta{
-					Name:         "FeatureC",
+					Name:         "FeatureE",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureD"},
 				},
 				Snippet: "",
 			},
-			"FeatureF": {
-				Meta: FeatureMeta{
-					Name:   "FeatureD",
-					Author: "SomeAuthor",
-				},
-				Snippet: "",
-			},
 		}
 
-		result, err := storage.Resolve("FeatureB", "FeatureD")
+		result, err := storage.Resolve("FeatureC", "FeatureE")
 		assert.Nil(t, err)
 		assert.Equal(t, expected, result)
 	})
@@ -257,16 +240,17 @@ func TestMemoryResolve(t *testing.T) {
 		expected := map[string]Feature{
 			"FeatureF": {
 				Meta: FeatureMeta{
-					Name:         "FeatureC",
+					Name:         "FeatureF",
 					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureD"},
+					Dependencies: []string{"FeatureG"},
 				},
 				Snippet: "",
 			},
 			"FeatureG": {
 				Meta: FeatureMeta{
-					Name:   "FeatureD",
-					Author: "SomeAuthor",
+					Name:         "FeatureG",
+					Author:       "SomeAuthor",
+					Dependencies: []string{"FeatureF"},
 				},
 				Snippet: "",
 			},
