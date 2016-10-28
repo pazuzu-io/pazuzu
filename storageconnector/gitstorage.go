@@ -1,33 +1,34 @@
 package storageconnector
 
 import (
-	"strings"
+	"io/ioutil"
 	"path"
 	"sort"
-	"gopkg.in/yaml.v2"
+	"strings"
+
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/core"
-	"io/ioutil"
-	"fmt"
+	"gopkg.in/yaml.v2"
 )
 
 const (
-	featureDir = "features"		// name of the directory where features are located.
-	featureFile = "meta.yml"	// name of the file containing all metadata for a feature.
-	featureSnippet = "Dockerfile"   // the file containing the actual docker snippet.
+	featureDir               = "features"   // name of the directory where features are located.
+	featureFile              = "meta.yml"   // name of the file containing all metadata for a feature.
+	featureSnippet           = "Dockerfile" // the file containing the actual docker snippet.
 	defaultSearchParamsLimit = 100
 )
 
 // yamlFeatureMeta is used for unmarshalling of meta.yml files.
 type yamlFeatureMeta struct {
-	Description string
+	Description  string
+	Author       string
 	Dependencies []string
 }
 
 // gitStorage is an implementation of StorageReader based on
 // a git repository as storage back-end.
 type gitStorage struct {
-	repo 	*git.Repository
+	repo *git.Repository
 }
 
 // NewStorageReader returns a StorageReader which uses a public git repository
@@ -41,11 +42,11 @@ func NewStorageReader(url string) (StorageReader, error) {
 	// OPTIMIZATION: can be an fs repository which is cached and only pulled when needed
 	repo := git.NewMemoryRepository()
 
-	err  := repo.Clone(&git.CloneOptions{
-		URL: url,
+	err := repo.Clone(&git.CloneOptions{
+		URL:           url,
 		ReferenceName: core.HEAD,
-		SingleBranch: true,
-		Depth: 1,
+		SingleBranch:  true,
+		Depth:         1,
 	})
 	if err != nil {
 		return nil, err
@@ -100,10 +101,8 @@ func (storage *gitStorage) SearchMeta(params SearchParams) ([]FeatureMeta, error
 	//               the following Sort call could be omitted.
 	sort.Sort(sort.StringSlice(matchedNamesList))
 	matchedFeatures := []FeatureMeta{}
-	matchedNamesList = matchedNamesList[
-		minInt(params.Offset, int64(len(matchedNamesList) - 1)):
-		minInt(params.Offset + params.Limit, int64(len(matchedNamesList)))]
-	for _, name := range matchedNamesList{
+	matchedNamesList = matchedNamesList[minInt(params.Offset, int64(len(matchedNamesList)-1)):minInt(params.Offset+params.Limit, int64(len(matchedNamesList)))]
+	for _, name := range matchedNamesList {
 		meta, _ := getMeta(commit, name)
 		matchedFeatures = append(matchedFeatures, meta)
 	}
@@ -148,11 +147,11 @@ func getMeta(commit *git.Commit, name string) (FeatureMeta, error) {
 	}
 
 	return FeatureMeta{
-		Name: name,
+		Name:         name,
 		Dependencies: meta.Dependencies,
-		UpdatedAt: commit.Committer.When,
-		// FIX: CreatedAt is missing
-		// FIX: Description from meta.yml is ignored
+		Description:  meta.Description,
+		Author:       meta.Author,
+		UpdatedAt:    commit.Committer.When,
 	}, nil
 }
 
@@ -194,66 +193,54 @@ func getFeature(commit *git.Commit, name string) (Feature, error) {
 	}
 
 	return Feature{
-		Meta: meta,
+		Meta:    meta,
 		Snippet: string(content),
 	}, nil
 }
 
-
-func (storage *gitStorage) Resolve(name string) ([]Feature, error) {
+func (storage *gitStorage) Resolve(names ...string) (map[string]Feature, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
-		return []Feature{}, err
+		return map[string]Feature{}, err
 	}
 
-	return resolve(commit, name, []Feature{}, []Feature{})
-}
-
-// resolve returns all data for a certain feature and its direct and indirect
-// dependencies. All feature data is sorted according to their respective dependency.
-//
-// commit:  The commit from which to obtain the feature information.
-// name:    The exact feature name.
-// result:  All features collected so far.
-// path:    The path to the root of the current feature tree branch.
-func resolve(commit *git.Commit, name string, result []Feature, path []Feature) ([]Feature, error)  {
-	// OPTIMIZATION: replace with faster lookup e.g. using a map.
-	if containsFeatureWithName(path, name) {
-		return []Feature{}, fmt.Errorf("Circular depenceny detected: %s", name)
-	}
-
-	// OPTIMIZATION: replace with faster lookup.
-	if containsFeatureWithName(result, name) {
-		return result, nil
-	}
-
-	feature, err := getFeature(commit, name)
-	if err != nil {
-		return []Feature{}, err
-	}
-
-	nextPath := append(path, feature)
-	for _, depName := range feature.Meta.Dependencies {
-		result, err = resolve(commit, depName, result, nextPath)
+	result := map[string]Feature{}
+	for _, name := range names {
+		err = resolve(commit, name, result)
 		if err != nil {
-			return []Feature{}, err
+			return map[string]Feature{}, err
 		}
 	}
-
-	result = append(result, feature)
 
 	return result, nil
 }
 
-// containsFeatureWithName is a helper function which checks whether or not a
-// feature with a given name exists in a slice of features.
-func containsFeatureWithName(list []Feature, name string) bool {
-	for _, f := range list {
-		if f.Meta.Name == name {
-			return true
+// resolve returns all data for a certain feature and its direct and indirect
+// dependencies. All feature data is added to the provided result map.
+//
+// commit:  The commit from which to obtain the feature information.
+// name:    The exact feature name.
+// result:  All features collected so far.
+func resolve(commit *git.Commit, name string, result map[string]Feature) error {
+	if _, ok := result[name]; ok {
+		return nil
+	}
+
+	feature, err := getFeature(commit, name)
+	if err != nil {
+		return err
+	}
+
+	for _, depName := range feature.Meta.Dependencies {
+		err = resolve(commit, depName, result)
+		if err != nil {
+			return err
 		}
 	}
-	return false
+
+	result[name] = feature
+
+	return nil
 }
 
 // latestCommit is a helper method which gets the latest commit (HEAD) from
