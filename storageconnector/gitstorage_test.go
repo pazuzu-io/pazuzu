@@ -1,26 +1,27 @@
 package storageconnector
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
-)
 
-const (
-	// TODO setup and use a dedicated (local?) test repository
-	testRepository = "https://github.com/Sangdol/pazuzu-test-repo.git"
+	"gopkg.in/src-d/go-git.v4"
 )
 
 var (
-	storage StorageReader
+	testRepository = filepath.Join("fixtures", "git")
+	storage        StorageReader
 )
 
 func TestMain(m *testing.M) {
-	var err error
-	storage, err = NewStorageReader(testRepository)
+	repo, err := git.NewFilesystemRepository(testRepository)
 	if err != nil {
+		fmt.Println(err)
 		os.Exit(1)
 	}
+	storage = &gitStorage{repo: repo}
 	os.Exit(m.Run())
 }
 
