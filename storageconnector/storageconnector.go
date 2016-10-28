@@ -16,26 +16,21 @@ type StorageReader interface {
 
 	// Get returns a full feature data from a storage. This operation is a way slower than GetMeta, so for
 	// quick lookups GetMeta is better to be used.
-	Get(name string) (Feature, error)
+	GetFeature(name string) (Feature, error)
 
-	// Resolve resolves dependencies for a given Feature and returns an **ordered** list of Features.
-	// Ordering is critical here, it defines a way how Features should be executed.
-	// Returns error if circular dependency is found.
+	// Resolve finds all dependencies for a given list of Feature names and returns them as a map of
+	// Features. The returned map will contain the Feature information for all listed names as well as
+	// the Feature information of all their direct or indirect dependencies.
 	//
-	// Example 1:
-	// If you're given a list [FeatureA, FeatureB, FeatureC, FeatureD] that might mean that FeatureC depends on
-	// FeatureB which in its turn depends on FeatureA. In given example FeatureD has no dependencies, but it must
-	// be executed **after** all dependencies for FeatureC are resolved.
+	// names:  The names of the features which dependencies should be resolved.
 	//
-	// Example 2:
-	// If Feature depends on FeatureA, FeatureA depends on FeatureB and FeatureB depends on FeatureA then
-	// error will be returned
-	Resolve(name string) ([]Feature, error)
+	// If a feature can't be found or a dependency can't be resolved an error is returned.
+	Resolve(names ...string) (map[string]Feature, error)
 }
 
 // SearchParams define parameters for searching for the Features
 type SearchParams struct {
-	Name   regexp.Regexp
+	Name   *regexp.Regexp
 	Limit  int64
 	Offset int64
 }
@@ -43,10 +38,10 @@ type SearchParams struct {
 // FeatureMeta provides short information about the Feature.
 // This piece of data better to be indexed by a storage.
 type FeatureMeta struct {
-	Name          string
-	Author        string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	Name         string
+	Description  string
+	Author       string
+	UpdatedAt    time.Time
 	Dependencies []string
 }
 
