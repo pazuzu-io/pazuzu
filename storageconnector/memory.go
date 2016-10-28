@@ -2,6 +2,7 @@ package storageconnector
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 )
 
@@ -26,26 +27,14 @@ func NewMemory(features []Feature) *Memory {
 	return m
 }
 
-func (m *Memory) SearchMeta(params SearchParams) ([]FeatureMeta, error) {
-	if params.Limit == 0 {
-		params.Limit = defaultSearchParamsLimit
-	}
-	// TODO: add processing of negative params.Limit (in order to get ALL Metas maybe?)
-	limit := int64(len(m.featureNames))
-	if limit > params.Offset+params.Limit {
-		limit = params.Offset + params.Limit
-	}
-	// TODO: optimize memory allocation by allocating slice size of `limit - params.Offset`
-	// that will give you enough room to keep all the results with no additional operations of expansion
+func (m *Memory) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
 	result := []FeatureMeta{}
-	for i := params.Offset; i < limit; i++ {
-		name := m.featureNames[i]
-		if params.Name.MatchString(name) {
-			f := m.features[name]
+	for _, n := range m.featureNames {
+		if name.MatchString(n) {
+			f := m.features[n]
 			result = append(result, f.Meta)
 		}
 	}
-
 	return result, nil
 }
 

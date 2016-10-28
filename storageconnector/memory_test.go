@@ -1,9 +1,10 @@
 package storageconnector
 
 import (
-	"github.com/stretchr/testify/assert"
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMemoryGet(t *testing.T) {
@@ -26,9 +27,7 @@ func TestMemoryGet(t *testing.T) {
 	})
 
 	t.Run("Run search and find 1 Feature", func(t *testing.T) {
-		result, err := storage.SearchMeta(SearchParams{
-			Name: regexp.MustCompile("FeatureA.*"),
-		})
+		result, err := storage.SearchMeta(regexp.MustCompile("FeatureA.*"))
 
 		assert.Nil(t, err)
 		assert.Equal(t, []FeatureMeta{{
@@ -39,9 +38,7 @@ func TestMemoryGet(t *testing.T) {
 	})
 
 	t.Run("Run search and find no Features", func(t *testing.T) {
-		result, err := storage.SearchMeta(SearchParams{
-			Name: regexp.MustCompile("FooBoo"),
-		})
+		result, err := storage.SearchMeta(regexp.MustCompile("FooBoo"))
 
 		assert.Nil(t, err)
 		assert.Equal(t, []FeatureMeta{}, result)
