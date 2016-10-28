@@ -8,7 +8,7 @@ import (
 )
 
 func TestMemoryGet(t *testing.T) {
-	storage := NewMemory([]Feature{
+	storage := NewMemoryStorage([]Feature{
 		{
 			Meta: FeatureMeta{
 				Name:         "FeatureA",
@@ -81,7 +81,7 @@ func TestMemoryGet(t *testing.T) {
 }
 
 func TestMemoryResolve(t *testing.T) {
-	storage := NewMemory([]Feature{
+	storage := NewMemoryStorage([]Feature{
 		{
 			Meta: FeatureMeta{
 				Name:         "FeatureA",

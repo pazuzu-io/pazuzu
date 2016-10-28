@@ -6,16 +6,16 @@ import (
 	"sort"
 )
 
-// Memory is a simple in-memory storage of features
+// MemoryStorage is a simple in-memory storage of features
 // usable for writing tests
-type Memory struct {
+type MemoryStorage struct {
 	features     map[string]Feature
 	featureNames []string // sorted list of feature names
 }
 
-// NewMemory is a constructor for in-memory storage
-func NewMemory(features []Feature) *Memory {
-	m := &Memory{
+// NewMemoryStorage is a constructor for in-memory storage
+func NewMemoryStorage(features []Feature) *MemoryStorage {
+	m := &MemoryStorage{
 		features: map[string]Feature{},
 	}
 	for _, f := range features {
@@ -27,7 +27,7 @@ func NewMemory(features []Feature) *Memory {
 	return m
 }
 
-func (m *Memory) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
+func (m *MemoryStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
 	result := []FeatureMeta{}
 	for _, n := range m.featureNames {
 		if name.MatchString(n) {
@@ -38,12 +38,12 @@ func (m *Memory) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
 	return result, nil
 }
 
-func (m *Memory) GetMeta(name string) (FeatureMeta, error) {
+func (m *MemoryStorage) GetMeta(name string) (FeatureMeta, error) {
 	f, err := m.GetFeature(name)
 	return f.Meta, err
 }
 
-func (m *Memory) GetFeature(name string) (Feature, error) {
+func (m *MemoryStorage) GetFeature(name string) (Feature, error) {
 	// TODO: make Get case-insensitive
 	f, ok := m.features[name]
 	if !ok {
@@ -53,7 +53,7 @@ func (m *Memory) GetFeature(name string) (Feature, error) {
 	return f, nil
 }
 
-func (m *Memory) Resolve(names ...string) (map[string]Feature, error) {
+func (m *MemoryStorage) Resolve(names ...string) (map[string]Feature, error) {
 	result := map[string]Feature{}
 	for _, name := range names {
 		if err := m.resolve(name, result); err != nil {
@@ -64,7 +64,7 @@ func (m *Memory) Resolve(names ...string) (map[string]Feature, error) {
 	return result, nil
 }
 
-func (m *Memory) resolve(name string, resolved map[string]Feature) error {
+func (m *MemoryStorage) resolve(name string, resolved map[string]Feature) error {
 	f, ok := m.features[name]
 	if !ok {
 		return fmt.Errorf("Feature '%s' was not found", name)
