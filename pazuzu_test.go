@@ -37,16 +37,22 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	str := `Base: ubuntuCommon\r\nFeatures:\r\n  - Java8\r\n  - anotherFeature\r\n  - oneMoreFeature`
+	bufferedReader := strings.NewReader(`---
+base: ubuntuCommon
+features:
+  - Java8
+  - anotherFeature
+  - oneMoreFeature`)
 
-	reader := strings.NewReader(str)
-
-	_, err := Read(reader)
+	pazuzuFile, err := Read(bufferedReader)
 
 	if(err != nil){
 		t.Errorf("should not fail: %s", err);
 	}
 
+	if(strings.Compare(pazuzuFile.Base, "ubuntuCommon") != 0) {
+		t.Errorf("wrong base: %s", pazuzuFile.Base)
+	}
 }
 
 func TestWrite(t *testing.T){
