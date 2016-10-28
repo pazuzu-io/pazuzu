@@ -1,9 +1,9 @@
 package storageconnector
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"regexp"
+	"testing"
 )
 
 func TestMemoryGet(t *testing.T) {
@@ -119,6 +119,30 @@ func TestDummyResolve(t *testing.T) {
 			},
 			Snippet: "",
 		},
+		{
+			Meta: FeatureMeta{
+				Name:         "FeatureE",
+				Author:       "SomeAuthor",
+				Dependencies: []string{"FeatureD"},
+			},
+			Snippet: "",
+		},
+		{
+			Meta: FeatureMeta{
+				Name:         "FeatureF",
+				Author:       "SomeAuthor",
+				Dependencies: []string{"FeatureG"},
+			},
+			Snippet: "",
+		},
+		{
+			Meta: FeatureMeta{
+				Name:         "FeatureG",
+				Author:       "SomeAuthor",
+				Dependencies: []string{"FeatureF"},
+			},
+			Snippet: "",
+		},
 	})
 
 	t.Run("Resolve FeatureA", func(t *testing.T) {
@@ -131,14 +155,14 @@ func TestDummyResolve(t *testing.T) {
 				},
 				Snippet: "",
 			},
-			"FeatureB":                        {
+			"FeatureB": {
 				Meta: FeatureMeta{
 					Name:   "FeatureB",
 					Author: "SomeAuthor",
 				},
 				Snippet: "",
 			},
-			"FeatureC":                        {
+			"FeatureC": {
 				Meta: FeatureMeta{
 					Name:         "FeatureC",
 					Author:       "SomeAuthor",
@@ -146,7 +170,7 @@ func TestDummyResolve(t *testing.T) {
 				},
 				Snippet: "",
 			},
-			"FeatureD":                        {
+			"FeatureD": {
 				Meta: FeatureMeta{
 					Name:   "FeatureD",
 					Author: "SomeAuthor",
@@ -162,14 +186,14 @@ func TestDummyResolve(t *testing.T) {
 
 	t.Run("Resolve FeatureB and FeatureD", func(t *testing.T) {
 		expected := map[string]Feature{
-			"FeatureB":                        {
+			"FeatureB": {
 				Meta: FeatureMeta{
 					Name:   "FeatureB",
 					Author: "SomeAuthor",
 				},
 				Snippet: "",
 			},
-			"FeatureC":                        {
+			"FeatureC": {
 				Meta: FeatureMeta{
 					Name:         "FeatureC",
 					Author:       "SomeAuthor",
@@ -177,7 +201,7 @@ func TestDummyResolve(t *testing.T) {
 				},
 				Snippet: "",
 			},
-			"FeatureD":                        {
+			"FeatureD": {
 				Meta: FeatureMeta{
 					Name:   "FeatureD",
 					Author: "SomeAuthor",
@@ -187,6 +211,70 @@ func TestDummyResolve(t *testing.T) {
 		}
 
 		result, err := storage.Resolve("FeatureB", "FeatureD")
+		assert.Nil(t, err)
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("Resolve features with the same dependencies should result in duplicates", func(t *testing.T) {
+		expected := map[string]Feature{
+
+			"FeatureC": {
+				Meta: FeatureMeta{
+					Name:         "FeatureC",
+					Author:       "SomeAuthor",
+					Dependencies: []string{"FeatureD"},
+				},
+				Snippet: "",
+			},
+			"FeatureD": {
+				Meta: FeatureMeta{
+					Name:   "FeatureD",
+					Author: "SomeAuthor",
+				},
+				Snippet: "",
+			},
+			"FeatureE": {
+				Meta: FeatureMeta{
+					Name:         "FeatureC",
+					Author:       "SomeAuthor",
+					Dependencies: []string{"FeatureD"},
+				},
+				Snippet: "",
+			},
+			"FeatureD": {
+				Meta: FeatureMeta{
+					Name:   "FeatureD",
+					Author: "SomeAuthor",
+				},
+				Snippet: "",
+			},
+		}
+
+		result, err := storage.Resolve("FeatureB", "FeatureD")
+		assert.Nil(t, err)
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("Resolve features with circular dependency", func(t *testing.T) {
+		expected := map[string]Feature{
+			"FeatureF": {
+				Meta: FeatureMeta{
+					Name:         "FeatureC",
+					Author:       "SomeAuthor",
+					Dependencies: []string{"FeatureD"},
+				},
+				Snippet: "",
+			},
+			"FeatureG": {
+				Meta: FeatureMeta{
+					Name:   "FeatureD",
+					Author: "SomeAuthor",
+				},
+				Snippet: "",
+			},
+		}
+
+		result, err := storage.Resolve("FeatureF", "FeatureG")
 		assert.Nil(t, err)
 		assert.Equal(t, expected, result)
 	})
