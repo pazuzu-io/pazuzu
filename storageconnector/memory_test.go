@@ -60,15 +60,14 @@ func TestMemoryGet(t *testing.T) {
 
 	t.Run("Try to get a feature Meta and find nothing", func(t *testing.T) {
 		_, err := storage.GetMeta("FooBoo")
-		assert.NotNil(t, err)
-		assert.Equal(t, "Feature 'FooBoo' was not found", err.Error())
+		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
 	})
 
 	t.Run("Try to get a feature and find it", func(t *testing.T) {
 		result, err := storage.GetFeature("FeatureA")
 
 		assert.Nil(t, err)
-		assert.Equal(t, Feature{
+		assert.Equal(t, []Feature{
 			{
 				Meta: FeatureMeta{
 					Name:         "FeatureA",
@@ -82,12 +81,11 @@ func TestMemoryGet(t *testing.T) {
 
 	t.Run("Try to get a feature and find nothing", func(t *testing.T) {
 		_, err := storage.GetFeature("FooBoo")
-		assert.NotNil(t, err)
-		assert.Equal(t, "Feature 'FooBoo' was not found", err.Error())
+		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
 	})
 }
 
-func TestDummyResolve(t *testing.T) {
+func TestMemoryResolve(t *testing.T) {
 	storage := NewMemory([]Feature{
 		{
 			Meta: FeatureMeta{
@@ -241,7 +239,7 @@ func TestDummyResolve(t *testing.T) {
 				},
 				Snippet: "",
 			},
-			"FeatureD": {
+			"FeatureF": {
 				Meta: FeatureMeta{
 					Name:   "FeatureD",
 					Author: "SomeAuthor",
@@ -281,13 +279,12 @@ func TestDummyResolve(t *testing.T) {
 
 	t.Run("Resolve Non-existing feature", func(t *testing.T) {
 		_, err := storage.Resolve("FooBoo", "FeatureD")
-		assert.NotNil(t, err)
-		assert.Equal(t, "Feature 'FooBoo' was not found", err.Error())
+		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
 	})
 
 	t.Run("Resolve empty list of features", func(t *testing.T) {
-		_, err := storage.Resolve()
-		assert.NotNil(t, err)
-		assert.Equal(t, "No features provided to resolve", err.Error())
+		result, err := storage.Resolve()
+		assert.Nil(t, err)
+		assert.Equal(t, map[string]Feature{}, result)
 	})
 }
