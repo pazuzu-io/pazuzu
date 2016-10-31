@@ -3,11 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
 	"os"
-
-	"github.com/urfave/cli"
 )
 
 const (
@@ -135,6 +134,14 @@ func main() {
 		}
 
 		//TODO: Init config struct
+		errCnf := NewConfig()
+
+		if errCnf != nil {
+			fmt.Println(errCnf)
+			os.Exit(1)
+		}
+		// Sample reating conf values
+		// log.Printf("Using URL: %v", config.Git.Url)
 
 		return nil
 	}
