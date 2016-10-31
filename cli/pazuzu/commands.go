@@ -9,40 +9,53 @@ import (
 	"os"
 )
 
-const (
-	VERSION = "0.1"
-)
+var cnfGetCmd = cli.Command{
+	Name:  "get",
+	Usage: "Get pazuzu configuration",
+	Action: func(с *cli.Context) error {
+		// log.Print("Getting pazuzu configuration")
+		// return nil
+		return ErrNotImplemented
+	},
+}
+var cnfSetCmd = cli.Command{
+	Name:  "set",
+	Usage: "Set pazuzu configuration",
+	Action: func(с *cli.Context) error {
+		// log.Print("Setting pazuzu configuration")
+		// return nil
+		return ErrNotImplemented
+	},
+}
+
+var configCmd = cli.Command{
+	Name:  "config",
+	Usage: "Configure pazuzu",
+	// Action: configure,
+	Subcommands: []cli.Command{
+		cnfGetCmd,
+		cnfSetCmd,
+	},
+}
 
 var searchCmd = cli.Command{
 	Name:      "search",
 	Usage:     "search for features in registry",
 	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
-	Action:    searchFeatures,
-}
-
-// search features by name.
-func searchFeatures(c *cli.Context) error {
-
-	return errors.New(ERROR_NOT_IMPLEMENTED)
+	Action: func(с *cli.Context) error {
+		return ErrNotImplemented
+	},
 }
 
 var composeCmd = cli.Command{
 	Name:        "compose",
 	Usage:       "Compose Pazuzufile out of the selected features",
 	ArgsUsage:   "[features] - Space separated feature names",
-	Action:      composeFeatures,
 	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
+	Action: func(с *cli.Context) error {
+		return ErrNotImplemented
+	},
 	// TODO: add -o/--out option according to README file
-}
-
-// Compose Pazuzu file out of features passed through CLI
-func composeFeatures(c *cli.Context) error {
-	return errors.New(ERROR_NOT_IMPLEMENTED)
-	// log.Printf("Creating Pazuzufile out of feature set: %q\n", c.Args())
-	// for i, feature := range c.Args() {
-	// 	fmt.Printf("%d \t--> %v\n", i, feature)
-	// }
-	// return nil
 }
 
 var buildCmd = cli.Command{
@@ -54,7 +67,7 @@ var buildCmd = cli.Command{
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
-	return errors.New(ERROR_NOT_IMPLEMENTED)
+	return ErrNotImplemented
 	// TODO: In case of -f/--feature-set option slice of features
 	// should be used instead of Pazuzufile
 
