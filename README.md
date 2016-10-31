@@ -2,6 +2,21 @@
 [![Travis BuildStatus](https://travis-ci.org/zalando-incubator/pazuzu.svg?branch=master)](https://travis-ci.org/zalando-incubator/pazuzu)
 [![Stories in Ready](https://badge.waffle.io/zalando/pazuzu.png?label=ready&title=Ready)](https://waffle.io/zalando/pazuzu)
 
+A note to the next team
+---------------
+Pazuzu is a big enough project to keep you busy for more than 2 weeks 
+of onboarding, so please pick your tasks wisely and leave the rest to 
+the next team. Good place to start picking tasks is already existing 
+TODO list: https://github.com/zalando-incubator/pazuzu/wiki/TODO
+
+You can find overview of the whole project: 
+https://github.com/zalando-incubator/pazuzu/wiki/Overview-of-Pazuzu-project
+
+These flow diagrams may help you understand better how pazuzu is going 
+to be used from command line: https://github.com/zalando-incubator/pazuzu/wiki/CLI-commands-flow
+
+Good luck! :)
+
 What is Pazuzu?
 ---------------
 Pazuzu is a tool that builds Docker images from feature snippets, while
