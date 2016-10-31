@@ -110,7 +110,7 @@ var composeCmd = cli.Command{
 		f, err := os.Create("Pazuzufile")
 		if err != nil {
 			log.Print("could not create Pazuzufile")
-			// 		return err
+			return err
 		}
 
 		defer f.Close()
