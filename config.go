@@ -12,12 +12,12 @@ const (
 var config *Config
 
 type GitConfig struct {
-	Url  string
-	Base string
+	Url string
 }
 
 type Config struct {
 	ConfigType string
+	Base       string
 	Git        *GitConfig
 }
 
