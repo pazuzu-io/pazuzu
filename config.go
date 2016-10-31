@@ -25,8 +25,8 @@ func NewConfig() error {
 	// TODO: add read from $HOME/.pazuzu/config and return error if fail
 	// viper library is planned to be used here
 	config = &Config{ConfigType: "git",
-		Base: BASE_IMAGE
-		Git: &GitConfig{Url: URL}}
+		Base: BASE_IMAGE,
+		Git:  &GitConfig{Url: URL}}
 
 	return nil
 }
