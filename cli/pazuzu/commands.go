@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 	"io/ioutil"
 	"log"
 	"os"
@@ -43,6 +44,8 @@ var searchCmd = cli.Command{
 	Usage:     "search for features in registry",
 	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
 	Action: func(с *cli.Context) error {
+		sc, err := storageconnector.NewStorageReader()
+
 		return ErrNotImplemented
 	},
 }
@@ -164,4 +167,15 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func getStorageReader(readerType string, config Configuration) storageconnector.StorageReader {
+	switch readerType {
+	case TypeMemory:
+		return storageconnector.NewMemoryStorage([]storageconnector.Feature{}) // implement a generator of random list of features?
+	case TypeGit:
+		return storageconnector.NewGitStorage(config.Git.Url)
+	}
+
+	panic("unknown storage reader type: " + readerType)
 }
