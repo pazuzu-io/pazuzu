@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/fsouza/go-dockerclient"
+	"gopkg.in/yaml.v2"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -20,6 +22,39 @@ type Pazuzu struct {
 	dockerEndpoint string
 	docker         *docker.Client
 	files          map[string]string
+}
+
+type PazuzuFile struct {
+	Base     string
+	Features []string
+}
+
+func Read(reader io.Reader) (PazuzuFile, error) {
+	content, err := ioutil.ReadAll(reader)
+
+	if err != nil {
+		return PazuzuFile{}, err
+	}
+
+	pazuzuFile := &PazuzuFile{}
+	err = yaml.Unmarshal(content, pazuzuFile)
+	if err != nil {
+		return PazuzuFile{}, err
+	}
+
+	return *pazuzuFile, nil
+
+}
+
+func Write(writer io.Writer, pazuzuFile PazuzuFile) error {
+	data, err := yaml.Marshal(pazuzuFile)
+	if err != nil {
+		return err
+	}
+
+	_, err = writer.Write(data)
+
+	return err
 }
 
 // Generate generates Dockfiler and test.spec file base on list of features
