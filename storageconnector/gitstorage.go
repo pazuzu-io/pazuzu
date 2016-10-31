@@ -3,8 +3,9 @@ package storageconnector
 import (
 	"io/ioutil"
 	"path"
-	"sort"
 	"strings"
+
+	"regexp"
 
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/core"
@@ -25,20 +26,20 @@ type yamlFeatureMeta struct {
 	Dependencies []string
 }
 
-// gitStorage is an implementation of StorageReader based on
+// GitStorage is an implementation of StorageReader based on
 // a git repository as storage back-end.
-type gitStorage struct {
+type GitStorage struct {
 	repo *git.Repository
 }
 
-// NewStorageReader returns a StorageReader which uses a public git repository
+// NewGitStorage returns a StorageReader which uses a public git repository
 // as data source for pazuzu features.
 //
 // url:  The URL to the git repository that serves as data source. The
 //       repository must be publicly accessible.
 //
 // If the repository can't be accessed NewStorageReader returns an error.
-func NewStorageReader(url string) (StorageReader, error) {
+func NewGitStorage(url string) (*GitStorage, error) {
 	// OPTIMIZATION: can be an fs repository which is cached and only pulled when needed
 	repo := git.NewMemoryRepository()
 
@@ -52,10 +53,10 @@ func NewStorageReader(url string) (StorageReader, error) {
 		return nil, err
 	}
 
-	return &gitStorage{repo: repo}, nil
+	return &GitStorage{repo: repo}, nil
 }
 
-func (storage *gitStorage) SearchMeta(params SearchParams) ([]FeatureMeta, error) {
+func (storage *GitStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
 		return nil, err
@@ -68,8 +69,8 @@ func (storage *gitStorage) SearchMeta(params SearchParams) ([]FeatureMeta, error
 
 	// find matching feature names
 	matchedNames := map[string]bool{}
-	matchedNamesList := []string{}
-	all.ForEach(func(file *git.File) error {
+	matchedFeatures := []FeatureMeta{}
+	err = all.ForEach(func(file *git.File) error {
 		pathComponents := strings.Split(file.Name, "/")
 
 		// check if file is in feature dir
@@ -84,33 +85,26 @@ func (storage *gitStorage) SearchMeta(params SearchParams) ([]FeatureMeta, error
 		}
 
 		// check if feature matches search params
-		if params.Name.MatchString(featureName) {
+		if name.MatchString(featureName) {
+			meta, err := getMeta(commit, featureName)
+			if err != nil {
+				return err
+			}
+			matchedFeatures = append(matchedFeatures, meta)
 			matchedNames[featureName] = true
-			matchedNamesList = append(matchedNamesList, featureName)
 		}
 
 		return nil
 	})
 
-	if params.Limit == 0 {
-		params.Limit = defaultSearchParamsLimit
-	}
-
-	// prepare resulting feature metadata list
-	// OPTIMIZATION: if the above ForEach call was based on some kind of reliable ordering
-	//               the following Sort call could be omitted.
-	sort.Sort(sort.StringSlice(matchedNamesList))
-	matchedFeatures := []FeatureMeta{}
-	matchedNamesList = matchedNamesList[minInt(params.Offset, int64(len(matchedNamesList)-1)):minInt(params.Offset+params.Limit, int64(len(matchedNamesList)))]
-	for _, name := range matchedNamesList {
-		meta, _ := getMeta(commit, name)
-		matchedFeatures = append(matchedFeatures, meta)
+	if err != nil {
+		return nil, err
 	}
 
 	return matchedFeatures, nil
 }
 
-func (storage *gitStorage) GetMeta(name string) (FeatureMeta, error) {
+func (storage *GitStorage) GetMeta(name string) (FeatureMeta, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
 		return FeatureMeta{}, err
@@ -155,7 +149,7 @@ func getMeta(commit *git.Commit, name string) (FeatureMeta, error) {
 	}, nil
 }
 
-func (storage *gitStorage) GetFeature(name string) (Feature, error) {
+func (storage *GitStorage) GetFeature(name string) (Feature, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
 		return Feature{}, err
@@ -198,7 +192,7 @@ func getFeature(commit *git.Commit, name string) (Feature, error) {
 	}, nil
 }
 
-func (storage *gitStorage) Resolve(names ...string) (map[string]Feature, error) {
+func (storage *GitStorage) Resolve(names ...string) (map[string]Feature, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
 		return map[string]Feature{}, err
@@ -245,7 +239,7 @@ func resolve(commit *git.Commit, name string, result map[string]Feature) error {
 
 // latestCommit is a helper method which gets the latest commit (HEAD) from
 // a the storage git repository.
-func (storage *gitStorage) latestCommit() (*git.Commit, error) {
+func (storage *GitStorage) latestCommit() (*git.Commit, error) {
 	head, err := storage.repo.Head()
 	if err != nil {
 		return nil, err
@@ -257,12 +251,4 @@ func (storage *gitStorage) latestCommit() (*git.Commit, error) {
 	}
 
 	return commit, nil
-}
-
-// minInt returns the lower of two integers
-func minInt(a, b int64) int64 {
-	if a < b {
-		return a
-	}
-	return b
 }
