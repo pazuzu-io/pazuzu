@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 var Version = "0.1"
 
 func main() {
+
 	cli.VersionFlag = cli.BoolFlag{
 		Name:  "version",
 		Usage: "Print version",
@@ -19,7 +21,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "pazuzu"
 	app.Version = Version
-	app.Usage = "Build Docker features from Feature Storage"
+	app.Usage = "Build Docker features from pazuzu-registry"
 	app.Commands = []cli.Command{
 		searchCmd,
 		composeCmd,
@@ -45,6 +47,14 @@ func main() {
 		}
 
 		//TODO: Init config struct
+		errCnf := pazuzu.NewConfig()
+
+		if errCnf != nil {
+			fmt.Println(errCnf)
+			os.Exit(1)
+		}
+		// Sample reating conf values
+		// log.Printf("Using URL: %v", config.Git.Url)
 
 		return nil
 	}

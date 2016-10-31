@@ -1,13 +1,13 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu/storageconnector"
-	"io/ioutil"
-	"log"
 	"os"
+
+	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu"
+	"regexp"
+	"text/tabwriter"
 )
 
 var cnfGetCmd = cli.Command{
@@ -43,10 +43,34 @@ var searchCmd = cli.Command{
 	Name:      "search",
 	Usage:     "search for features in registry",
 	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
-	Action: func(с *cli.Context) error {
-		sc, err := storageconnector.NewStorageReader()
+	Action: func(c *cli.Context) error {
+		sc, err := pazuzu.GetStorageReader(pazuzu.GetConfig())
+		if err != nil {
+			return err // TODO: process properly into human-readable message
+		}
+		arg := c.Args().Get(0)
+		searchRegexp, err := regexp.Compile(arg)
 
-		return ErrNotImplemented
+		if err != nil {
+			return fmt.Errorf("could not process search regexp '%s': %s", arg, err.Error())
+		}
+		features, err := sc.SearchMeta(searchRegexp)
+		if err != nil {
+			return fmt.Errorf("could not search for features: %s", err.Error())
+		}
+
+		if len(features) == 0 {
+			fmt.Println("no features found")
+			return nil
+		}
+
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, '.', tabwriter.AlignRight)
+		fmt.Fprintf(w, "Name\tAuthor\tDescription")
+		for _, f := range features {
+			fmt.Fprintf(w, "%s\t%s\t%s", f.Name, f.Author, f.Description)
+		}
+
+		return nil
 	},
 }
 
@@ -83,99 +107,4 @@ func buildFeatures(c *cli.Context) error {
 	// }
 
 	// return nil
-}
-
-var cnfGetCmd = cli.Command{
-	Name:  "get",
-	Usage: "Get pazuzu configuration",
-	Action: func(с *cli.Context) error {
-		// log.Print("Getting pazuzu configuration")
-		// return nil
-		return errors.New(ERROR_NOT_IMPLEMENTED)
-	},
-}
-var cnfSetCmd = cli.Command{
-	Name:  "set",
-	Usage: "Set pazuzu configuration",
-	Action: func(с *cli.Context) error {
-		// log.Print("Setting pazuzu configuration")
-		// return nil
-		return errors.New(ERROR_NOT_IMPLEMENTED)
-	},
-}
-
-var configCmd = cli.Command{
-	Name:  "config",
-	Usage: "Configure pazuzu",
-	// Action: configure,
-	Subcommands: []cli.Command{
-		cnfGetCmd,
-		cnfSetCmd,
-	},
-}
-
-func main() {
-
-	cli.VersionFlag = cli.BoolFlag{
-		Name:  "version",
-		Usage: "Print version",
-	}
-
-	app := cli.NewApp()
-	app.Name = "pazuzu"
-	app.Version = VERSION
-	app.Usage = "Build Docker features from pazuzu-registry"
-	app.Commands = []cli.Command{
-		searchCmd,
-		composeCmd,
-		buildCmd,
-		configCmd,
-	}
-
-	// global flags
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "verbose, v",
-			Usage: "Verbose output",
-		},
-	}
-	app.Before = func(c *cli.Context) error {
-		// remove formatting for log module
-		// and suppress logging output if not set explicitly
-		log.SetFlags(0)
-		if c.Bool("verbose") {
-			log.SetOutput(os.Stdout)
-		} else {
-			log.SetOutput(ioutil.Discard)
-		}
-
-		//TODO: Init config struct
-		errCnf := NewConfig()
-
-		if errCnf != nil {
-			fmt.Println(errCnf)
-			os.Exit(1)
-		}
-		// Sample reating conf values
-		// log.Printf("Using URL: %v", config.Git.Url)
-
-		return nil
-	}
-
-	err := app.Run(os.Args)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-}
-
-func getStorageReader(readerType string, config Configuration) storageconnector.StorageReader {
-	switch readerType {
-	case TypeMemory:
-		return storageconnector.NewMemoryStorage([]storageconnector.Feature{}) // implement a generator of random list of features?
-	case TypeGit:
-		return storageconnector.NewGitStorage(config.Git.Url)
-	}
-
-	panic("unknown storage reader type: " + readerType)
 }
