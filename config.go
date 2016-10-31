@@ -12,12 +12,12 @@ const (
 var config *Config
 
 type GitConfig struct {
-	Url  string
-	Base string
+	Url string
 }
 
 type Config struct {
 	ConfigType string
+	Base       string
 	Git        *GitConfig
 }
 
@@ -25,7 +25,8 @@ func NewConfig() error {
 	// TODO: add read from $HOME/.pazuzu/config and return error if fail
 	// viper library is planned to be used here
 	config = &Config{ConfigType: "git",
-		Git: &GitConfig{Url: URL, Base: BASE_IMAGE}}
+		Base: BASE_IMAGE,
+		Git:  &GitConfig{Url: URL}}
 
 	return nil
 }
