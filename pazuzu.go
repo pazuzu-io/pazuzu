@@ -1,4 +1,4 @@
-package main
+package pazuzu
 
 import (
 	"archive/tar"
@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"github.com/fsouza/go-dockerclient"
 	"io"
+	"log"
 	"os"
 	"time"
-	"log"
 )
 
 // Pazuzu defines pazuzu config.
