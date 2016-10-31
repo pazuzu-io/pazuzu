@@ -48,6 +48,7 @@ var searchCmd = cli.Command{
 		if err != nil {
 			return err // TODO: process properly into human-readable message
 		}
+
 		arg := c.Args().Get(0)
 		searchRegexp, err := regexp.Compile(arg)
 
@@ -64,11 +65,13 @@ var searchCmd = cli.Command{
 			return nil
 		}
 
-		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, '.', tabwriter.AlignRight)
-		fmt.Fprintf(w, "Name\tAuthor\tDescription")
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.AlignRight)
+		fmt.Fprintf(w, "Name \tAuthor \tDescription\n")
 		for _, f := range features {
-			fmt.Fprintf(w, "%s\t%s\t%s", f.Name, f.Author, f.Description)
+			fmt.Fprintf(w, "%s \t%s \t%s\n", f.Name, f.Author, f.Description)
 		}
+
+		w.Flush()
 
 		return nil
 	},
