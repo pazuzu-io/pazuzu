@@ -9,6 +9,12 @@
 			"revisionTime": "2016-06-01T11:32:10Z"
 		},
 		{
+			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
+			"revisionTime": "2016-10-29T20:57:26Z"
+		},
+		{
 			"checksumSHA1": "BuwtYicR2Api9FYg5tuc9Db8vUs=",
 			"path": "github.com/docker/docker/opts",
 			"revision": "14a2633f3c8777e0b2d7deed691f122d0b5a8ffd",
@@ -111,10 +117,22 @@
 			"revisionTime": "2016-06-16T12:01:58Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
 			"checksumSHA1": "b9z5QZbU1iRTbrwh9m6abC27EHQ=",
 			"path": "github.com/sergi/go-diff/diffmatchpatch",
 			"revision": "1d28411638c1e67fe1930830df207bef72496ae9",
 			"revisionTime": "2016-10-20T11:35:42Z"
+		},
+		{
+			"checksumSHA1": "Q2V7Zs3diLmLfmfbiuLpSxETSuY=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "976c720a22c8eb4eb6a0b4348ad85ad12491a506",
+			"revisionTime": "2016-09-25T22:06:09Z"
 		},
 		{
 			"checksumSHA1": "Hq7ED7uvrpNm+nTLiG4VLZ3jU44=",
