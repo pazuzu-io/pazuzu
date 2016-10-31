@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	storage = &gitStorage{repo: repo}
+	storage = &GitStorage{repo: repo}
 	os.Exit(m.Run())
 }
 
@@ -30,7 +30,7 @@ func TestGitStorage_SearchMeta(t *testing.T) {
 		name, _ := regexp.Compile("java")
 		expected := 3
 
-		features, err := storage.SearchMeta(SearchParams{Name: name})
+		features, err := storage.SearchMeta(name)
 		if err != nil {
 			t.Error(err)
 		}
@@ -49,67 +49,6 @@ func TestGitStorage_SearchMeta(t *testing.T) {
 			t.Errorf("Name of feature 2 should be 'java' but was '%s'", features[2].Name)
 		}
 	})
-
-	t.Run("FeatureContainingJavaLimit2", func(t *testing.T) {
-		name, _ := regexp.Compile("java")
-		expected := 2
-
-		features, err := storage.SearchMeta(SearchParams{Name: name, Limit: 2})
-		if err != nil {
-			t.Error(err)
-		}
-
-		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
-		}
-
-		if features[0].Name != "A-java-lein" {
-			t.Errorf("Name of feature 0 should be 'A-java-lein' but was '%s'", features[0].Name)
-		}
-		if features[1].Name != "B-java-node" {
-			t.Errorf("Name of feature 1 should be 'B-java-node' but was '%s'", features[1].Name)
-		}
-	})
-
-	t.Run("FeatureContainingJavaOffset1", func(t *testing.T) {
-		name, _ := regexp.Compile("java")
-		expected := 2
-
-		features, err := storage.SearchMeta(SearchParams{Name: name, Offset: 1})
-		if err != nil {
-			t.Error(err)
-		}
-
-		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
-		}
-
-		if features[0].Name != "B-java-node" {
-			t.Errorf("Name of feature 1 should be 'B-java-node' but was '%s'", features[0].Name)
-		}
-		if features[1].Name != "java" {
-			t.Errorf("Name of feature 2 should be 'java' but was '%s'", features[1].Name)
-		}
-	})
-
-	t.Run("FeatureContainingJavaOffset1Limit1", func(t *testing.T) {
-		name, _ := regexp.Compile("java")
-		expected := 1
-
-		features, err := storage.SearchMeta(SearchParams{Name: name, Offset: 1, Limit: 1})
-		if err != nil {
-			t.Error(err)
-		}
-
-		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
-		}
-
-		if features[0].Name != "B-java-node" {
-			t.Errorf("Name of feature 2 should be 'B-java-node' but was '%s'", features[0].Name)
-		}
-	})
-
 }
 
 func TestGitStorage_GetMeta(t *testing.T) {
