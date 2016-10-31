@@ -2,19 +2,20 @@ package storageconnector
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 )
 
-// Memory is a simple in-memory storage of features
+// MemoryStorage is a simple in-memory storage of features
 // usable for writing tests
-type Memory struct {
+type MemoryStorage struct {
 	features     map[string]Feature
 	featureNames []string // sorted list of feature names
 }
 
-// NewMemory is a constructor for in-memory storage
-func NewMemory(features []Feature) *Memory {
-	m := &Memory{
+// NewMemoryStorage is a constructor for in-memory storage
+func NewMemoryStorage(features []Feature) *MemoryStorage {
+	m := &MemoryStorage{
 		features: map[string]Feature{},
 	}
 	for _, f := range features {
@@ -26,35 +27,23 @@ func NewMemory(features []Feature) *Memory {
 	return m
 }
 
-func (m *Memory) SearchMeta(params SearchParams) ([]FeatureMeta, error) {
-	if params.Limit == 0 {
-		params.Limit = defaultSearchParamsLimit
-	}
-	// TODO: add processing of negative params.Limit (in order to get ALL Metas maybe?)
-	limit := int64(len(m.featureNames))
-	if limit > params.Offset+params.Limit {
-		limit = params.Offset + params.Limit
-	}
-	// TODO: optimize memory allocation by allocating slice size of `limit - params.Offset`
-	// that will give you enough room to keep all the results with no additional operations of expansion
+func (m *MemoryStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
 	result := []FeatureMeta{}
-	for i := params.Offset; i < limit; i++ {
-		name := m.featureNames[i]
-		if params.Name.MatchString(name) {
-			f := m.features[name]
+	for _, n := range m.featureNames {
+		if name.MatchString(n) {
+			f := m.features[n]
 			result = append(result, f.Meta)
 		}
 	}
-
 	return result, nil
 }
 
-func (m *Memory) GetMeta(name string) (FeatureMeta, error) {
+func (m *MemoryStorage) GetMeta(name string) (FeatureMeta, error) {
 	f, err := m.GetFeature(name)
 	return f.Meta, err
 }
 
-func (m *Memory) GetFeature(name string) (Feature, error) {
+func (m *MemoryStorage) GetFeature(name string) (Feature, error) {
 	// TODO: make Get case-insensitive
 	f, ok := m.features[name]
 	if !ok {
@@ -64,7 +53,7 @@ func (m *Memory) GetFeature(name string) (Feature, error) {
 	return f, nil
 }
 
-func (m *Memory) Resolve(names ...string) (map[string]Feature, error) {
+func (m *MemoryStorage) Resolve(names ...string) (map[string]Feature, error) {
 	result := map[string]Feature{}
 	for _, name := range names {
 		if err := m.resolve(name, result); err != nil {
@@ -75,7 +64,7 @@ func (m *Memory) Resolve(names ...string) (map[string]Feature, error) {
 	return result, nil
 }
 
-func (m *Memory) resolve(name string, resolved map[string]Feature) error {
+func (m *MemoryStorage) resolve(name string, resolved map[string]Feature) error {
 	f, ok := m.features[name]
 	if !ok {
 		return fmt.Errorf("Feature '%s' was not found", name)
