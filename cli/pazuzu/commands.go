@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/urfave/cli"
@@ -82,8 +84,46 @@ var composeCmd = cli.Command{
 	Usage:       "Compose Pazuzufile out of the selected features",
 	ArgsUsage:   "[features] - Space separated feature names",
 	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
-	Action: func(с *cli.Context) error {
-		return ErrNotImplemented
+	Action: func(c *cli.Context) error {
+		sc, err := pazuzu.GetStorageReader(pazuzu.GetConfig())
+		if err != nil {
+			return err // TODO: process properly into human-readable message
+		}
+
+		var features []string
+
+		// Check if feature actually exists in repository
+		for _, v := range c.Args() {
+			log.Printf("Checking: %v\n", v)
+
+			_, err := sc.GetMeta(v)
+			if err != nil {
+				log.Printf("could not find feature \"%v\" in repository.", v)
+				return err
+			}
+			features = append(features, fmt.Sprintf("%v", v))
+
+		}
+
+		log.Printf("features: %v", features)
+
+		f, err := os.Create("Pazuzufile")
+		if err != nil {
+			log.Print("could not create Pazuzufile")
+			// 		return err
+		}
+
+		defer f.Close()
+		config := pazuzu.GetConfig()
+		w := bufio.NewWriter(f)
+
+		pazuzu.Write(w, pazuzu.PazuzuFile{
+			Base:     config.Base,
+			Features: features})
+
+		w.Flush()
+
+		return nil
 	},
 	// TODO: add -o/--out option according to README file
 }
