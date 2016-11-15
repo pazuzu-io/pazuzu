@@ -1,10 +1,10 @@
 package pazuzu
 
 import (
-	"testing"
-	"strings"
 	"bytes"
-	)
+	"strings"
+	"testing"
+)
 
 type TestRegistry struct{}
 
@@ -46,18 +46,18 @@ features:
 
 	pazuzuFile, err := Read(bufferedReader)
 
-	if(err != nil){
-		t.Errorf("should not fail: %s", err);
+	if err != nil {
+		t.Errorf("should not fail: %s", err)
 	}
 
-	if(strings.Compare(pazuzuFile.Base, "ubuntuCommon") != 0) {
+	if strings.Compare(pazuzuFile.Base, "ubuntuCommon") != 0 {
 		t.Errorf("wrong base: %s", pazuzuFile.Base)
 	}
 }
 
-func TestWrite(t *testing.T){
+func TestWrite(t *testing.T) {
 	pazuzuFile := PazuzuFile{
-		Base: "ubuntuCommon",
+		Base:     "ubuntuCommon",
 		Features: []string{"java8", "anotherFeature", "oneMoreFeature"},
 	}
 
@@ -65,8 +65,8 @@ func TestWrite(t *testing.T){
 	ioWriter := bytes.NewBuffer(b)
 	err := Write(ioWriter, pazuzuFile)
 
-	if(err != nil){
-		t.Errorf("should not fail: %s", err);
+	if err != nil {
+		t.Errorf("should not fail: %s", err)
 	}
 }
 
