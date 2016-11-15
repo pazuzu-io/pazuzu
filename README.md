@@ -128,6 +128,31 @@ All set configuration will be stored ` ~/.pazuzu/config`
 	
 	```
 
+## Development environment installation (macOS)
+
+- Check if Go is installed:
+  ```bash
+  $ go version
+  ```
+
+- Set up `$GOPATH` variable in your profile (e.g. to `~/go`)
+
+- Clone Pazuzu repository:
+  ```bash
+  $ git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
+  ```
+- Build command-line tools
+  ```bash
+  $ cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  $ go build
+  ```
+- Run tests
+  ```bash
+  $ cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  $ go test ./...  
+  ```
+
+
 ---
 License
 ---
