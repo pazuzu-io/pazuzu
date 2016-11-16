@@ -8,3 +8,9 @@ test_spec.json
 
 # vscode files
 .vscode
+
+# Vim (Seriously! anybody?)
+.*.swp
+
+# MacOS (annoying)
+.DS_Store
