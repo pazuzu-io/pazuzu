@@ -38,6 +38,11 @@ type Config struct {
 	Memory      MemoryConfig `yaml:"memory"`
 }
 
+// SetBase : Setter of "Base".
+func (c *Config) SetBase(base string) {
+	c.Base = base
+}
+
 // NewConfig : Please call this function before GetConfig and only once in your application.
 func NewConfig() error {
 	// TODO: add read from $HOME/.pazuzu/config and return error if fail
