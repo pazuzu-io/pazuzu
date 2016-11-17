@@ -53,6 +53,11 @@ func (c *Config) SetGit(git GitConfig) {
 	c.Git = git
 }
 
+// SetURL : Setter of GitConfig.URL.
+func (g *GitConfig) SetURL(url string) {
+	g.URL = url
+}
+
 // NewConfig : Please call this function before GetConfig and only once in your application.
 func NewConfig() error {
 	// TODO: add read from $HOME/.pazuzu/config and return error if fail

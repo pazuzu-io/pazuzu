@@ -52,6 +52,21 @@ func TestConfigSetStorageType(t *testing.T) {
 	}
 }
 
+func TestConfigGitSetURL(t *testing.T) {
+	config := getConfig(t)
+
+	beforeURL := config.Git.URL
+	config.Git.SetURL("foobarzoo")
+
+	if strings.Compare(config.Git.URL, "foobarzoo") != 0 {
+		t.Errorf("SetURL FAIL! [%v]", config.Git.URL)
+	}
+
+	if strings.Compare(config.Git.URL, beforeURL) == 0 {
+		t.Error("No changes made.")
+	}
+}
+
 // TODO: save
 func TestConfigSave(ctx *testing.T) {
 }
