@@ -43,6 +43,16 @@ func (c *Config) SetBase(base string) {
 	c.Base = base
 }
 
+// SetStorageType : Setter of "StorageType".
+func (c *Config) SetStorageType(storageType string) {
+	c.StorageType = storageType
+}
+
+// SetGit : Setter of Git-Storage specific configuration.
+func (c *Config) SetGit(git GitConfig) {
+	c.Git = git
+}
+
 // NewConfig : Please call this function before GetConfig and only once in your application.
 func NewConfig() error {
 	// TODO: add read from $HOME/.pazuzu/config and return error if fail

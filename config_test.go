@@ -5,8 +5,7 @@ import (
 	"testing"
 )
 
-// TestConfigSet : tests on its mutability.
-func TestConfigSet(t *testing.T) {
+func getConfig(t *testing.T) Config {
 	errCnf := NewConfig()
 	if errCnf != nil {
 		t.Errorf("%v", errCnf)
@@ -16,6 +15,13 @@ func TestConfigSet(t *testing.T) {
 	if len(config.Base) <= 0 {
 		t.Error("Please fill 'Base' property of initial config.")
 	}
+
+	return config
+}
+
+// TestConfigSetBase : tests on its mutability.
+func TestConfigSetBase(t *testing.T) {
+	config := getConfig(t)
 
 	beforeBase := config.Base
 	const someAnotherBase = "foo-bar-zoo-spam-eggs"
@@ -27,6 +33,22 @@ func TestConfigSet(t *testing.T) {
 
 	if strings.Compare(config.Base, beforeBase) == 0 {
 		t.Errorf("Not changed 'Base' value!")
+	}
+}
+
+// TestConfigSetStorageType ...
+func TestConfigSetStorageType(t *testing.T) {
+	config := getConfig(t)
+
+	beforeStorageType := config.StorageType
+	config.SetStorageType("foo")
+
+	if strings.Compare(config.StorageType, "foo") != 0 {
+		t.Errorf("SetStorage FAIL! [%v]", config.StorageType)
+	}
+
+	if strings.Compare(config.StorageType, beforeStorageType) == 0 {
+		t.Error("No changes made.")
 	}
 }
 
