@@ -3,28 +3,34 @@ package pazuzu
 import (
 	"fmt"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
-	_ "log"
 )
 
 const (
-	URL        = "https://github.com/Sangdol/pazuzu-test-repo.git"
-	BASE_IMAGE = "ubuntu:14.04"
+	// URL : default features-repo.
+	URL = "https://github.com/Sangdol/pazuzu-test-repo.git"
+	// BaseImage : Base feature.
+	BaseImage = "ubuntu:14.04"
 
-	StorageTypeGit    = "git"
+	// StorageTypeGit : Git storage type.
+	StorageTypeGit = "git"
+	// StorageTypeMemory : Memory storage type.
 	StorageTypeMemory = "memory"
 )
 
 var config Config
 
+// GitConfig : config structure for Git-storage.
 type GitConfig struct {
-	Url string `yaml:"url"`
+	URL string `yaml:"url"`
 }
 
+// MemoryConfig : config structure for Memory-storage.
 type MemoryConfig struct {
 	InitialiseRandom bool `yaml:"random_init"`
 	RandomSetSize    int  `yaml:"random_size"`
 }
 
+// Config : actual config data structure.
 type Config struct {
 	Base        string       `yaml:"base"`
 	StorageType string       `yaml:"storage"`
@@ -32,25 +38,27 @@ type Config struct {
 	Memory      MemoryConfig `yaml:"memory"`
 }
 
+// NewConfig : Please call this function before GetConfig and only once in your application.
 func NewConfig() error {
 	// TODO: add read from $HOME/.pazuzu/config and return error if fail
 	// viper library is planned to be used here
 	config = Config{
 		StorageType: "git",
-		Base:        BASE_IMAGE,
-		Git:         GitConfig{Url: URL},
+		Base:        BaseImage,
+		Git:         GitConfig{URL: URL},
 		Memory: MemoryConfig{
 			InitialiseRandom: false,
 		},
 	}
-
 	return nil
 }
 
+// GetConfig : get loaded config.
 func GetConfig() Config {
 	return config
 }
 
+// GetStorageReader : create new StorageReader by StorageType of given config.
 func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	switch config.StorageType {
 	case StorageTypeMemory:
@@ -61,7 +69,7 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 
 		return storageconnector.NewMemoryStorage(data), nil // implement a generator of random list of features?
 	case StorageTypeGit:
-		return storageconnector.NewGitStorage(config.Git.Url)
+		return storageconnector.NewGitStorage(config.Git.URL)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
