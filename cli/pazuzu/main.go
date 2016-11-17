@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// Version ...
 var Version = "0.1"
 
 func main() {
@@ -48,12 +49,12 @@ func main() {
 
 		//TODO: Init config struct
 		errCnf := pazuzu.NewConfig()
-
 		if errCnf != nil {
 			fmt.Println(errCnf)
 			os.Exit(1)
 		}
-		// Sample reating conf values
+
+		// TODO: Display conf values
 		// log.Printf("Using URL: %v", config.Git.Url)
 
 		return nil
