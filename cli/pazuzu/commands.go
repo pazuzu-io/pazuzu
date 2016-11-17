@@ -85,7 +85,8 @@ var composeCmd = cli.Command{
 	ArgsUsage:   "[features] - Space separated feature names",
 	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
 	Action: func(c *cli.Context) error {
-		sc, err := pazuzu.GetStorageReader(pazuzu.GetConfig())
+		config := pazuzu.GetConfig()
+		sc, err := pazuzu.GetStorageReader(config)
 		if err != nil {
 			return err // TODO: process properly into human-readable message
 		}
@@ -114,7 +115,6 @@ var composeCmd = cli.Command{
 		}
 
 		defer f.Close()
-		config := pazuzu.GetConfig()
 		w := bufio.NewWriter(f)
 
 		pazuzu.Write(w, pazuzu.PazuzuFile{
