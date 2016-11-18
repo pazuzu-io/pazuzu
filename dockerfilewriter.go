@@ -3,8 +3,11 @@ package pazuzu
 import (
 	"bytes"
 	"fmt"
-	"github.com/docker/docker/builder/dockerfile/parser"
 	"strings"
+
+	"github.com/docker/docker/builder/dockerfile/parser"
+
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 var ErrInvalidCopyCmdSyntax = fmt.Errorf("Invalid 'COPY' command syntax")
@@ -27,7 +30,7 @@ func (c *DockerfileWriter) AppendRaw(chunk string) error {
 	return nil
 }
 
-func fixCopyCmd(node *parser.Node, feature Feature) (string, error) {
+func fixCopyCmd(node *parser.Node, feature storageconnector.Feature) (string, error) {
 	srcNode := node.Next
 	if srcNode == nil {
 		return "", ErrInvalidCopyCmdSyntax
@@ -37,16 +40,16 @@ func fixCopyCmd(node *parser.Node, feature Feature) (string, error) {
 		return "", ErrInvalidCopyCmdSyntax
 	}
 
-	fixedCmd := fmt.Sprintf("COPY %s/%s %s", feature.Name, srcNode.Value, dstNode.Value)
+	fixedCmd := fmt.Sprintf("COPY %s/%s %s", feature.Meta.Name, srcNode.Value, dstNode.Value)
 
 	return fixedCmd, nil
 }
 
-func (c *DockerfileWriter) AppendFeature(feature Feature) error {
+func (c *DockerfileWriter) AppendFeature(feature storageconnector.Feature) error {
 	d := parser.Directive{LookingForDirectives: true}
 	parser.SetEscapeToken(parser.DefaultEscapeToken, &d)
 
-	ast, err := parser.Parse(strings.NewReader(feature.DockerData), &d)
+	ast, err := parser.Parse(strings.NewReader(feature.Snippet), &d)
 	if err != nil {
 		return err
 	}

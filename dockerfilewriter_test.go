@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 func TestDockerfileWriter(t *testing.T) {
@@ -32,7 +34,13 @@ func TestDockerfileWriter(t *testing.T) {
 	}
 
 	for _, f := range features {
-		err := writer.AppendFeature(Feature{Name: f.name, DockerData: f.data})
+		err := writer.AppendFeature(
+			storageconnector.Feature{
+				Meta: storageconnector.FeatureMeta{
+					Name: f.name,
+				},
+				Snippet: f.data,
+			})
 		if err != nil {
 			t.Fatalf("Feature should be appended: %s", err)
 		}
