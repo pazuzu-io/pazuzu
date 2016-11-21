@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"reflect"
 )
 
 const (
@@ -31,21 +32,21 @@ var config Config
 
 // GitConfig : config structure for Git-storage.
 type GitConfig struct {
-	URL string `yaml:"url"`
+	URL string `yaml:"url" help:"Git Repository URL."`
 }
 
 // MemoryConfig : config structure for Memory-storage.
 type MemoryConfig struct {
-	InitialiseRandom bool `yaml:"random_init"`
-	RandomSetSize    int  `yaml:"random_size"`
+	InitialiseRandom bool `yaml:"random_init" help:"???"`
+	RandomSetSize    int  `yaml:"random_size" help:"???"`
 }
 
 // Config : actual config data structure.
 type Config struct {
-	Base        string       `yaml:"base"`
-	StorageType string       `yaml:"storage"`
-	Git         GitConfig    `yaml:"git"`
-	Memory      MemoryConfig `yaml:"memory"`
+	Base        string       `yaml:"base" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
+	StorageType string       `yaml:"storage" help:"Storage-type ('git' or 'memory')"`
+	Git         GitConfig    `yaml:"git" help:"Git storage configs."`
+	Memory      MemoryConfig `yaml:"memory" help:"Memory storage configs."`
 }
 
 // SetBase : Setter of "Base".
@@ -193,4 +194,23 @@ func (c *Config) SaveToFile(configFn string) error {
 		return errWriter
 	}
 	return nil
+}
+
+func (c *Config) TraverseEachField(cb func(field reflect.StructField, ancestors []reflect.StructField)) {
+	aType := reflect.TypeOf(*c)
+	traverseEachFieldRecur(aType, []reflect.StructField{}, cb)
+}
+
+func traverseEachFieldRecur(aType reflect.Type, ancestors []reflect.StructField,
+	cb func(field reflect.StructField, ancestors []reflect.StructField)) {
+	//
+	for i := 0; i < aType.NumField(); i++ {
+		field := aType.Field(i)
+		if field.Type.Kind() == reflect.Struct {
+			bType := field.Type
+			traverseEachFieldRecur(bType, append(ancestors, field), cb)
+		} else {
+			cb(field, ancestors)
+		}
+	}
 }

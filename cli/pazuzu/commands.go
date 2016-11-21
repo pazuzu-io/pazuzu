@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
 	"regexp"
 	"text/tabwriter"
+	"reflect"
+	"strings"
 )
 
 var cnfGetCmd = cli.Command{
@@ -21,12 +22,49 @@ var cnfGetCmd = cli.Command{
 		return ErrNotImplemented
 	},
 }
+
 var cnfSetCmd = cli.Command{
 	Name:  "set",
 	Usage: "Set pazuzu configuration",
 	Action: func(с *cli.Context) error {
 		// log.Print("Setting pazuzu configuration")
 		// return nil
+		return ErrNotImplemented
+	},
+}
+
+func joinConfigPath(path []reflect.StructField) string {
+	yamlNames := []string{}
+	for _, field := range path {
+		yamlNames = append(yamlNames, field.Tag.Get("yaml"))
+	}
+	return strings.Join(yamlNames, ".")
+}
+
+var cnfHelpCmd = cli.Command{
+	Name: "help",
+	Usage: "Print help on configuration",
+	Action: func(c *cli.Context) error {
+		cfg := pazuzu.GetConfig()
+		fmt.Println("Pazuzu CLI Config related commands:")
+		fmt.Println("\tpazuzu config list\t -- Listing of configuration.")
+		fmt.Println("\tpazuzu config help\t-- This help documentation.")
+		fmt.Println("\tpazuzu config get KEY\t-- Get specific configuration value.")
+		fmt.Println("\tpazuzu config set KEY VALUE\t-- Set configuration.")
+		fmt.Printf("\nConfiguration keys and its descriptions:\n")
+		cfg.TraverseEachField(func (field reflect.StructField, ancestors []reflect.StructField) {
+			tag := field.Tag
+			fmt.Printf("\t%s\t\t%s\n", joinConfigPath(append(ancestors, field)), tag.Get("help"))
+		})
+		return nil
+	},
+}
+
+var cnfListCmd = cli.Command{
+	Name: "list",
+	Usage: "List current effective configuration",
+	Action: func(c *cli.Context) error {
+		// TODO:
 		return ErrNotImplemented
 	},
 }
@@ -38,6 +76,8 @@ var configCmd = cli.Command{
 	Subcommands: []cli.Command{
 		cnfGetCmd,
 		cnfSetCmd,
+		cnfHelpCmd,
+		cnfListCmd,
 	},
 }
 
