@@ -77,7 +77,9 @@ func TestConfigSaveAndLoad(t *testing.T) {
 	tempFn := path.Join(os.TempDir(), uuid.NewV4().String())
 	t.Logf("TEMP-FN = [%s]\n", tempFn)
 
-	defer os.Remove(tempFn)
+	defer func() {
+		_ = os.Remove(tempFn)
+	}()
 
 	const ExpectBase = "MyBase"
 	const ExpectStorageType = "git"
