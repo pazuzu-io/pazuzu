@@ -2,10 +2,20 @@ package pazuzu
 
 import (
 	"fmt"
+	"github.com/jinzhu/copier"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
+	"gopkg.in/yaml.v2"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 )
 
 const (
+	UserConfigFilenamePart = ".pazuzu-cli.yaml"
+
 	// URL : default features-repo.
 	URL = "https://github.com/Sangdol/pazuzu-test-repo.git"
 	// BaseImage : Base feature.
@@ -98,4 +108,89 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 func generateRandomFeatures(setsize int) []storageconnector.Feature {
 	// TODO: implement in case of need
 	return []storageconnector.Feature{}
+}
+
+func UserHomeDir() string {
+	if runtime.GOOS == "windows" {
+		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+		if home == "" {
+			home = os.Getenv("USERPROFILE")
+		}
+		return home
+	}
+	return os.Getenv("HOME")
+}
+
+func UserConfigFilename() string {
+	return filepath.Join(UserHomeDir(), UserConfigFilenamePart)
+}
+
+func (c *Config) SaveToWriter(writer io.Writer) error {
+	data, err := yaml.Marshal(c)
+	_, err = writer.Write(data)
+	return err
+}
+
+func LoadConfigFromReader(reader io.Reader) (Config, error) {
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return Config{}, err
+	}
+
+	c := &Config{}
+	err = yaml.Unmarshal(content, c)
+	if err != nil {
+		return Config{}, err
+	}
+
+	return *c, nil
+}
+
+func (c *Config) Load() {
+	configFn := UserConfigFilename()
+	c.LoadFromFile(configFn)
+}
+
+func (c *Config) LoadFromFile(configFn string) {
+	f, err := os.Open(configFn)
+	if err != nil {
+		log.Printf("Cannot open config-file [%s], Reason = [%s], SKIP\n",
+			configFn, err)
+		return
+	}
+	defer f.Close()
+
+	// replace cfg?
+	cfg2, errLoad := LoadConfigFromReader(f)
+	if errLoad != nil {
+		log.Printf("Cannot load from [%s], Reason = [%s], SKIP\n",
+			configFn, errLoad)
+		return
+	}
+
+	errCopy := copier.Copy(c, &cfg2)
+	if errCopy != nil {
+		log.Printf("Cannot copy [%v] to [%v], Reason = [%s], SKIP\n",
+			cfg2, c, errCopy)
+		return
+	}
+}
+
+func (c *Config) Save() error {
+	configFn := UserConfigFilename()
+	return c.SaveToFile(configFn)
+}
+
+func (c *Config) SaveToFile(configFn string) error {
+	f, err := os.Create(configFn)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	errWriter := c.SaveToWriter(f)
+	if errWriter != nil {
+		return errWriter
+	}
+	return nil
 }

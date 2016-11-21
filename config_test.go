@@ -1,6 +1,10 @@
 package pazuzu
 
 import (
+	"fmt"
+	"github.com/satori/go.uuid"
+	"os"
+	"path"
 	"strings"
 	"testing"
 )
@@ -67,10 +71,63 @@ func TestConfigGitSetURL(t *testing.T) {
 	}
 }
 
-// TODO: save
-func TestConfigSave(ctx *testing.T) {
+func TestConfigSaveAndLoad(t *testing.T) {
+	config := getConfig(t)
+
+	tempFn := path.Join(os.TempDir(), uuid.NewV4().String())
+	t.Logf("TEMP-FN = [%s]\n", tempFn)
+
+	defer os.Remove(tempFn)
+
+	const ExpectBase = "MyBase"
+	const ExpectStorageType = "git"
+	const ExpectGitURL = "some-git-url"
+
+	const UnexpectBase = "NotMyBase"
+	const UnexpectStorageType = "memory"
+	const UnexpectGitURL = "not-git-url"
+
+	config.SetBase(ExpectBase)
+	config.SetStorageType(ExpectStorageType)
+	config.Git.SetURL(ExpectGitURL)
+
+	errSave := config.SaveToFile(tempFn)
+	if errSave != nil {
+		t.Fatalf("SaveToFile FAIL! filename=[%s], reason=[%v]\n",
+			tempFn, errSave)
+	}
+
+	config.SetBase(UnexpectBase)
+	config.SetStorageType(UnexpectStorageType)
+	config.Git.SetURL(UnexpectGitURL)
+
+	config.LoadFromFile(tempFn)
+
+	if config.Base != ExpectBase {
+		t.Fatalf("'Base' config-val should be equals with [%s], but [%s]",
+			ExpectBase, config.Base)
+	}
+
+	if config.StorageType != ExpectStorageType {
+		t.Fatalf("'StorageType' config-val should be equals with [%s], but [%s]",
+			ExpectStorageType, config.StorageType)
+	}
+
+	if config.Git.URL != ExpectGitURL {
+		t.Fatalf("'Git.URL' config-val should be equals with [%s], but [%s]",
+			ExpectGitURL, config.Git.URL)
+	}
 }
 
-// TODO: load
-func TestConfigLoad(ctx *testing.T) {
+func TestConfigUserHomeDir(t *testing.T) {
+	home := UserHomeDir()
+	fmt.Printf("home = [%v]\n", home)
+	if len(home) <= 0 {
+		t.Errorf("Too short for home-dir! [%v]", home)
+	}
+}
+
+func TestConfigUserConfigFilename(t *testing.T) {
+	filename := UserConfigFilename()
+	fmt.Printf("user-config-filename = [%v]\n", filename)
 }
