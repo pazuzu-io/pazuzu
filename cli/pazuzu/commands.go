@@ -64,9 +64,15 @@ var cnfSetCmd = cli.Command{
 			configPath := makeConfigPathString(ancestors, field)
 			if configPath == givenPath {
 				setterName := field.Tag.Get("setter")
-				// TODO: setterName?
+				if len(setterName) < 1 {
+					fmt.Printf("Please add 'setter' tag to this config field! [%v]\n", givenPath)
+					return ErrNotImplemented
+				}
 				setterMethod := addressableVal.MethodByName(setterName)
-				// TODO: setterMethod?
+				if !setterMethod.IsValid() {
+					fmt.Printf("Given setter method is invalid! [%v]\n", setterName)
+					return ErrNotImplemented
+				}
 				setterMethod.Call([]reflect.Value{reflect.ValueOf(givenValRepr)})
 				//
 				return ErrStopIteration
