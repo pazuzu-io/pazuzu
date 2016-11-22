@@ -26,20 +26,24 @@ func (store* postgreStorage) disconnectFromPg() {
 }
 
 func (store* postgreStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
+// TODO: implement (github issue #91)
 	return nil, nil
 }
 
 func (store* postgreStorage) GetMeta(name string) (FeatureMeta, error) {
+// TODO: implement (github issue #91)
 	var f FeatureMeta
 	return f, nil
 }
 
 func (store* postgreStorage) GetFeature(name string) (Feature, error) {
+// TODO: implement (github issue #91)
 	var f Feature
 	return f,nil
 }
 
 func (store* postgreStorage) Resolve(names ...string) (map[string]Feature, error) {
+// TODO: implement (github issue #91)
 	return nil,nil
 }
 
