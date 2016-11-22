@@ -213,8 +213,6 @@ func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type,
 		if field.Type.Kind() == reflect.Struct {
 			bType := field.Type
 			f := reflect.Indirect(aVal).FieldByName(field.Name)
-			//fmt.Printf("\tstruct-val=[%s]\n", f)
-			//bVal := reflect.ValueOf(bType)
 			err := traverseEachFieldRecur(f, bType, append(ancestors, field), cb)
 			if err != nil {
 				return err
