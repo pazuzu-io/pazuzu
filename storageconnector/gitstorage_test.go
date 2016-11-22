@@ -97,7 +97,7 @@ func TestGitStorage_Get(t *testing.T) {
 			t.Errorf("Feature name should be 'java' but was '%s'", feature.Meta.Name)
 		}
 
-		if feature.Snippet != "" {
+		if feature.Snippet == "" {
 			t.Error("Feature snippet should not be empty", feature.Snippet)
 		}
 	})

@@ -12,12 +12,14 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 // Pazuzu defines pazuzu config.
 type Pazuzu struct {
-	registry       PazuzuRegistry
-	dockerfile     []byte
+	StorageReader  storageconnector.StorageReader
+	Dockerfile     []byte
 	testSpec       string
 	dockerEndpoint string
 	docker         *docker.Client
@@ -59,22 +61,14 @@ func Write(writer io.Writer, pazuzuFile PazuzuFile) error {
 
 // Generate generates Dockfiler and test.spec file base on list of features
 func (p *Pazuzu) Generate(baseimage string, features []string) error {
-	fs, err := p.registry.GetFeatures(features)
-	if err != nil {
-		return err
+	var resolvedFeatures []storageconnector.Feature
+	for _, feature := range features {
+		// TODO: add proper error handling
+		repoFeature, _ := p.StorageReader.GetFeature(feature)
+		resolvedFeatures = append(resolvedFeatures, repoFeature)
 	}
 
-	err = p.fetchFiles(fs)
-	if err != nil {
-		return err
-	}
-
-	err = p.generateDockerfile(baseimage, fs)
-	if err != nil {
-		return err
-	}
-
-	err = p.generateTestSpec(fs)
+	err := p.generateDockerfile(baseimage, resolvedFeatures)
 	if err != nil {
 		return err
 	}
@@ -92,26 +86,8 @@ func (p *Pazuzu) Cleanup() {
 	}
 }
 
-func (p *Pazuzu) fetchFiles(features []Feature) error {
-	files := make(map[string]string)
-	for _, feature := range features {
-		featureFiles, err := p.registry.FetchFiles(feature)
-		if err != nil {
-			return err
-		}
-
-		for origFName, tmpFName := range featureFiles {
-			files[feature.Name+"/"+origFName] = tmpFName
-		}
-	}
-
-	p.files = files
-
-	return nil
-}
-
 // generate in-memory Dockerfile from list of features.
-func (p *Pazuzu) generateDockerfile(baseimage string, features []Feature) error {
+func (p *Pazuzu) generateDockerfile(baseimage string, features []storageconnector.Feature) error {
 	writer := NewDockerfileWriter()
 
 	err := writer.AppendRaw(fmt.Sprintf("FROM %s\n", baseimage))
@@ -120,10 +96,11 @@ func (p *Pazuzu) generateDockerfile(baseimage string, features []Feature) error 
 	}
 
 	for _, feature := range features {
-		err = writer.AppendRaw(fmt.Sprintf("# %s\n", feature.Name))
+		err = writer.AppendRaw(fmt.Sprintf("# %s\n", feature.Meta.Name))
 		if err != nil {
 			return err
 		}
+		fmt.Print(feature.Meta)
 
 		err = writer.AppendFeature(feature)
 		if err != nil {
@@ -136,7 +113,7 @@ func (p *Pazuzu) generateDockerfile(baseimage string, features []Feature) error 
 		return err
 	}
 
-	p.dockerfile = writer.Bytes()
+	p.Dockerfile = writer.Bytes()
 
 	return nil
 }
@@ -144,29 +121,6 @@ func (p *Pazuzu) generateDockerfile(baseimage string, features []Feature) error 
 type TestSpec struct {
 	Feature string `json:"feature"`
 	Cmd     string `json:"cmd"`
-}
-
-// generate test spec from list of features.
-func (p *Pazuzu) generateTestSpec(features []Feature) error {
-	f, err := os.Create(p.testSpec)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	var specs []TestSpec
-
-	for _, feature := range features {
-		spec := TestSpec{
-			Feature: feature.Name,
-			Cmd:     feature.TestInstruction,
-		}
-
-		specs = append(specs, spec)
-	}
-
-	enc := json.NewEncoder(f)
-	return enc.Encode(specs)
 }
 
 // read test specs from file.
@@ -239,7 +193,7 @@ func (p *Pazuzu) DockerBuild(name string) error {
 	tr := tar.NewWriter(inputBuf)
 	err = tr.WriteHeader(&tar.Header{
 		Name:       "Dockerfile",
-		Size:       int64(len(p.dockerfile)),
+		Size:       int64(len(p.Dockerfile)),
 		ModTime:    t,
 		AccessTime: t,
 		ChangeTime: t,
@@ -248,7 +202,7 @@ func (p *Pazuzu) DockerBuild(name string) error {
 		return err
 	}
 
-	_, err = tr.Write(p.dockerfile)
+	_, err = tr.Write(p.Dockerfile)
 	if err != nil {
 		return err
 	}

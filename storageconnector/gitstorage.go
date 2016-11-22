@@ -168,7 +168,7 @@ func getFeature(commit *git.Commit, name string) (Feature, error) {
 		return Feature{}, err
 	}
 
-	file, err := commit.File(path.Join(featureFile, name, featureSnippet))
+	file, err := commit.File(path.Join(featureDir, name, featureSnippet))
 	if err != nil {
 		if err == git.ErrFileNotFound {
 			return Feature{Meta: meta}, nil
