@@ -19,13 +19,13 @@ var cnfGetCmd = cli.Command{
 	Action: func(c *cli.Context) error {
 		a := c.Args()
 		if len(a) != 1 {
-			return ErrTooManyParameters
+			return ErrTooFewOrManyParameters
 		}
 		//
 		givenPath := a.Get(0)
 		cfg := pazuzu.GetConfig()
 		err := cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type,
+			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
 			ancestors []reflect.StructField) error {
 			//
 			configPath := makeConfigPathString(ancestors, field)
@@ -49,11 +49,36 @@ var cnfSetCmd = cli.Command{
 	Name:  "set",
 	Usage: "Set pazuzu configuration",
 	Action: func(c *cli.Context) error {
-		return ErrNotImplemented
-		/*
-			fmt.Printf("%s\n", c.Args().Get(0))
+		a := c.Args()
+		if len(a) != 2 {
+			return ErrTooFewOrManyParameters
+		}
+		//
+		givenPath := a.Get(0)
+		givenValRepr := a.Get(1)
+		cfg := pazuzu.GetConfig()
+		err := cfg.TraverseEachField(func(field reflect.StructField,
+			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
+			ancestors []reflect.StructField) error {
+			//
+			configPath := makeConfigPathString(ancestors, field)
+			if configPath == givenPath {
+				setterName := field.Tag.Get("setter")
+				// TODO: setterName?
+				setterMethod := addressableVal.MethodByName(setterName)
+				// TODO: setterMethod?
+				setterMethod.Call([]reflect.Value{reflect.ValueOf(givenValRepr)})
+				//
+				return ErrStopIteration
+			}
 			return nil
-		*/
+		})
+		if err == ErrStopIteration {
+			// Oh, it's nice.
+			_ = cfg.Save()
+			return nil
+		}
+		return ErrNotFound
 	},
 }
 
@@ -81,7 +106,7 @@ var cnfHelpCmd = cli.Command{
 		fmt.Println("\tpazuzu config set KEY VALUE\t-- Set configuration.")
 		fmt.Printf("\nConfiguration keys and its descriptions:\n")
 		cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type,
+			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
 			ancestors []reflect.StructField) error {
 			//
 			tag := field.Tag
@@ -115,7 +140,7 @@ var cnfListCmd = cli.Command{
 	Action: func(c *cli.Context) error {
 		cfg := pazuzu.GetConfig()
 		cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type,
+			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
 			ancestors []reflect.StructField) error {
 			//
 			f := reflect.Indirect(aVal).FieldByName(field.Name)

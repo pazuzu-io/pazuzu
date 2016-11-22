@@ -32,7 +32,7 @@ var config Config
 
 // GitConfig : config structure for Git-storage.
 type GitConfig struct {
-	URL string `yaml:"url" help:"Git Repository URL."`
+	URL string `yaml:"url" setter:"SetURL" help:"Git Repository URL."`
 }
 
 // MemoryConfig : config structure for Memory-storage.
@@ -43,8 +43,8 @@ type MemoryConfig struct {
 
 // Config : actual config data structure.
 type Config struct {
-	Base        string       `yaml:"base" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
-	StorageType string       `yaml:"storage" help:"Storage-type ('git' or 'memory')"`
+	Base        string       `yaml:"base" setter:"SetBase" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
+	StorageType string       `yaml:"storage" setter:"SetStorageType" help:"Storage-type ('git' or 'memory')"`
 	Git         GitConfig    `yaml:"git" help:"Git storage configs."`
 	Memory      MemoryConfig `yaml:"memory" help:"Memory storage configs."`
 }
@@ -71,8 +71,6 @@ func (g *GitConfig) SetURL(url string) {
 
 // NewConfig : Please call this function before GetConfig and only once in your application.
 func NewConfig() error {
-	// TODO: add read from $HOME/.pazuzu/config and return error if fail
-	// viper library is planned to be used here
 	config = Config{
 		StorageType: "git",
 		Base:        BaseImage,
@@ -81,6 +79,7 @@ func NewConfig() error {
 			InitialiseRandom: false,
 		},
 	}
+	config.Load()
 	return nil
 }
 
@@ -197,15 +196,18 @@ func (c *Config) SaveToFile(configFn string) error {
 }
 
 type ConfigTraverseFunc func(field reflect.StructField,
-	aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField) error
+	aVal reflect.Value, aType reflect.Type,
+	addressableVal reflect.Value,
+	ancestors []reflect.StructField) error
 
 func (c *Config) TraverseEachField(cb ConfigTraverseFunc) error {
 	aType := reflect.TypeOf(*c)
 	aVal := reflect.ValueOf(*c)
-	return traverseEachFieldRecur(aVal, aType, []reflect.StructField{}, cb)
+	addressableVal := reflect.ValueOf(c)
+	return traverseEachFieldRecur(aVal, aType, addressableVal, []reflect.StructField{}, cb)
 }
 
-func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type,
+func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
 	ancestors []reflect.StructField, cb ConfigTraverseFunc) error {
 	//
 	for i := 0; i < aType.NumField(); i++ {
@@ -213,12 +215,13 @@ func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type,
 		if field.Type.Kind() == reflect.Struct {
 			bType := field.Type
 			f := reflect.Indirect(aVal).FieldByName(field.Name)
-			err := traverseEachFieldRecur(f, bType, append(ancestors, field), cb)
+			f2 := reflect.Indirect(addressableVal).FieldByName(field.Name)
+			err := traverseEachFieldRecur(f, bType, f2.Addr(), append(ancestors, field), cb)
 			if err != nil {
 				return err
 			}
 		} else {
-			err := cb(field, aVal, aType, ancestors)
+			err := cb(field, aVal, aType, addressableVal, ancestors)
 			if err != nil {
 				return err
 			}
