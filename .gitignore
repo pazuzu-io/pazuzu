@@ -14,3 +14,8 @@ test_spec.json
 
 # MacOS (annoying)
 .DS_Store
+
+# Internal data files
+Pazuzufile
+Dockerfile
+
