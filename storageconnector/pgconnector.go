@@ -1,4 +1,4 @@
-package main
+package storageconnector
 
 import (
 	"database/sql"
@@ -30,11 +30,13 @@ func (store* postgreStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, err
 }
 
 func (store* postgreStorage) GetMeta(name string) (FeatureMeta, error) {
-	return nil, nil
+	var f FeatureMeta
+	return f, nil
 }
 
 func (store* postgreStorage) GetFeature(name string) (Feature, error) {
-	return nil,nil
+	var f Feature
+	return f,nil
 }
 
 func (store* postgreStorage) Resolve(names ...string) (map[string]Feature, error) {
