@@ -149,53 +149,71 @@ var searchCmd = cli.Command{
 	},
 }
 
+var composeFlags = []cli.Flag{
+	cli.StringFlag{
+		Name:  "a, add",
+		Usage: "Add features from comma-separated list of `FEATURES`",
+	},
+	cli.StringFlag{
+		Name:  "i, init",
+		Usage: "Init set of features from comma-separated list of `FEATURES`",
+	},
+	cli.StringFlag{
+		Name:  "d, destination",
+		Usage: "Sets destination for Docketfile and Pazuzufile to `DESTINATION`",
+	},
+}
+
 var composeCmd = cli.Command{
-	Name:        "compose",
-	Usage:       "Compose Pazuzufile out of the selected features",
-	ArgsUsage:   "[features] - Space separated feature names",
-	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
-	Action: func(c *cli.Context) error {
-		config := pazuzu.GetConfig()
-		sc, err := pazuzu.GetStorageReader(*config)
+	Name:      "compose",
+	Usage:     "Compose Pazuzufile and Dockerfile out of the selected features",
+	ArgsUsage: " ",		// Do not show arguments
+	Description: "Compose step takes list of features as input, validates feature dependencies" +
+		" and creates both Pazuzufile and Dockerfile.",
+	Action: composeFiles,
+	Flags:  composeFlags,
+}
+
+var composeFiles = func(c *cli.Context) error {
+	config := pazuzu.GetConfig()
+	sc, err := pazuzu.GetStorageReader(*config)
+	if err != nil {
+		return err // TODO: process properly into human-readable message
+	}
+
+	var features []string
+
+	// Check if feature actually exists in repository
+	for _, v := range c.Args() {
+		log.Printf("Checking: %v\n", v)
+
+		_, err := sc.GetMeta(v)
 		if err != nil {
-			return err // TODO: process properly into human-readable message
-		}
-
-		var features []string
-
-		// Check if feature actually exists in repository
-		for _, v := range c.Args() {
-			log.Printf("Checking: %v\n", v)
-
-			_, err := sc.GetMeta(v)
-			if err != nil {
-				log.Printf("could not find feature \"%v\" in repository.", v)
-				return err
-			}
-			features = append(features, fmt.Sprintf("%v", v))
-
-		}
-
-		log.Printf("features: %v", features)
-
-		f, err := os.Create("Pazuzufile")
-		if err != nil {
-			log.Print("could not create Pazuzufile")
+			log.Printf("could not find feature \"%v\" in repository.", v)
 			return err
 		}
+		features = append(features, fmt.Sprintf("%v", v))
 
-		defer f.Close()
-		w := bufio.NewWriter(f)
+	}
 
-		pazuzu.Write(w, pazuzu.PazuzuFile{
-			Base:     config.Base,
-			Features: features})
+	log.Printf("features: %v", features)
 
-		w.Flush()
+	f, err := os.Create("Pazuzufile")
+	if err != nil {
+		log.Print("could not create Pazuzufile")
+		return err
+	}
 
-		return nil
-	},
-	// TODO: add -o/--out option according to README file
+	defer f.Close()
+	w := bufio.NewWriter(f)
+
+	pazuzu.Write(w, pazuzu.PazuzuFile{
+		Base:     config.Base,
+		Features: features})
+
+	w.Flush()
+
+	return nil
 }
 
 var buildCmd = cli.Command{
