@@ -41,6 +41,10 @@ func joinConfigPath(path []reflect.StructField) string {
 	return strings.Join(yamlNames, ".")
 }
 
+func makeConfigPathString(ancestors []reflect.StructField, field reflect.StructField) string {
+	return joinConfigPath(append(ancestors, field))
+}
+
 var cnfHelpCmd = cli.Command{
 	Name: "help",
 	Usage: "Print help on configuration",
@@ -52,20 +56,29 @@ var cnfHelpCmd = cli.Command{
 		fmt.Println("\tpazuzu config get KEY\t-- Get specific configuration value.")
 		fmt.Println("\tpazuzu config set KEY VALUE\t-- Set configuration.")
 		fmt.Printf("\nConfiguration keys and its descriptions:\n")
-		cfg.TraverseEachField(func (field reflect.StructField, ancestors []reflect.StructField) {
+		cfg.TraverseEachField(func (field reflect.StructField, aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField) {
 			tag := field.Tag
-			fmt.Printf("\t%s\t\t%s\n", joinConfigPath(append(ancestors, field)), tag.Get("help"))
+			configPath := makeConfigPathString(ancestors, field)
+			helpStr := tag.Get("help")
+			fmt.Printf("\t%s\t\t%s\n", configPath, helpStr)
 		})
 		return nil
 	},
 }
 
+// TODO: to-string(aVal)
+
 var cnfListCmd = cli.Command{
 	Name: "list",
 	Usage: "List current effective configuration",
 	Action: func(c *cli.Context) error {
-		// TODO:
-		return ErrNotImplemented
+		cfg := pazuzu.GetConfig()
+		cfg.TraverseEachField(func (field reflect.StructField, aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField) {
+			f := reflect.Indirect(aVal).FieldByName(field.Name)
+			configPath := makeConfigPathString(ancestors, field)
+			fmt.Printf("%s=%s\n", configPath, f.String())
+		})
+		return nil
 	},
 }
 

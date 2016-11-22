@@ -196,21 +196,26 @@ func (c *Config) SaveToFile(configFn string) error {
 	return nil
 }
 
-func (c *Config) TraverseEachField(cb func(field reflect.StructField, ancestors []reflect.StructField)) {
+type ConfigTraverseFunc func(field reflect.StructField, aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField)
+
+func (c *Config) TraverseEachField(cb ConfigTraverseFunc) {
 	aType := reflect.TypeOf(*c)
-	traverseEachFieldRecur(aType, []reflect.StructField{}, cb)
+	aVal := reflect.ValueOf(*c)
+	traverseEachFieldRecur(aVal, aType, []reflect.StructField{}, cb)
 }
 
-func traverseEachFieldRecur(aType reflect.Type, ancestors []reflect.StructField,
-	cb func(field reflect.StructField, ancestors []reflect.StructField)) {
+func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField, cb ConfigTraverseFunc) {
 	//
 	for i := 0; i < aType.NumField(); i++ {
 		field := aType.Field(i)
 		if field.Type.Kind() == reflect.Struct {
 			bType := field.Type
-			traverseEachFieldRecur(bType, append(ancestors, field), cb)
+			f := reflect.Indirect(aVal).FieldByName(field.Name)
+			//fmt.Printf("\tstruct-val=[%s]\n", f)
+			//bVal := reflect.ValueOf(bType)
+			traverseEachFieldRecur(f, bType, append(ancestors, field), cb)
 		} else {
-			cb(field, ancestors)
+			cb(field, aVal, aType, ancestors)
 		}
 	}
 }
