@@ -137,7 +137,39 @@ var buildCmd = cli.Command{
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
-	return ErrNotImplemented
+	// TODO: Make file configurable via CLI args (GH Issue #102)
+	fileName := "Pazuzufile"
+
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Printf("Cannot find %s", fileName)
+		return err
+	}
+	defer file.Close()
+
+	config := pazuzu.GetConfig()
+	storageReader, err := pazuzu.GetStorageReader(config)
+
+	reader := bufio.NewReader(file)
+	pazuzuFile, err := pazuzu.Read(reader)
+
+	p := pazuzu.Pazuzu{StorageReader: storageReader}
+	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
+
+	f, err := os.Create("Dockerfile")
+	if err != nil {
+		log.Print("could not create Dockerfile")
+		return err
+	}
+
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	w.Write(p.Dockerfile)
+	w.Flush()
+
+	return nil
+
 	// TODO: In case of -f/--feature-set option slice of features
 	// should be used instead of Pazuzufile
 
