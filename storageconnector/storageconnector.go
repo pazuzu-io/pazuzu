@@ -28,6 +28,22 @@ type StorageReader interface {
 	Resolve(names ...string) (map[string]Feature, error)
 }
 
+type StorageWriter interface {
+	// storeFeature is used to store a new feature
+	storeFeature(f *Feature)
+
+	// modify FeatureMeta of a feature that currently exists
+	modifyFeatureMeta (name string, meta *FeatureMeta)
+
+	// modify Snippet of a already existing feature
+	modifyFeatureSnippet (name string, snippet string)
+
+	// delete feature
+	deleteFeature (name string)
+
+}
+
+
 // FeatureMeta provides short information about the Feature.
 // This piece of data better to be indexed by a storage.
 type FeatureMeta struct {
