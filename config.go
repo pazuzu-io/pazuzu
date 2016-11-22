@@ -10,8 +10,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"reflect"
+	"runtime"
 )
 
 const (
@@ -196,15 +196,17 @@ func (c *Config) SaveToFile(configFn string) error {
 	return nil
 }
 
-type ConfigTraverseFunc func(field reflect.StructField, aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField)
+type ConfigTraverseFunc func(field reflect.StructField,
+	aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField) error
 
-func (c *Config) TraverseEachField(cb ConfigTraverseFunc) {
+func (c *Config) TraverseEachField(cb ConfigTraverseFunc) error {
 	aType := reflect.TypeOf(*c)
 	aVal := reflect.ValueOf(*c)
-	traverseEachFieldRecur(aVal, aType, []reflect.StructField{}, cb)
+	return traverseEachFieldRecur(aVal, aType, []reflect.StructField{}, cb)
 }
 
-func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField, cb ConfigTraverseFunc) {
+func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type,
+	ancestors []reflect.StructField, cb ConfigTraverseFunc) error {
 	//
 	for i := 0; i < aType.NumField(); i++ {
 		field := aType.Field(i)
@@ -213,9 +215,17 @@ func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type, ancestors []
 			f := reflect.Indirect(aVal).FieldByName(field.Name)
 			//fmt.Printf("\tstruct-val=[%s]\n", f)
 			//bVal := reflect.ValueOf(bType)
-			traverseEachFieldRecur(f, bType, append(ancestors, field), cb)
+			err := traverseEachFieldRecur(f, bType, append(ancestors, field), cb)
+			if err != nil {
+				return err
+			}
 		} else {
-			cb(field, aVal, aType, ancestors)
+			err := cb(field, aVal, aType, ancestors)
+			if err != nil {
+				return err
+			}
 		}
 	}
+	//
+	return nil
 }
