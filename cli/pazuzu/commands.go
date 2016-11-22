@@ -66,7 +66,20 @@ var cnfHelpCmd = cli.Command{
 	},
 }
 
-// TODO: to-string(aVal)
+func toReprFromReflectValue(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.Bool:
+		b := v.Bool()
+		return fmt.Sprintf("%v", b)
+	case reflect.Int:
+		n := v.Int()
+		return fmt.Sprintf("%v", n)
+	case reflect.String:
+		return v.String()
+	default:
+		return v.String()
+	}
+}
 
 var cnfListCmd = cli.Command{
 	Name: "list",
@@ -76,7 +89,7 @@ var cnfListCmd = cli.Command{
 		cfg.TraverseEachField(func (field reflect.StructField, aVal reflect.Value, aType reflect.Type, ancestors []reflect.StructField) {
 			f := reflect.Indirect(aVal).FieldByName(field.Name)
 			configPath := makeConfigPathString(ancestors, field)
-			fmt.Printf("%s=%s\n", configPath, f.String())
+			fmt.Printf("%s=%s\n", configPath, toReprFromReflectValue(f))
 		})
 		return nil
 	},
