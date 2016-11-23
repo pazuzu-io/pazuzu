@@ -27,8 +27,23 @@ func (store *postgreStorage) disconnectFromPg() {
 }
 
 func (store *postgreStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
-	// TODO: implement (github issue #91)
-	return nil, nil
+	var sql_query string
+	var dep_text string
+	var snippet string
+	sql_query = fmt.Sprintf("select * from features where name ~ %s", name)
+	rows, err := store.db.Query(sql_query)
+	checkErr(err)
+	defer rows.Close()
+	var fms []FeatureMeta
+	for rows.Next() {
+		var f FeatureMeta
+		var index int
+		err := rows.Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, dep_text, snippet)
+		checkErr(err)
+		fms = append(fms, f)
+	}
+	return fms, nil
+
 }
 
 func (store *postgreStorage) GetMeta(name string) (FeatureMeta, error) {
