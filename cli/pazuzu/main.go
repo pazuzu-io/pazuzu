@@ -47,15 +47,12 @@ func main() {
 			log.SetOutput(ioutil.Discard)
 		}
 
-		//TODO: Init config struct
+		// Init config struct.
 		errCnf := pazuzu.NewConfig()
 		if errCnf != nil {
 			fmt.Println(errCnf)
 			os.Exit(1)
 		}
-
-		// TODO: Display conf values
-		// log.Printf("Using URL: %v", config.Git.Url)
 
 		return nil
 	}

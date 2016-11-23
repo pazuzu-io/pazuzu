@@ -3,32 +3,100 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
+	"log"
+	"os"
 	"regexp"
 	"text/tabwriter"
 )
 
 var cnfGetCmd = cli.Command{
-	Name:  "get",
-	Usage: "Get pazuzu configuration",
-	Action: func(с *cli.Context) error {
-		// log.Print("Getting pazuzu configuration")
-		// return nil
-		return ErrNotImplemented
-	},
+	Name:   "get",
+	Usage:  "Get pazuzu configuration",
+	Action: getConfig,
 }
+
 var cnfSetCmd = cli.Command{
-	Name:  "set",
-	Usage: "Set pazuzu configuration",
-	Action: func(с *cli.Context) error {
-		// log.Print("Setting pazuzu configuration")
-		// return nil
-		return ErrNotImplemented
-	},
+	Name:   "set",
+	Usage:  "Set pazuzu configuration",
+	Action: setConfig,
+}
+
+var cnfHelpCmd = cli.Command{
+	Name:   "help",
+	Usage:  "Print help on configuration",
+	Action: helpConfigs,
+}
+
+var cnfListCmd = cli.Command{
+	Name:   "list",
+	Usage:  "List current effective configuration",
+	Action: listConfigs,
+}
+
+func setConfig(c *cli.Context) error {
+	a := c.Args()
+	if len(a) != 2 {
+		return ErrTooFewOrManyParameters
+	}
+	//
+	givenPath := a.Get(0)
+	givenValRepr := a.Get(1)
+	cfg := pazuzu.GetConfig()
+	cfgMirror := pazuzu.GetConfigMirror()
+	errSet := cfgMirror.SetConfig(givenPath, givenValRepr)
+	if errSet == nil {
+		// Oh, it's nice.
+		_ = cfg.Save()
+		return nil
+	}
+	fmt.Printf("FAIL [%v]\n", errSet)
+	return ErrNotFound
+}
+
+func getConfig(c *cli.Context) error {
+	a := c.Args()
+	if len(a) != 1 {
+		return ErrTooFewOrManyParameters
+	}
+	//
+	givenPath := a.Get(0)
+	cfgMirror := pazuzu.GetConfigMirror()
+	repr, err := cfgMirror.GetRepr(givenPath)
+	if err == nil {
+		fmt.Println(repr)
+		return nil
+	}
+	return ErrNotFound
+}
+
+func helpConfigs(c *cli.Context) error {
+	cfgMirror := pazuzu.GetConfigMirror()
+	fmt.Println("Pazuzu CLI Config related commands:")
+	fmt.Println("\tpazuzu config list\t -- Listing of configuration.")
+	fmt.Println("\tpazuzu config help\t-- This help documentation.")
+	fmt.Println("\tpazuzu config get KEY\t-- Get specific configuration value.")
+	fmt.Println("\tpazuzu config set KEY VALUE\t-- Set configuration.")
+	fmt.Printf("\nConfiguration keys and its descriptions:\n")
+	for _, k := range cfgMirror.GetKeys() {
+		help, errHelp := cfgMirror.GetHelp(k)
+		if errHelp == nil {
+			fmt.Printf("\t%s\t\t%s\n", k, help)
+		}
+	}
+	return nil
+}
+
+func listConfigs(c *cli.Context) error {
+	cfgMirror := pazuzu.GetConfigMirror()
+	for _, k := range cfgMirror.GetKeys() {
+		repr, errRepr := cfgMirror.GetRepr(k)
+		if errRepr == nil {
+			fmt.Printf("%s=%s\n", k, repr)
+		}
+	}
+	return nil
 }
 
 var configCmd = cli.Command{
@@ -38,6 +106,8 @@ var configCmd = cli.Command{
 	Subcommands: []cli.Command{
 		cnfGetCmd,
 		cnfSetCmd,
+		cnfHelpCmd,
+		cnfListCmd,
 	},
 }
 
@@ -46,7 +116,7 @@ var searchCmd = cli.Command{
 	Usage:     "search for features in registry",
 	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
 	Action: func(c *cli.Context) error {
-		sc, err := pazuzu.GetStorageReader(pazuzu.GetConfig())
+		sc, err := pazuzu.GetStorageReader(*pazuzu.GetConfig())
 		if err != nil {
 			return err // TODO: process properly into human-readable message
 		}
@@ -86,7 +156,7 @@ var composeCmd = cli.Command{
 	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
 	Action: func(c *cli.Context) error {
 		config := pazuzu.GetConfig()
-		sc, err := pazuzu.GetStorageReader(config)
+		sc, err := pazuzu.GetStorageReader(*config)
 		if err != nil {
 			return err // TODO: process properly into human-readable message
 		}
@@ -148,7 +218,7 @@ func buildFeatures(c *cli.Context) error {
 	defer file.Close()
 
 	config := pazuzu.GetConfig()
-	storageReader, err := pazuzu.GetStorageReader(config)
+	storageReader, err := pazuzu.GetStorageReader(*config)
 
 	reader := bufio.NewReader(file)
 	pazuzuFile, err := pazuzu.Read(reader)
