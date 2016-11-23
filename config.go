@@ -11,8 +11,12 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-	"github.com/zalando-incubator/pazuzu/storageconnector"
+
+	"github.com/jinzhu/copier"
+	"github.com/cevaris/ordered_map"
 	"gopkg.in/yaml.v2"
+
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 const (
