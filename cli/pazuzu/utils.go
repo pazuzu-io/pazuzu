@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/zalando-incubator/pazuzu"
@@ -117,4 +118,28 @@ func checkFeaturesInRepository(names []string, storage storageconnector.StorageR
 	}
 
 	return features, nil
+}
+
+// Gets absolute file paths for Pazuzufile and Dockerfile
+// returns Pazuzufile path, Dockerfile path and an error
+func getAbsoluteFilePaths(destination string) (string, string, error) {
+	var pazuzufilePath = PazuzufileName
+	var dockerfilePath = DockerfileName
+
+	if destination != "" {
+		destination, err := filepath.Abs(destination)
+		if err != nil {
+			return "", "", err
+		}
+
+		_, err = os.Stat(destination)
+		if err != nil {
+			err = errors.New(fmt.Sprintf("Destination path %s is not found", destination))
+			return "", "", err
+		}
+
+		pazuzufilePath = filepath.Join(destination, PazuzufileName)
+		dockerfilePath = filepath.Join(destination, DockerfileName)
+	}
+	return pazuzufilePath, dockerfilePath, nil
 }

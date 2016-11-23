@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-
 func TestAppendIfMissingWithEmptySlice(t *testing.T) {
 	var emptySlice []string
 	var element = "Test"

@@ -1,44 +1,21 @@
 package main
 
-
 import (
-	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
 )
 
-
 var composeAction = func(c *cli.Context) error {
 	var (
-		initFeatures = getFeaturesList(c.String("init"))
-		addFeatures = getFeaturesList(c.String("add"))
+		initFeatures       = getFeaturesList(c.String("init"))
+		addFeatures        = getFeaturesList(c.String("add"))
 		pazuzufileFeatures []string
-		baseImage string
-		destination = c.String("destination")
-		pazuzufilePath = PazuzufileName
-		dockerfilePath = DockerfileName
+		baseImage          string
 	)
 
-	if destination != "" {
-		destination, err := filepath.Abs(destination)
-		if err != nil {
-			return err
-		}
-
-		_, err = os.Stat(destination)
-		if err != nil {
-			return errors.New(fmt.Sprintf("Destination path %s is not found", destination))
-		}
-
-		fmt.Printf("Writing to \"%s\"\n", destination)
-		
-		pazuzufilePath = filepath.Join(destination, PazuzufileName)
-		dockerfilePath = filepath.Join(destination, DockerfileName)
-	}
+	pazuzufilePath, dockerfilePath, err := getAbsoluteFilePaths(c.String("destination"))
 
 	pazuzuFile, success := readPazuzuFile(pazuzufilePath)
 	if success {
@@ -67,7 +44,7 @@ var composeAction = func(c *cli.Context) error {
 		baseImage = config.Base
 	}
 
-	fmt.Print("Generating Pazuzufile...")
+	fmt.Printf("Generating %s...", pazuzufilePath)
 
 	pazuzuFile = &pazuzu.PazuzuFile{
 		Base:     baseImage,
@@ -81,7 +58,7 @@ var composeAction = func(c *cli.Context) error {
 		fmt.Println(" [DONE]")
 	}
 
-	fmt.Print("Generating Dockerfile...")
+	fmt.Printf("Generating %s...", dockerfilePath)
 
 	p := pazuzu.Pazuzu{StorageReader: storageReader}
 	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
