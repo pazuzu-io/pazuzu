@@ -10,11 +10,7 @@ import (
 )
 
 func getConfig(t *testing.T) Config {
-	errCnf := NewConfig()
-	if errCnf != nil {
-		t.Errorf("%v", errCnf)
-	}
-
+	InitDefaultConfig()
 	config := GetConfig()
 	if len(config.Base) <= 0 {
 		t.Error("Please fill 'Base' property of initial config.")

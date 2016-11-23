@@ -69,8 +69,8 @@ func (g *GitConfig) SetURL(url string) {
 	g.URL = url
 }
 
-// NewConfig : Please call this function before GetConfig and only once in your application.
-func NewConfig() error {
+// InitDefaultConfig : Initialize config variable with defaults. (Does not loading configuration file)
+func InitDefaultConfig() {
 	config = Config{
 		StorageType: "git",
 		Base:        BaseImage,
@@ -79,6 +79,12 @@ func NewConfig() error {
 			InitialiseRandom: false,
 		},
 	}
+}
+
+// NewConfig : Please call this function before GetConfig and only once in your application.
+// Attempts load config file, but when it fails just use default configuration.
+func NewConfig() error {
+	InitDefaultConfig()
 	config.Load()
 	return nil
 }
