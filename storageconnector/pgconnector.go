@@ -57,7 +57,7 @@ func (store *postgreStorage) GetFeature(name string) (Feature, error) {
 	var index int
 	var dep_text string
 	sql_query = fmt.Sprintf("select * from features where name == %s", name)
-	err := store.db.QueryRow(sql_query).Scan(index, f.Meta.Name, f.Meta.Description, f.Meta.Author, f.Meta.UpdatedAt, dep_text, f.snippet)
+	err := store.db.QueryRow(sql_query).Scan(index, f.Meta.Name, f.Meta.Description, f.Meta.Author, f.Meta.UpdatedAt, dep_text, f.Snippet)
 
 	checkErr(err)
 
