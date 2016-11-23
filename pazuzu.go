@@ -100,7 +100,6 @@ func (p *Pazuzu) generateDockerfile(baseimage string, features []storageconnecto
 		if err != nil {
 			return err
 		}
-		fmt.Print(feature.Meta)
 
 		err = writer.AppendFeature(feature)
 		if err != nil {

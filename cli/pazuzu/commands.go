@@ -194,12 +194,12 @@ var composeFiles = func(c *cli.Context) error {
 	fmt.Printf("Resolving the following features: %s\n", featureNames)
 
 	config := pazuzu.GetConfig()
-	sc, err := pazuzu.GetStorageReader(*config)
+	storageReader, err := pazuzu.GetStorageReader(*config)
 	if err != nil {
 		return err // TODO: process properly into human-readable message
 	}
 
-	features, err := checkFeaturesInRepository(featureNames, sc)
+	features, err := checkFeaturesInRepository(featureNames, storageReader)
 	if err != nil {
 		return err
 	}
@@ -208,12 +208,32 @@ var composeFiles = func(c *cli.Context) error {
 		baseImage = config.Base
 	}
 
+	fmt.Print("Generating Pazuzufile...")
+
 	pazuzuFile = &pazuzu.PazuzuFile{
 		Base:     baseImage,
 		Features: features,
 	}
 
 	err = writePazuzuFile(pazuzuFile)
+	if err != nil {
+		return err
+	} else {
+		fmt.Println(" [DONE]")
+	}
+
+	fmt.Print("Generating Dockerfile...")
+
+	p := pazuzu.Pazuzu{StorageReader: storageReader}
+	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
+
+	err = writeDockerFile(p.Dockerfile)
+	if err != nil {
+		return err
+	} else {
+		fmt.Println(" [DONE]")
+	}
+
 	return nil
 }
 

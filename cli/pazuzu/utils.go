@@ -13,6 +13,7 @@ import (
 )
 
 const PazuzufileName = "Pazuzufile"
+const DockerfileName = "Dockerfile"
 
 func getFeaturesList(featureString string) []string {
 	var features []string
@@ -88,6 +89,20 @@ func writePazuzuFile(pazuzuFile *pazuzu.PazuzuFile) error {
 	pazuzu.Write(writer, *pazuzuFile)
 
 	writer.Flush()
+	return nil
+}
+
+func writeDockerFile(contents []byte) error {
+	file, err := os.Create(DockerfileName)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Could not create %v", DockerfileName))
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	writer.Write(contents)
+	writer.Flush()
+
 	return nil
 }
 
