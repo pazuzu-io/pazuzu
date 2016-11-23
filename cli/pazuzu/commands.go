@@ -3,12 +3,13 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu"
 	"log"
 	"os"
 	"regexp"
 	"text/tabwriter"
+
+	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu"
 )
 
 var cnfGetCmd = cli.Command{
@@ -167,7 +168,7 @@ var composeFlags = []cli.Flag{
 var composeCmd = cli.Command{
 	Name:      "compose",
 	Usage:     "Compose Pazuzufile and Dockerfile out of the selected features",
-	ArgsUsage: " ",		// Do not show arguments
+	ArgsUsage: " ", // Do not show arguments
 	Description: "Compose step takes list of features as input, validates feature dependencies" +
 		" and creates both Pazuzufile and Dockerfile.",
 	Action: composeFiles,
@@ -175,44 +176,44 @@ var composeCmd = cli.Command{
 }
 
 var composeFiles = func(c *cli.Context) error {
+	var initFeatures = getFeaturesList(c.String("init"))
+	var addFeatures = getFeaturesList(c.String("add"))
+	var pazuzufileFeatures []string
+	var baseImage string
+
+	pazuzuFile, success := readPazuzuFile()
+	if success {
+		pazuzufileFeatures = pazuzuFile.Features
+		baseImage = pazuzuFile.Base
+	}
+
+	featureNames, err := generateFeaturesList(pazuzufileFeatures, initFeatures, addFeatures)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Resolving the following features: %s\n", featureNames)
+
 	config := pazuzu.GetConfig()
 	sc, err := pazuzu.GetStorageReader(*config)
 	if err != nil {
 		return err // TODO: process properly into human-readable message
 	}
 
-	var features []string
-
-	// Check if feature actually exists in repository
-	for _, v := range c.Args() {
-		log.Printf("Checking: %v\n", v)
-
-		_, err := sc.GetMeta(v)
-		if err != nil {
-			log.Printf("could not find feature \"%v\" in repository.", v)
-			return err
-		}
-		features = append(features, fmt.Sprintf("%v", v))
-
-	}
-
-	log.Printf("features: %v", features)
-
-	f, err := os.Create("Pazuzufile")
+	features, err := checkFeaturesInRepository(featureNames, sc)
 	if err != nil {
-		log.Print("could not create Pazuzufile")
 		return err
 	}
 
-	defer f.Close()
-	w := bufio.NewWriter(f)
+	if baseImage == "" {
+		baseImage = config.Base
+	}
 
-	pazuzu.Write(w, pazuzu.PazuzuFile{
-		Base:     config.Base,
-		Features: features})
+	pazuzuFile = &pazuzu.PazuzuFile{
+		Base:     baseImage,
+		Features: features,
+	}
 
-	w.Flush()
-
+	err = writePazuzuFile(pazuzuFile)
 	return nil
 }
 
