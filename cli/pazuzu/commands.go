@@ -239,8 +239,8 @@ var composeFiles = func(c *cli.Context) error {
 
 var buildCmd = cli.Command{
 	Name:      "build",
-	Usage:     "build Dockerfile out of Pazuzufile",
-	ArgsUsage: "[features] - This can be either path to Pazuzufile or a space separated feature names",
+	Usage:     "Builds and tests Docker image from Dockerfile",
+	ArgsUsage: " ",
 	Action:    buildFeatures,
 }
 
