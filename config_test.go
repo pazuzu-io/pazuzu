@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func getConfig(t *testing.T) Config {
+func getConfig(t *testing.T) *Config {
 	InitDefaultConfig()
 	config := GetConfig()
 	if len(config.Base) <= 0 {

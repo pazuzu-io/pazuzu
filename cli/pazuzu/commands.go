@@ -7,9 +7,7 @@ import (
 	"github.com/zalando-incubator/pazuzu"
 	"log"
 	"os"
-	"reflect"
 	"regexp"
-	"strings"
 	"text/tabwriter"
 )
 
@@ -23,22 +21,10 @@ var cnfGetCmd = cli.Command{
 		}
 		//
 		givenPath := a.Get(0)
-		cfg := pazuzu.GetConfig()
-		err := cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
-			ancestors []reflect.StructField) error {
-			//
-			configPath := makeConfigPathString(ancestors, field)
-			if configPath == givenPath {
-				f := reflect.Indirect(aVal).FieldByName(field.Name)
-				result := toReprFromReflectValue(f)
-				fmt.Println(result)
-				return ErrStopIteration
-			}
-			return nil
-		})
-		if err == ErrStopIteration {
-			// Oh, it's nice.
+		cfgMirror := pazuzu.GetConfigMirror()
+		repr, err := cfgMirror.GetRepr(givenPath)
+		if err == nil {
+			fmt.Println(repr)
 			return nil
 		}
 		return ErrNotFound
@@ -57,103 +43,50 @@ var cnfSetCmd = cli.Command{
 		givenPath := a.Get(0)
 		givenValRepr := a.Get(1)
 		cfg := pazuzu.GetConfig()
-		err := cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
-			ancestors []reflect.StructField) error {
-			//
-			configPath := makeConfigPathString(ancestors, field)
-			if configPath == givenPath {
-				setterName := field.Tag.Get("setter")
-				if len(setterName) < 1 {
-					fmt.Printf("Please add 'setter' tag to this config field! [%v]\n", givenPath)
-					return ErrNotImplemented
-				}
-				setterMethod := addressableVal.MethodByName(setterName)
-				if !setterMethod.IsValid() {
-					fmt.Printf("Given setter method is invalid! [%v]\n", setterName)
-					return ErrNotImplemented
-				}
-				setterMethod.Call([]reflect.Value{reflect.ValueOf(givenValRepr)})
-				//
-				return ErrStopIteration
-			}
-			return nil
-		})
-		if err == ErrStopIteration {
+		cfgMirror := pazuzu.GetConfigMirror()
+		errSet := cfgMirror.SetConfig(givenPath, givenValRepr)
+		if errSet == nil {
 			// Oh, it's nice.
 			_ = cfg.Save()
 			return nil
 		}
+		fmt.Printf("FAIL [%v]\n", errSet)
 		return ErrNotFound
 	},
-}
-
-func joinConfigPath(path []reflect.StructField) string {
-	yamlNames := []string{}
-	for _, field := range path {
-		yamlNames = append(yamlNames, field.Tag.Get("yaml"))
-	}
-	return strings.Join(yamlNames, ".")
-}
-
-func makeConfigPathString(ancestors []reflect.StructField, field reflect.StructField) string {
-	return joinConfigPath(append(ancestors, field))
 }
 
 var cnfHelpCmd = cli.Command{
 	Name:  "help",
 	Usage: "Print help on configuration",
 	Action: func(c *cli.Context) error {
-		cfg := pazuzu.GetConfig()
+		cfgMirror := pazuzu.GetConfigMirror()
 		fmt.Println("Pazuzu CLI Config related commands:")
 		fmt.Println("\tpazuzu config list\t -- Listing of configuration.")
 		fmt.Println("\tpazuzu config help\t-- This help documentation.")
 		fmt.Println("\tpazuzu config get KEY\t-- Get specific configuration value.")
 		fmt.Println("\tpazuzu config set KEY VALUE\t-- Set configuration.")
 		fmt.Printf("\nConfiguration keys and its descriptions:\n")
-		cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
-			ancestors []reflect.StructField) error {
-			//
-			tag := field.Tag
-			configPath := makeConfigPathString(ancestors, field)
-			helpStr := tag.Get("help")
-			fmt.Printf("\t%s\t\t%s\n", configPath, helpStr)
-			return nil
-		})
+		for _, k := range cfgMirror.GetKeys() {
+			help, errHelp := cfgMirror.GetHelp(k)
+			if errHelp == nil {
+				fmt.Printf("\t%s\t\t%s\n", k, help)
+			}
+		}
 		return nil
 	},
-}
-
-func toReprFromReflectValue(v reflect.Value) string {
-	switch v.Kind() {
-	case reflect.Bool:
-		b := v.Bool()
-		return fmt.Sprintf("%v", b)
-	case reflect.Int:
-		n := v.Int()
-		return fmt.Sprintf("%v", n)
-	case reflect.String:
-		return v.String()
-	default:
-		return v.String()
-	}
 }
 
 var cnfListCmd = cli.Command{
 	Name:  "list",
 	Usage: "List current effective configuration",
 	Action: func(c *cli.Context) error {
-		cfg := pazuzu.GetConfig()
-		cfg.TraverseEachField(func(field reflect.StructField,
-			aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
-			ancestors []reflect.StructField) error {
-			//
-			f := reflect.Indirect(aVal).FieldByName(field.Name)
-			configPath := makeConfigPathString(ancestors, field)
-			fmt.Printf("%s=%s\n", configPath, toReprFromReflectValue(f))
-			return nil
-		})
+		cfgMirror := pazuzu.GetConfigMirror()
+		for _, k := range cfgMirror.GetKeys() {
+			repr, errRepr := cfgMirror.GetRepr(k)
+			if errRepr == nil {
+				fmt.Printf("%s=%s\n", k, repr)
+			}
+		}
 		return nil
 	},
 }
@@ -175,7 +108,7 @@ var searchCmd = cli.Command{
 	Usage:     "search for features in registry",
 	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
 	Action: func(c *cli.Context) error {
-		sc, err := pazuzu.GetStorageReader(pazuzu.GetConfig())
+		sc, err := pazuzu.GetStorageReader(*pazuzu.GetConfig())
 		if err != nil {
 			return err // TODO: process properly into human-readable message
 		}
@@ -215,7 +148,7 @@ var composeCmd = cli.Command{
 	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
 	Action: func(c *cli.Context) error {
 		config := pazuzu.GetConfig()
-		sc, err := pazuzu.GetStorageReader(config)
+		sc, err := pazuzu.GetStorageReader(*config)
 		if err != nil {
 			return err // TODO: process properly into human-readable message
 		}
@@ -277,7 +210,7 @@ func buildFeatures(c *cli.Context) error {
 	defer file.Close()
 
 	config := pazuzu.GetConfig()
-	storageReader, err := pazuzu.GetStorageReader(config)
+	storageReader, err := pazuzu.GetStorageReader(*config)
 
 	reader := bufio.NewReader(file)
 	pazuzuFile, err := pazuzu.Read(reader)

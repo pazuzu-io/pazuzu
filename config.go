@@ -1,7 +1,9 @@
 package pazuzu
 
 import (
+	"errors"
 	"fmt"
+	"github.com/cevaris/ordered_map"
 	"github.com/jinzhu/copier"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 	"gopkg.in/yaml.v2"
@@ -12,6 +14,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -86,12 +89,13 @@ func InitDefaultConfig() {
 func NewConfig() error {
 	InitDefaultConfig()
 	config.Load()
+	configMirror = config.InitConfigFieldMirrors()
 	return nil
 }
 
 // GetConfig : get loaded config.
-func GetConfig() Config {
-	return config
+func GetConfig() *Config {
+	return &config
 }
 
 // GetStorageReader : create new StorageReader by StorageType of given config.
@@ -235,4 +239,121 @@ func traverseEachFieldRecur(aVal reflect.Value, aType reflect.Type, addressableV
 	}
 	//
 	return nil
+}
+
+type ConfigFieldMirror struct {
+	Help   string
+	Repr   string
+	Setter reflect.Value
+}
+
+type ConfigMirror struct {
+	M *ordered_map.OrderedMap
+	C *Config
+}
+
+var configMirror *ConfigMirror
+
+func (c *Config) InitConfigFieldMirrors() *ConfigMirror {
+	m := ordered_map.NewOrderedMap()
+	_ = c.TraverseEachField(func(field reflect.StructField,
+		aVal reflect.Value, aType reflect.Type, addressableVal reflect.Value,
+		ancestors []reflect.StructField) error {
+		//
+		configPath := makeConfigPathString(ancestors, field)
+		tag := field.Tag
+		help := ""
+		repr := ""
+		setter := reflect.ValueOf(nil)
+		// setter.
+		setterName := field.Tag.Get("setter")
+		if len(setterName) >= 1 {
+			setter = addressableVal.MethodByName(setterName)
+		}
+		// help
+		help = tag.Get("help")
+		// repr
+		f := reflect.Indirect(aVal).FieldByName(field.Name)
+		repr = toReprFromReflectValue(f)
+		//
+		m.Set(configPath, &ConfigFieldMirror{
+			Help:   help,
+			Repr:   repr,
+			Setter: setter,
+		})
+		//
+		return nil
+	})
+	//
+	return &ConfigMirror{M: m, C: c}
+}
+
+func toReprFromReflectValue(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.Bool:
+		b := v.Bool()
+		return fmt.Sprintf("%v", b)
+	case reflect.Int:
+		n := v.Int()
+		return fmt.Sprintf("%v", n)
+	case reflect.String:
+		return v.String()
+	default:
+		return v.String()
+	}
+}
+
+func joinConfigPath(path []reflect.StructField) string {
+	yamlNames := []string{}
+	for _, field := range path {
+		yamlNames = append(yamlNames, field.Tag.Get("yaml"))
+	}
+	return strings.Join(yamlNames, ".")
+}
+
+func makeConfigPathString(ancestors []reflect.StructField, field reflect.StructField) string {
+	return joinConfigPath(append(ancestors, field))
+}
+
+func GetConfigMirror() *ConfigMirror {
+	return configMirror
+}
+
+func (c *ConfigMirror) GetKeys() []string {
+	iter := c.M.IterFunc()
+	result := []string{}
+	for kv, ok := iter(); ok; kv, ok = iter() {
+		result = append(result, kv.Key.(string))
+	}
+	return result
+}
+
+func (c *ConfigMirror) GetHelp(key string) (string, error) {
+	v, ok := c.M.Get(key)
+	if ok {
+		return v.(*ConfigFieldMirror).Help, nil
+	}
+	return "", errors.New("Not found")
+}
+
+func (c *ConfigMirror) GetRepr(key string) (string, error) {
+	v, ok := c.M.Get(key)
+	if ok {
+		return v.(*ConfigFieldMirror).Repr, nil
+	}
+	return "", errors.New("Not found")
+}
+
+func (c *ConfigMirror) SetConfig(key string, val string) error {
+	v, ok := c.M.Get(key)
+	if ok {
+		setter := v.(*ConfigFieldMirror).Setter
+		if !setter.IsValid() {
+			fmt.Println("INVALID SETTER!!!")
+			return errors.New("Invalid setter method")
+		}
+		_ = setter.Call([]reflect.Value{reflect.ValueOf(val)})
+		return nil
+	}
+	return errors.New("Not found")
 }
