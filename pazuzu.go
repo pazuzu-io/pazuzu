@@ -67,8 +67,17 @@ func (p *Pazuzu) Generate(baseimage string, features []string) error {
 		repoFeature, _ := p.StorageReader.GetFeature(feature)
 		resolvedFeatures = append(resolvedFeatures, repoFeature)
 	}
+	// TODO: add proper error handling
+	var featureNamesWithDep []string
+	featureNamesWithDep, featuresMap, _ := p.StorageReader.Resolve(resolvedFeatures...)
+	featuresWithDep := make([]storageconnector.Feature, 0, len(featuresMap))
 
-	err := p.generateDockerfile(baseimage, resolvedFeatures)
+	for _, featureName := range featureNamesWithDep {
+		featuresWithDep = append(featuresWithDep, featuresMap[featureName])
+	}
+
+	err := p.generateDockerfile(baseimage, featuresWithDep)
+
 	if err != nil {
 		return err
 	}

@@ -192,21 +192,23 @@ func getFeature(commit *git.Commit, name string) (Feature, error) {
 	}, nil
 }
 
-func (storage *GitStorage) Resolve(names ...string) (map[string]Feature, error) {
+func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
+	var slice []string
+
 	commit, err := storage.latestCommit()
 	if err != nil {
-		return map[string]Feature{}, err
+		return []string {}, map[string]Feature{}, err
 	}
 
 	result := map[string]Feature{}
 	for _, name := range names {
-		err = resolve(commit, name, result)
+		err = resolve(commit, name, slice, result)
 		if err != nil {
-			return map[string]Feature{}, err
+			return []string {}, map[string]Feature{}, err
 		}
 	}
 
-	return result, nil
+	return slice, result, nil
 }
 
 // resolve returns all data for a certain feature and its direct and indirect
@@ -215,7 +217,7 @@ func (storage *GitStorage) Resolve(names ...string) (map[string]Feature, error) 
 // commit:  The commit from which to obtain the feature information.
 // name:    The exact feature name.
 // result:  All features collected so far.
-func resolve(commit *git.Commit, name string, result map[string]Feature) error {
+func resolve(commit *git.Commit, name string, list []string, result map[string]Feature) error {
 	if _, ok := result[name]; ok {
 		return nil
 	}
@@ -226,12 +228,12 @@ func resolve(commit *git.Commit, name string, result map[string]Feature) error {
 	}
 
 	for _, depName := range feature.Meta.Dependencies {
-		err = resolve(commit, depName, result)
+		err = resolve(commit, depName, list, result)
 		if err != nil {
 			return err
 		}
 	}
-
+	list = append(list, name)
 	result[name] = feature
 
 	return nil
