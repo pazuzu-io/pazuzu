@@ -129,3 +129,60 @@ func TestConfigUserConfigFilename(t *testing.T) {
 	filename := UserConfigFilename()
 	fmt.Printf("user-config-filename = [%v]\n", filename)
 }
+
+func getConfigMirror(t *testing.T) *ConfigMirror {
+	cfg := getConfig(t)
+	return cfg.InitConfigFieldMirrors()
+}
+
+func TestConfigMirrorGetRepr(t *testing.T) {
+	c := getConfigMirror(t)
+	strBase, err1 := c.GetRepr("base")
+	strGitURL, err2 := c.GetRepr("git.url")
+	if err1 != nil || err2 != nil {
+		t.Errorf("Error? base=%v or git.url=%v\n", err1, err2)
+	}
+	if true != (len(strBase) > 0 && len(strGitURL) > 0) {
+		t.Errorf("Unexpected base=[%s] or git.url=[%s]\n", strBase, strGitURL)
+	}
+}
+
+func TestConfigMirrorGetHelp(t *testing.T) {
+	c := getConfigMirror(t)
+	strBase, err1 := c.GetHelp("base")
+	strGitURL, err2 := c.GetHelp("git.url")
+	if err1 != nil || err2 != nil {
+		t.Errorf("Error? base=%v or git.url=%v\n", err1, err2)
+	}
+	if true != (len(strBase) > 0 && len(strGitURL) > 0) {
+		t.Errorf("Unexpected base=[%s] or git.url=[%s]\n", strBase, strGitURL)
+	}
+
+}
+
+func TestConfigMirrorGetKeys(t *testing.T) {
+	c := getConfigMirror(t)
+	keys := c.GetKeys()
+	count := 0
+	for _, k := range keys {
+		if k == "base" {
+			count++
+		}
+		if k == "git.url" {
+			count++
+		}
+	}
+	if count != 2 {
+		t.Errorf("Should be 2 == %v\n", count)
+	}
+}
+
+func TestConfigMirrorSetConfig(t *testing.T) {
+	c := getConfigMirror(t)
+	cfg := c.C
+	_ = c.SetConfig("base", "base123")
+	_ = c.SetConfig("git.url", "git.url.456")
+	if cfg.Base != "base123" || cfg.Git.URL != "git.url.456" {
+		t.Errorf("ConfigMirror SetConfig FAIL! [%v]\n", cfg)
+	}
+}
