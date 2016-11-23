@@ -86,8 +86,37 @@ func (store *postgreStorage) GetFeature(name string) (Feature, error) {
 }
 
 func (store *postgreStorage) Resolve(names ...string) (map[string]Feature, error) {
-	// TODO: implement (github issue #91)
-	return nil, nil
+	result := map[string]Feature{}
+	for _, name := range names {
+		err := store.resolve(name, result)
+		if err != nil {
+			return map[string]Feature{}, err
+		}
+	}
+
+	return result, nil
+}
+
+func (store *postgreStorage) resolve(name string, result map[string]Feature) error {
+	if _, ok := result[name]; ok {
+		return nil
+	}
+
+	feature, err := store.GetFeature(name)
+	if err != nil {
+		return err
+	}
+
+	for _, depName := range feature.Meta.Dependencies {
+		err := store.resolve(depName, result)
+		if err != nil {
+			return err
+		}
+	}
+
+	result[name] = feature
+
+	return nil
 }
 
 // main function for testing purposes only
