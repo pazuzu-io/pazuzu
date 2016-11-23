@@ -12,9 +12,6 @@ import (
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
-const PazuzufileName = "Pazuzufile"
-const DockerfileName = "Dockerfile"
-
 func getFeaturesList(featureString string) []string {
 	var features []string
 
@@ -61,8 +58,8 @@ func appendIfMissing(slice []string, element string) []string {
 
 // Reads Pazuzufile
 // returns PazuzuFile struct and a success flag
-func readPazuzuFile() (*pazuzu.PazuzuFile, bool) {
-	file, err := os.Open(PazuzufileName)
+func readPazuzuFile(path string) (*pazuzu.PazuzuFile, bool) {
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, false
 	}
@@ -77,9 +74,9 @@ func readPazuzuFile() (*pazuzu.PazuzuFile, bool) {
 	return &pazuzuFile, true
 }
 
-func writePazuzuFile(pazuzuFile *pazuzu.PazuzuFile) error {
+func writePazuzuFile(path string, pazuzuFile *pazuzu.PazuzuFile) error {
 	// TODO: do it safer way (#108)
-	file, err := os.Create(PazuzufileName)
+	file, err := os.Create(path)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create %v", PazuzufileName))
 	}
@@ -92,8 +89,8 @@ func writePazuzuFile(pazuzuFile *pazuzu.PazuzuFile) error {
 	return nil
 }
 
-func writeDockerFile(contents []byte) error {
-	file, err := os.Create(DockerfileName)
+func writeDockerFile(path string, contents []byte) error {
+	file, err := os.Create(path)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create %v", DockerfileName))
 	}

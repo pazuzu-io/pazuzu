@@ -10,6 +10,9 @@ import (
 	"github.com/zalando-incubator/pazuzu"
 )
 
+const PazuzufileName = "Pazuzufile"
+const DockerfileName = "Dockerfile"
+
 var cnfGetCmd = cli.Command{
 	Name:   "get",
 	Usage:  "Get pazuzu configuration",
@@ -159,7 +162,7 @@ var composeFlags = []cli.Flag{
 	},
 	cli.StringFlag{
 		Name:  "d, destination",
-		Usage: "Sets destination for Docketfile and Pazuzufile to `DESTINATION`",
+		Usage: "Sets destination path for Docketfile and Pazuzufile to `DESTINATION`",
 	},
 }
 

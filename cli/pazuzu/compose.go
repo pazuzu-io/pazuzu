@@ -2,7 +2,10 @@ package main
 
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
@@ -10,12 +13,34 @@ import (
 
 
 var composeAction = func(c *cli.Context) error {
-	var initFeatures = getFeaturesList(c.String("init"))
-	var addFeatures = getFeaturesList(c.String("add"))
-	var pazuzufileFeatures []string
-	var baseImage string
+	var (
+		initFeatures = getFeaturesList(c.String("init"))
+		addFeatures = getFeaturesList(c.String("add"))
+		pazuzufileFeatures []string
+		baseImage string
+		destination = c.String("destination")
+		pazuzufilePath = PazuzufileName
+		dockerfilePath = DockerfileName
+	)
 
-	pazuzuFile, success := readPazuzuFile()
+	if destination != "" {
+		destination, err := filepath.Abs(destination)
+		if err != nil {
+			return err
+		}
+
+		_, err = os.Stat(destination)
+		if err != nil {
+			return errors.New(fmt.Sprintf("Destination path %s is not found", destination))
+		}
+
+		fmt.Printf("Writing to \"%s\"\n", destination)
+		
+		pazuzufilePath = filepath.Join(destination, PazuzufileName)
+		dockerfilePath = filepath.Join(destination, DockerfileName)
+	}
+
+	pazuzuFile, success := readPazuzuFile(pazuzufilePath)
 	if success {
 		pazuzufileFeatures = pazuzuFile.Features
 		baseImage = pazuzuFile.Base
@@ -49,7 +74,7 @@ var composeAction = func(c *cli.Context) error {
 		Features: features,
 	}
 
-	err = writePazuzuFile(pazuzuFile)
+	err = writePazuzuFile(pazuzufilePath, pazuzuFile)
 	if err != nil {
 		return err
 	} else {
@@ -61,7 +86,7 @@ var composeAction = func(c *cli.Context) error {
 	p := pazuzu.Pazuzu{StorageReader: storageReader}
 	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
 
-	err = writeDockerFile(p.Dockerfile)
+	err = writeDockerFile(dockerfilePath, p.Dockerfile)
 	if err != nil {
 		return err
 	} else {
