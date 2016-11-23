@@ -19,7 +19,7 @@ func ConnectToPg(username string, dbname string) {
 
 	checkErr(err)
 	fmt.Println("Successfully opened database connection.")
-	db.Exec("CREATE TABLE IF NOT EXISTS features (index int, name text, description text, author text, lastupdate timestamptz, dependencies text);")
+	db.Exec("CREATE TABLE IF NOT EXISTS features (index int, name text, description text, author text, lastupdate timestamptz, dependencies text, snippet text);")
 }
 
 func (store *postgreStorage) disconnectFromPg() {
@@ -36,8 +36,9 @@ func (store *postgreStorage) GetMeta(name string) (FeatureMeta, error) {
 	var sql_query string
 	var index int
 	var dep_text string
+	var snippet string
 	sql_query = fmt.Sprintf("select * from features where name == %s", name)
-	err := store.db.QueryRow(sql_query).Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, dep_text)
+	err := store.db.QueryRow(sql_query).Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, dep_text, snippet)
 
 	checkErr(err)
 
@@ -51,8 +52,21 @@ func (store *postgreStorage) GetMeta(name string) (FeatureMeta, error) {
 }
 
 func (store *postgreStorage) GetFeature(name string) (Feature, error) {
-	// TODO: implement (github issue #91)
 	var f Feature
+	var sql_query string
+	var index int
+	var dep_text string
+	sql_query = fmt.Sprintf("select * from features where name == %s", name)
+	err := store.db.QueryRow(sql_query).Scan(index, f.Meta.Name, f.Meta.Description, f.Meta.Author, f.Meta.UpdatedAt, dep_text, f.snippet)
+
+	checkErr(err)
+
+	s := strings.Split(dep_text, " ")
+	f.Meta.Dependencies = make([]string, len(s))
+
+	for index, value := range s {
+		f.Meta.Dependencies[index] = value
+	}
 	return f, nil
 }
 
