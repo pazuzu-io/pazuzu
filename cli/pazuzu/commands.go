@@ -1,15 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu"
-	"log"
 	"os"
 	"regexp"
 	"text/tabwriter"
+
+	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu"
 )
+
+const PazuzufileName = "Pazuzufile"
+const DockerfileName = "Dockerfile"
 
 var cnfGetCmd = cli.Command{
 	Name:   "get",
@@ -149,107 +151,39 @@ var searchCmd = cli.Command{
 	},
 }
 
-var composeCmd = cli.Command{
-	Name:        "compose",
-	Usage:       "Compose Pazuzufile out of the selected features",
-	ArgsUsage:   "[features] - Space separated feature names",
-	Description: "Compose step takes list of features as input, validates feature dependencies and creates Pazuzufile.",
-	Action: func(c *cli.Context) error {
-		config := pazuzu.GetConfig()
-		sc, err := pazuzu.GetStorageReader(*config)
-		if err != nil {
-			return err // TODO: process properly into human-readable message
-		}
-
-		var features []string
-
-		// Check if feature actually exists in repository
-		for _, v := range c.Args() {
-			log.Printf("Checking: %v\n", v)
-
-			_, err := sc.GetMeta(v)
-			if err != nil {
-				log.Printf("could not find feature \"%v\" in repository.", v)
-				return err
-			}
-			features = append(features, fmt.Sprintf("%v", v))
-
-		}
-
-		log.Printf("features: %v", features)
-
-		f, err := os.Create("Pazuzufile")
-		if err != nil {
-			log.Print("could not create Pazuzufile")
-			return err
-		}
-
-		defer f.Close()
-		w := bufio.NewWriter(f)
-
-		pazuzu.Write(w, pazuzu.PazuzuFile{
-			Base:     config.Base,
-			Features: features})
-
-		w.Flush()
-
-		return nil
+var composeFlags = []cli.Flag{
+	cli.StringFlag{
+		Name:  "a, add",
+		Usage: "Add features from comma-separated list of `FEATURES`",
 	},
-	// TODO: add -o/--out option according to README file
+	cli.StringFlag{
+		Name:  "i, init",
+		Usage: "Init set of features from comma-separated list of `FEATURES`",
+	},
+	cli.StringFlag{
+		Name:  "d, destination",
+		Usage: "Sets destination path for Docketfile and Pazuzufile to `DESTINATION`",
+	},
+}
+
+var composeCmd = cli.Command{
+	Name:      "compose",
+	Usage:     "Compose Pazuzufile and Dockerfile out of the selected features",
+	ArgsUsage: " ", // Do not show arguments
+	Description: "Compose step takes list of features as input, validates feature dependencies" +
+		" and creates both Pazuzufile and Dockerfile.",
+	Flags:  composeFlags,
+	Action: composeAction,
 }
 
 var buildCmd = cli.Command{
 	Name:      "build",
-	Usage:     "build Dockerfile out of Pazuzufile",
-	ArgsUsage: "[features] - This can be either path to Pazuzufile or a space separated feature names",
+	Usage:     "Builds and tests Docker image from Dockerfile",
+	ArgsUsage: " ",
 	Action:    buildFeatures,
 }
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
-	// TODO: Make file configurable via CLI args (GH Issue #102)
-	fileName := "Pazuzufile"
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		log.Printf("Cannot find %s", fileName)
-		return err
-	}
-	defer file.Close()
-
-	config := pazuzu.GetConfig()
-	storageReader, err := pazuzu.GetStorageReader(*config)
-
-	reader := bufio.NewReader(file)
-	pazuzuFile, err := pazuzu.Read(reader)
-
-	p := pazuzu.Pazuzu{StorageReader: storageReader}
-	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
-
-	f, err := os.Create("Dockerfile")
-	if err != nil {
-		log.Print("could not create Dockerfile")
-		return err
-	}
-
-	defer f.Close()
-
-	w := bufio.NewWriter(f)
-	w.Write(p.Dockerfile)
-	w.Flush()
-
-	return nil
-
-	// TODO: In case of -f/--feature-set option slice of features
-	// should be used instead of Pazuzufile
-
-	// log.Print("Building Dockerfile out of the features")
-	// // TODO: check number of c.NArgs() and throw error if nothing was passed
-	// if c.NArg() == 0 {
-
-	// 	return errors.New(ERROR_NO_VALID_PAZUZU_FILE)
-
-	// }
-
-	// return nil
+	return ErrNotImplemented
 }
