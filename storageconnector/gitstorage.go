@@ -202,7 +202,7 @@ func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]Featur
 
 	result := map[string]Feature{}
 	for _, name := range names {
-		err = resolve(commit, name, slice, result)
+		err = resolve(commit, name, &slice, result)
 		if err != nil {
 			return []string {}, map[string]Feature{}, err
 		}
@@ -217,7 +217,7 @@ func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]Featur
 // commit:  The commit from which to obtain the feature information.
 // name:    The exact feature name.
 // result:  All features collected so far.
-func resolve(commit *git.Commit, name string, list []string, result map[string]Feature) error {
+func resolve(commit *git.Commit, name string, list *[]string, result map[string]Feature) error {
 	if _, ok := result[name]; ok {
 		return nil
 	}
@@ -233,7 +233,7 @@ func resolve(commit *git.Commit, name string, list []string, result map[string]F
 			return err
 		}
 	}
-	list = append(list, name)
+	*list = append(*list, name)
 	result[name] = feature
 
 	return nil
