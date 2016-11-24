@@ -8,4 +8,5 @@ var (
 	ErrTooFewOrManyParameters = errors.New("Too few/many parameters provided")
 	ErrStopIteration          = errors.New("It's not an real error, sorry!")
 	ErrNotFound               = errors.New("Not found")
+	ErrInitAndAddAreSpecified = errors.New("Conflict: both `add` and `init` parameters are specified")
 )

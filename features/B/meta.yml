@@ -1,0 +1,4 @@
+description: Java + Node
+dependencies:
+  - java
+  - node

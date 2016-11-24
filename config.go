@@ -2,10 +2,6 @@ package pazuzu
 
 import (
 	"fmt"
-	"github.com/cevaris/ordered_map"
-	"github.com/jinzhu/copier"
-	"github.com/zalando-incubator/pazuzu/storageconnector"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"log"
@@ -14,13 +10,19 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/jinzhu/copier"
+	"github.com/cevaris/ordered_map"
+	"gopkg.in/yaml.v2"
+
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 const (
 	UserConfigFilenamePart = ".pazuzu-cli.yaml"
 
 	// URL : default features-repo.
-	URL = "https://github.com/Sangdol/pazuzu-test-repo.git"
+	URL = "https://github.com/zalando-incubator/pazuzu.git"
 	// BaseImage : Base feature.
 	BaseImage = "ubuntu:14.04"
 
