@@ -25,7 +25,7 @@ type StorageReader interface {
 	// names:  The names of the features which dependencies should be resolved.
 	//
 	// If a feature can't be found or a dependency can't be resolved an error is returned.
-	Resolve(names ...string) (map[string]Feature, error)
+	Resolve(names ...string) ([]string, map[string]Feature, error)
 }
 
 // FeatureMeta provides short information about the Feature.

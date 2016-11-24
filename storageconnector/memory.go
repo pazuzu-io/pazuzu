@@ -53,15 +53,15 @@ func (m *MemoryStorage) GetFeature(name string) (Feature, error) {
 	return f, nil
 }
 
-func (m *MemoryStorage) Resolve(names ...string) (map[string]Feature, error) {
+func (m *MemoryStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
 	result := map[string]Feature{}
 	for _, name := range names {
 		if err := m.resolve(name, result); err != nil {
-			return result, err
+			return []string{}, result, err
 		}
 	}
 
-	return result, nil
+	return []string{}, result, nil
 }
 
 func (m *MemoryStorage) resolve(name string, resolved map[string]Feature) error {
