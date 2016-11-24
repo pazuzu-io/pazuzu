@@ -1,7 +1,6 @@
 package pazuzu
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -335,7 +334,7 @@ func (c *ConfigMirror) GetHelp(key string) (string, error) {
 	if ok {
 		return v.(*ConfigFieldMirror).Help, nil
 	}
-	return "", errors.New("Not found")
+	return "", ErrNotFound
 }
 
 func (c *ConfigMirror) GetRepr(key string) (string, error) {
@@ -343,7 +342,7 @@ func (c *ConfigMirror) GetRepr(key string) (string, error) {
 	if ok {
 		return v.(*ConfigFieldMirror).Repr, nil
 	}
-	return "", errors.New("Not found")
+	return "", ErrNotFound
 }
 
 func (c *ConfigMirror) SetConfig(key string, val string) error {
@@ -352,10 +351,10 @@ func (c *ConfigMirror) SetConfig(key string, val string) error {
 		setter := v.(*ConfigFieldMirror).Setter
 		if !setter.IsValid() {
 			fmt.Println("INVALID SETTER!!!")
-			return errors.New("Invalid setter method")
+			return ErrNotImplemented
 		}
 		_ = setter.Call([]reflect.Value{reflect.ValueOf(val)})
 		return nil
 	}
-	return errors.New("Not found")
+	return ErrNotFound
 }

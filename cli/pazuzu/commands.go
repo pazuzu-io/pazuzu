@@ -40,7 +40,7 @@ var cnfListCmd = cli.Command{
 func setConfig(c *cli.Context) error {
 	a := c.Args()
 	if len(a) != 2 {
-		return ErrTooFewOrManyParameters
+		return pazuzu.ErrTooFewOrManyParameters
 	}
 	//
 	givenPath := a.Get(0)
@@ -54,13 +54,13 @@ func setConfig(c *cli.Context) error {
 		return nil
 	}
 	fmt.Printf("FAIL [%v]\n", errSet)
-	return ErrNotFound
+	return pazuzu.ErrNotFound
 }
 
 func getConfig(c *cli.Context) error {
 	a := c.Args()
 	if len(a) != 1 {
-		return ErrTooFewOrManyParameters
+		return pazuzu.ErrTooFewOrManyParameters
 	}
 	//
 	givenPath := a.Get(0)
@@ -70,7 +70,7 @@ func getConfig(c *cli.Context) error {
 		fmt.Println(repr)
 		return nil
 	}
-	return ErrNotFound
+	return pazuzu.ErrNotFound
 }
 
 func helpConfigs(c *cli.Context) error {
@@ -185,5 +185,5 @@ var buildCmd = cli.Command{
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
-	return ErrNotImplemented
+	return pazuzu.ErrNotImplemented
 }
