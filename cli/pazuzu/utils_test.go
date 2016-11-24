@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/zalando-incubator/pazuzu"
 	"reflect"
 	"testing"
 )
@@ -16,7 +17,7 @@ func TestAppendIfMissing(t *testing.T) {
 		if len(result) != 1 || result[0] != element {
 			t.Errorf("Wrong result: %s", result)
 		}
-	}) 
+	})
 
 	t.Run("Append to a non-empty slice", func(t *testing.T) {
 		var nonEmptySlice = []string{"Existing element"}
@@ -39,7 +40,6 @@ func TestAppendIfMissing(t *testing.T) {
 	})
 }
 
-
 func TestGenerateFeaturesList(t *testing.T) {
 
 	t.Run("Fails when both add and init are specified", func(t *testing.T) {
@@ -48,11 +48,10 @@ func TestGenerateFeaturesList(t *testing.T) {
 		var featuresToAdd = []string{"c", "d"}
 
 		_, err := generateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
-		if err != ErrInitAndAddAreSpecified {
+		if err != pazuzu.ErrInitAndAddAreSpecified {
 			t.Error("No error is raised")
 		}
 	})
-
 
 	t.Run("Returns features to init if specified", func(t *testing.T) {
 		var pazuzufileFeatures []string
@@ -100,7 +99,6 @@ func TestGenerateFeaturesList(t *testing.T) {
 		}
 	})
 }
-
 
 func TestGetFeaturesList(t *testing.T) {
 	t.Run("Returns empty slice when nothing is specified", func(t *testing.T) {

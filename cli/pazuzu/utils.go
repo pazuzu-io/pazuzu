@@ -30,7 +30,7 @@ func generateFeaturesList(pazuzufileFeatures []string, featuresToInit []string, 
 	var features []string
 
 	if len(featuresToInit) > 0 && len(featuresToAdd) > 0 {
-		return features, ErrInitAndAddAreSpecified
+		return features, pazuzu.ErrInitAndAddAreSpecified
 	}
 
 	if len(featuresToInit) > 0 {

@@ -185,5 +185,5 @@ var buildCmd = cli.Command{
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
-	return ErrNotImplemented
+	return pazuzu.ErrNotImplemented
 }
