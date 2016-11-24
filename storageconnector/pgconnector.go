@@ -31,21 +31,21 @@ func (store *postgreStorage) disconnect() {
 	store.db.Close()
 }
 
-func (store *postgreStorage) scanMeta(sql_query string) ([]FeatureMeta, error) {
+func (store *postgreStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 	var fms []FeatureMeta
-	var dep_text string
+	var depText string
 	var snippet string
 	var index int
 	store.connect()
 	defer store.disconnect()
-	rows, err := store.db.Query(sql_query)
+	rows, err := store.db.Query(SqlQuery)
 	checkErr(err)
 	for rows.Next() {
 		var f FeatureMeta
-		err := rows.Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, dep_text, snippet)
+		err := rows.Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, depText, snippet)
 		checkErr(err)
 
-		f.Dependencies = strings.Split(dep_text, " ")
+		f.Dependencies = strings.Split(depText, " ")
 		fms = append(fms, f)
 	}
 
@@ -53,16 +53,16 @@ func (store *postgreStorage) scanMeta(sql_query string) ([]FeatureMeta, error) {
 }
 
 func (store *postgreStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
-	sql_query := fmt.Sprintf("select * from features where name ~ %s", name)
-	fms, err := store.scanMeta(sql_query)
+	sqlQuery := fmt.Sprintf("select * from features where name ~ %s", name)
+	fms, err := store.scanMeta(sqlQuery)
 	checkErr(err)
 	return fms, err
 
 }
 
 func (store *postgreStorage) GetMeta(name string) (FeatureMeta, error) {
-	sql_query := fmt.Sprintf("select * from features where name == %s", name)
-	fms, err := store.scanMeta(sql_query)
+	sqlQuery := fmt.Sprintf("select * from features where name == %s", name)
+	fms, err := store.scanMeta(sqlQuery)
 
 	checkErr(err)
 
@@ -71,11 +71,10 @@ func (store *postgreStorage) GetMeta(name string) (FeatureMeta, error) {
 
 func (store *postgreStorage) GetFeature(name string) (Feature, error) {
 	var f Feature
-	var sql_query string
 	var index int
 	var dep_text string
-	sql_query = fmt.Sprintf("select * from features where name == %s", name)
-	err := store.db.QueryRow(sql_query).Scan(index, f.Meta.Name, f.Meta.Description, f.Meta.Author, f.Meta.UpdatedAt, dep_text, f.Snippet)
+	sqlQuery := fmt.Sprintf("select * from features where name == %s", name)
+	err := store.db.QueryRow(sqlQuery).Scan(index, f.Meta.Name, f.Meta.Description, f.Meta.Author, f.Meta.UpdatedAt, dep_text, f.Snippet)
 
 	checkErr(err)
 
