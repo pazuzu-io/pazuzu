@@ -9,61 +9,64 @@ import (
 )
 
 type postgreStorage struct {
-	db *sql.DB
+	db       *sql.DB
+	username string
+	dbname   string
 }
 
-func ConnectToPg(username string, dbname string) {
-	fmt.Println("Opening database connection.")
-	command := fmt.Sprintf("user=%s dbname=%s sslmode=disable", username, dbname)
+func (store *postgreStorage) init(username string, dbname string) {
+	store.username = username
+	store.dbname = dbname
+}
+
+func (store *postgreStorage) connect() {
+	command := fmt.Sprintf("user=%s dbname=%s sslmode=disable", store.username, store.dbname)
 	db, err := sql.Open("postgres", command)
 
 	checkErr(err)
-	fmt.Println("Successfully opened database connection.")
 	db.Exec("CREATE TABLE IF NOT EXISTS features (index int, name text, description text, author text, lastupdate timestamptz, dependencies text, snippet text);")
 }
 
-func (store *postgreStorage) disconnectFromPg() {
+func (store *postgreStorage) disconnect() {
 	store.db.Close()
 }
 
-func (store *postgreStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
-	var sql_query string
+func (store *postgreStorage) scanMeta(sql_query string) ([]FeatureMeta, error) {
+	var fms []FeatureMeta
 	var dep_text string
 	var snippet string
-	sql_query = fmt.Sprintf("select * from features where name ~ %s", name)
+	var index int
+	store.connect()
+	defer store.disconnect()
 	rows, err := store.db.Query(sql_query)
 	checkErr(err)
-	defer rows.Close()
-	var fms []FeatureMeta
 	for rows.Next() {
 		var f FeatureMeta
-		var index int
 		err := rows.Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, dep_text, snippet)
 		checkErr(err)
+
+		f.Dependencies = strings.Split(dep_text, " ")
 		fms = append(fms, f)
 	}
+
 	return fms, nil
+}
+
+func (store *postgreStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
+	sql_query := fmt.Sprintf("select * from features where name ~ %s", name)
+	fms, err := store.scanMeta(sql_query)
+	checkErr(err)
+	return fms, err
 
 }
 
 func (store *postgreStorage) GetMeta(name string) (FeatureMeta, error) {
-	var f FeatureMeta
-	var sql_query string
-	var index int
-	var dep_text string
-	var snippet string
-	sql_query = fmt.Sprintf("select * from features where name == %s", name)
-	err := store.db.QueryRow(sql_query).Scan(index, f.Name, f.Description, f.Author, f.UpdatedAt, dep_text, snippet)
+	sql_query := fmt.Sprintf("select * from features where name == %s", name)
+	fms, err := store.scanMeta(sql_query)
 
 	checkErr(err)
 
-	s := strings.Split(dep_text, " ")
-	f.Dependencies = make([]string, len(s))
-
-	for index, value := range s {
-		f.Dependencies[index] = value
-	}
-	return f, nil
+	return fms[0], nil
 }
 
 func (store *postgreStorage) GetFeature(name string) (Feature, error) {
@@ -76,12 +79,8 @@ func (store *postgreStorage) GetFeature(name string) (Feature, error) {
 
 	checkErr(err)
 
-	s := strings.Split(dep_text, " ")
-	f.Meta.Dependencies = make([]string, len(s))
+	f.Meta.Dependencies = strings.Split(dep_text, " ")
 
-	for index, value := range s {
-		f.Meta.Dependencies[index] = value
-	}
 	return f, nil
 }
 
