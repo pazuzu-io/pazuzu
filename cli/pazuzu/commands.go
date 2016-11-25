@@ -10,8 +10,11 @@ import (
 	"github.com/zalando-incubator/pazuzu"
 )
 
-const PazuzufileName = "Pazuzufile"
-const DockerfileName = "Dockerfile"
+const (
+	PazuzufileName   = "Pazuzufile"
+	DockerfileName   = "Dockerfile"
+	TestSpecFileName = "test_spec.json"
+)
 
 var cnfGetCmd = cli.Command{
 	Name:   "get",

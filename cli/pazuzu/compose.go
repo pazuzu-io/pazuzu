@@ -11,6 +11,7 @@ var composeAction = func(c *cli.Context) error {
 	var (
 		initFeatures       = getFeaturesList(c.String("init"))
 		addFeatures        = getFeaturesList(c.String("add"))
+		destination        = c.String("destination")
 		pazuzufileFeatures []string
 		baseImage          string
 	)
@@ -20,7 +21,13 @@ var composeAction = func(c *cli.Context) error {
 		return errors.New("ERROR: No feature specified. Please use at least one of -a or -i for the compose command.")
 	}
 
-	pazuzufilePath, dockerfilePath, err := getAbsoluteFilePaths(c.String("destination"))
+	err := checkDestination(destination)
+	if err != nil {
+		return err
+	}
+
+	pazuzufilePath := getAbsoluteFilePath(destination, PazuzufileName)
+	dockerfilePath := getAbsoluteFilePath(destination, DockerfileName)
 
 	pazuzuFile, success := readPazuzuFile(pazuzufilePath)
 	if success {
