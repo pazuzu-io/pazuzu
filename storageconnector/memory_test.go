@@ -172,7 +172,7 @@ func TestMemoryResolve(t *testing.T) {
 			},
 		}
 
-		result, err := storage.Resolve("FeatureA")
+		_, result, err := storage.Resolve("FeatureA")
 		assert.Nil(t, err)
 		assert.Equal(t, expected, result)
 	})
@@ -195,7 +195,7 @@ func TestMemoryResolve(t *testing.T) {
 			},
 		}
 
-		result, err := storage.Resolve("FeatureB", "FeatureD")
+		_, result, err := storage.Resolve("FeatureB", "FeatureD")
 		assert.Nil(t, err)
 		assert.Equal(t, expected, result)
 	})
@@ -228,7 +228,7 @@ func TestMemoryResolve(t *testing.T) {
 			},
 		}
 
-		result, err := storage.Resolve("FeatureC", "FeatureE")
+		_, result, err := storage.Resolve("FeatureC", "FeatureE")
 		assert.Nil(t, err)
 		assert.Equal(t, expected, result)
 	})
@@ -253,18 +253,18 @@ func TestMemoryResolve(t *testing.T) {
 			},
 		}
 
-		result, err := storage.Resolve("FeatureF", "FeatureG")
+		_, result, err := storage.Resolve("FeatureF", "FeatureG")
 		assert.Nil(t, err)
 		assert.Equal(t, expected, result)
 	})
 
 	t.Run("Resolve Non-existing feature", func(t *testing.T) {
-		_, err := storage.Resolve("FooBoo", "FeatureD")
+		_, _, err := storage.Resolve("FooBoo", "FeatureD")
 		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
 	})
 
 	t.Run("Resolve empty list of features", func(t *testing.T) {
-		result, err := storage.Resolve()
+		_, result, err := storage.Resolve()
 		assert.Nil(t, err)
 		assert.Equal(t, map[string]Feature{}, result)
 	})
