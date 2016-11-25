@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/jinzhu/copier"
 	"github.com/cevaris/ordered_map"
+	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
 
 	"github.com/zalando-incubator/pazuzu/storageconnector"
@@ -30,6 +30,9 @@ const (
 	StorageTypeGit = "git"
 	// StorageTypeMemory : Memory storage type.
 	StorageTypeMemory = "memory"
+
+	// StorageTypePostgres: Postgresql storage
+	StorageTypePG = "postgres"
 )
 
 var config Config
@@ -111,6 +114,8 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 		return storageconnector.NewMemoryStorage(data), nil // implement a generator of random list of features?
 	case StorageTypeGit:
 		return storageconnector.NewGitStorage(config.Git.URL)
+	case StorageTypePG:
+		return storageconnector.NewPostgresStorage("omaurer", "pazuzu") // FIXME: this is for testing, it needs to be properly put in the config file
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
