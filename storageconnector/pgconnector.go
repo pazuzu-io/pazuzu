@@ -30,12 +30,10 @@ func (store *postgresStorage) connect() error {
 	command := fmt.Sprintf("user=%s dbname=%s sslmode=disable", store.username, store.dbname)
 	db, err := sql.Open("postgres", command)
 	if err != nil {
-		fmt.Println("error error")
 		return err
 	}
 	err = db.Ping()
 	if err != nil {
-		fmt.Println("error error")
 		return err
 	}
 	db.Exec("CREATE TABLE IF NOT EXISTS features (index int, name text, description text, author text, lastupdate timestamptz, dependencies text, snippet text);")
@@ -54,7 +52,6 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 	var index int
 	err := store.connect()
 	if err != nil {
-		fmt.Println("error error")
 		return nil, err
 	}
 	//fmt.Println("Sql query:")
@@ -62,14 +59,12 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 
 	rows, err := store.db.Query(SqlQuery)
 	if err != nil {
-		fmt.Println("error error after query")
 		return nil, err
 	}
 	for rows.Next() {
 		var f FeatureMeta
 		err := rows.Scan(&index, &f.Name, &f.Description, &f.Author, &f.UpdatedAt, &depText, &snippet)
 		if err != nil {
-			fmt.Println("error error after scan")
 			return nil, err
 		}
 		f.Dependencies = strings.Split(depText, " ")
