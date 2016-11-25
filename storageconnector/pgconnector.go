@@ -54,8 +54,6 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println("Sql query:")
-	//fmt.Println(SqlQuery)
 
 	rows, err := store.db.Query(SqlQuery)
 	if err != nil {
