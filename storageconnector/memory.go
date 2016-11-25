@@ -53,18 +53,19 @@ func (m *MemoryStorage) GetFeature(name string) (Feature, error) {
 	return f, nil
 }
 
-func (m *MemoryStorage) Resolve(names ...string) (map[string]Feature, error) {
+func (m *MemoryStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
+	var slice []string
 	result := map[string]Feature{}
 	for _, name := range names {
-		if err := m.resolve(name, result); err != nil {
-			return result, err
+		if err := m.resolve(name, &slice, result); err != nil {
+			return []string{}, result, err
 		}
 	}
 
-	return result, nil
+	return []string{}, result, nil
 }
 
-func (m *MemoryStorage) resolve(name string, resolved map[string]Feature) error {
+func (m *MemoryStorage) resolve(name string, list *[]string, resolved map[string]Feature) error {
 	f, ok := m.features[name]
 	if !ok {
 		return fmt.Errorf("Feature '%s' was not found", name)
@@ -75,8 +76,9 @@ func (m *MemoryStorage) resolve(name string, resolved map[string]Feature) error 
 	}
 
 	resolved[f.Meta.Name] = f
+	*list = append(*list, f.Meta.Name)
 	for _, depName := range f.Meta.Dependencies {
-		if err := m.resolve(depName, resolved); err != nil {
+		if err := m.resolve(depName, list, resolved); err != nil {
 			return err
 		}
 	}

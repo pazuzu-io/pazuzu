@@ -61,14 +61,23 @@ func Write(writer io.Writer, pazuzuFile PazuzuFile) error {
 
 // Generate generates Dockfiler and test.spec file base on list of features
 func (p *Pazuzu) Generate(baseimage string, features []string) error {
-	var resolvedFeatures []storageconnector.Feature
+	var resolvedFeatures []string
 	for _, feature := range features {
 		// TODO: add proper error handling
 		repoFeature, _ := p.StorageReader.GetFeature(feature)
-		resolvedFeatures = append(resolvedFeatures, repoFeature)
+		resolvedFeatures = append(resolvedFeatures, repoFeature.Meta.Name)
+	}
+	// TODO: add proper error handling
+	var featureNamesWithDep []string
+	featureNamesWithDep, featuresMap, _ := p.StorageReader.Resolve(resolvedFeatures...)
+	featuresWithDep := make([]storageconnector.Feature, 0, len(featuresMap))
+
+	for _, featureName := range featureNamesWithDep {
+		featuresWithDep = append(featuresWithDep, featuresMap[featureName])
 	}
 
-	err := p.generateDockerfile(baseimage, resolvedFeatures)
+	err := p.generateDockerfile(baseimage, featuresWithDep)
+
 	if err != nil {
 		return err
 	}

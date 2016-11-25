@@ -32,8 +32,8 @@ func (s *TestStorage) SearchMeta(name *regexp.Regexp) ([]storageconnector.Featur
 	return make([]storageconnector.FeatureMeta, 0), nil
 }
 
-func (s *TestStorage) Resolve(names ...string) (map[string]storageconnector.Feature, error) {
-	return make(map[string]storageconnector.Feature), nil
+func (s *TestStorage) Resolve(names ...string) ([]string, map[string]storageconnector.Feature, error) {
+	return []string{}, make(map[string]storageconnector.Feature), nil
 }
 
 // Test generating a Dockerfile from a list of features.

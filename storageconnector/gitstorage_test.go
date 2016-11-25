@@ -114,9 +114,12 @@ func TestGitStorage_Resolve(t *testing.T) {
 	t.Run("FeatureWithoutDependencies", func(t *testing.T) {
 		expected := 1
 
-		features, err := storage.Resolve("java")
+		list, features, err := storage.Resolve("java")
 		if err != nil {
 			t.Error(err)
+		}
+		if len(list) != expected {
+			t.Errorf("Feature count should be %d but was %d", expected, len(list))
 		}
 
 		if len(features) != expected {
@@ -130,9 +133,13 @@ func TestGitStorage_Resolve(t *testing.T) {
 	t.Run("FeatureWithTwoDependencies", func(t *testing.T) {
 		expected := 3
 
-		features, err := storage.Resolve("A-java-lein")
+		list, features, err := storage.Resolve("A-java-lein")
 		if err != nil {
 			t.Error(err)
+		}
+
+		if len(list) != expected {
+			t.Errorf("Feature count should be %d but was %d", expected, len(list))
 		}
 
 		if len(features) != expected {
