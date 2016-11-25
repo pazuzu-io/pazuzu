@@ -61,11 +61,11 @@ func Write(writer io.Writer, pazuzuFile PazuzuFile) error {
 
 // Generate generates Dockfiler and test.spec file base on list of features
 func (p *Pazuzu) Generate(baseimage string, features []string) error {
-	var resolvedFeatures []storageconnector.Feature
+	var resolvedFeatures []string
 	for _, feature := range features {
 		// TODO: add proper error handling
 		repoFeature, _ := p.StorageReader.GetFeature(feature)
-		resolvedFeatures = append(resolvedFeatures, repoFeature)
+		resolvedFeatures = append(resolvedFeatures, repoFeature.Meta.Name)
 	}
 	// TODO: add proper error handling
 	var featureNamesWithDep []string

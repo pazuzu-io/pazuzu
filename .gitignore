@@ -18,4 +18,7 @@ test_spec.json
 # Internal data files
 Pazuzufile
 Dockerfile
+test_spec.json
+
 !features/*/Dockerfile
+!features/*/test_spec.json

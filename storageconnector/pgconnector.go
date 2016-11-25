@@ -110,19 +110,20 @@ func (store *postgresStorage) GetFeature(name string) (Feature, error) {
 	return f, nil
 }
 
-func (store *postgresStorage) Resolve(names ...string) (map[string]Feature, error) {
+func (store *postgresStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
+	var slice []string
 	result := map[string]Feature{}
 	for _, name := range names {
-		err := store.resolve(name, result)
+		err := store.resolve(name, &slice, result)
 		if err != nil {
-			return map[string]Feature{}, err
+			return []string {}, map[string]Feature{}, err
 		}
 	}
 
-	return result, nil
+	return slice, result, nil
 }
 
-func (store *postgresStorage) resolve(name string, result map[string]Feature) error {
+func (store *postgresStorage) resolve(name string, list *[]string, result map[string]Feature) error {
 	if _, ok := result[name]; ok {
 		return nil
 	}
@@ -133,13 +134,13 @@ func (store *postgresStorage) resolve(name string, result map[string]Feature) er
 	}
 
 	for _, depName := range feature.Meta.Dependencies {
-		err := store.resolve(depName, result)
+		err := store.resolve(depName, list, result)
 		if err != nil {
 			return err
 		}
 	}
 
 	result[name] = feature
-
+	*list = append(*list, name)
 	return nil
 }
