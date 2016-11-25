@@ -16,7 +16,7 @@ const (
 	featureDir               = "features"   // name of the directory where features are located.
 	featureFile              = "meta.yml"   // name of the file containing all metadata for a feature.
 	featureSnippet           = "Dockerfile" // the file containing the actual docker snippet.
-	defaultSearchParamsLimit = 100
+	defaultSearchParamsLimit = 100 // we should use this constant
 )
 
 // yamlFeatureMeta is used for unmarshalling of meta.yml files.
