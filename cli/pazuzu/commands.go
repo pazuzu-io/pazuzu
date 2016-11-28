@@ -13,7 +13,7 @@ import (
 const (
 	PazuzufileName   = "Pazuzufile"
 	DockerfileName   = "Dockerfile"
-	TestSpecFileName = "test_spec.json"
+	TestSpecFileName = "test.bats"
 )
 
 var cnfGetCmd = cli.Command{

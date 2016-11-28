@@ -90,10 +90,10 @@ func writePazuzuFile(path string, pazuzuFile *pazuzu.PazuzuFile) error {
 	return nil
 }
 
-func writeDockerFile(path string, contents []byte) error {
+func writeFile(path string, contents []byte) error {
 	file, err := os.Create(path)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not create %v", DockerfileName))
+		return errors.New(fmt.Sprintf("Could not create %v", path))
 	}
 	defer file.Close()
 

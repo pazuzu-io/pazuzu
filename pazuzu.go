@@ -21,6 +21,7 @@ import (
 type Pazuzu struct {
 	StorageReader  storageconnector.StorageReader
 	Dockerfile     []byte
+	TestSpec       []byte
 	testSpec       string
 	dockerEndpoint string
 	docker         *docker.Client
@@ -78,7 +79,11 @@ func (p *Pazuzu) Generate(baseimage string, features []string) error {
 	}
 
 	err := p.generateDockerfile(baseimage, featuresWithDep)
+	if err != nil {
+		return err
+	}
 
+	err = p.generateTestSpec(featuresWithDep)
 	if err != nil {
 		return err
 	}
@@ -123,6 +128,19 @@ func (p *Pazuzu) generateDockerfile(baseimage string, features []shared.Feature)
 	}
 
 	p.Dockerfile = writer.Bytes()
+
+	return nil
+}
+
+// generate in-memory Test Specification from list of features.
+func (p *Pazuzu) generateTestSpec(features []shared.Feature) error {
+	var buffer = bytes.NewBufferString("")
+	err := shared.WriteTestSpec(buffer, features)
+	if err != nil {
+		return err
+	}
+
+	p.TestSpec = buffer.Bytes()
 
 	return nil
 }
