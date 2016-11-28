@@ -6,14 +6,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zalando-incubator/pazuzu/storageconnector"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 type TestStorage struct{}
 
-func (s *TestStorage) GetFeature(feature string) (storageconnector.Feature, error) {
-	return storageconnector.Feature{
-		Meta: storageconnector.FeatureMeta{
+func (s *TestStorage) GetFeature(feature string) (shared.Feature, error) {
+	return shared.Feature{
+		Meta: shared.FeatureMeta{
 			Name:        "python",
 			Description: "Use `python -V`",
 		},
@@ -21,19 +21,19 @@ func (s *TestStorage) GetFeature(feature string) (storageconnector.Feature, erro
 	}, nil
 }
 
-func (s *TestStorage) GetMeta(name string) (storageconnector.FeatureMeta, error) {
-	return storageconnector.FeatureMeta{
+func (s *TestStorage) GetMeta(name string) (shared.FeatureMeta, error) {
+	return shared.FeatureMeta{
 		Name:        "python",
 		Description: "Use `python -V`",
 	}, nil
 }
 
-func (s *TestStorage) SearchMeta(name *regexp.Regexp) ([]storageconnector.FeatureMeta, error) {
-	return make([]storageconnector.FeatureMeta, 0), nil
+func (s *TestStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
+	return make([]shared.FeatureMeta, 0), nil
 }
 
-func (s *TestStorage) Resolve(names ...string) ([]string, map[string]storageconnector.Feature, error) {
-	return []string{}, make(map[string]storageconnector.Feature), nil
+func (s *TestStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
+	return []string{}, make(map[string]shared.Feature), nil
 }
 
 // Test generating a Dockerfile from a list of features.

@@ -3,13 +3,14 @@ package storageconnector
 import (
 	"io/ioutil"
 	"path"
-	"strings"
-
 	"regexp"
+	"strings"
 
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/core"
 	"gopkg.in/yaml.v2"
+
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 const (
@@ -56,7 +57,7 @@ func NewGitStorage(url string) (*GitStorage, error) {
 	return &GitStorage{repo: repo}, nil
 }
 
-func (storage *GitStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
+func (storage *GitStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
 		return nil, err
@@ -69,7 +70,7 @@ func (storage *GitStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error
 
 	// find matching feature names
 	matchedNames := map[string]bool{}
-	matchedFeatures := []FeatureMeta{}
+	matchedFeatures := []shared.FeatureMeta{}
 	err = all.ForEach(func(file *git.File) error {
 		pathComponents := strings.Split(file.Name, "/")
 
@@ -104,10 +105,10 @@ func (storage *GitStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error
 	return matchedFeatures, nil
 }
 
-func (storage *GitStorage) GetMeta(name string) (FeatureMeta, error) {
+func (storage *GitStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
-		return FeatureMeta{}, err
+		return shared.FeatureMeta{}, err
 	}
 
 	return getMeta(commit, name)
@@ -117,30 +118,30 @@ func (storage *GitStorage) GetMeta(name string) (FeatureMeta, error) {
 //
 // commit:  The commit from which to obtain the feature information.
 // name:    The exact feature name.
-func getMeta(commit *git.Commit, name string) (FeatureMeta, error) {
+func getMeta(commit *git.Commit, name string) (shared.FeatureMeta, error) {
 	file, err := commit.File(path.Join(featureDir, name, featureFile))
 
 	if err != nil {
-		return FeatureMeta{}, err
+		return shared.FeatureMeta{}, err
 	}
 
 	reader, err := file.Reader()
 	if err != nil {
-		return FeatureMeta{}, err
+		return shared.FeatureMeta{}, err
 	}
 
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return FeatureMeta{}, err
+		return shared.FeatureMeta{}, err
 	}
 
 	meta := &yamlFeatureMeta{}
 	err = yaml.Unmarshal(content, meta)
 	if err != nil {
-		return FeatureMeta{}, err
+		return shared.FeatureMeta{}, err
 	}
 
-	return FeatureMeta{
+	return shared.FeatureMeta{
 		Name:         name,
 		Dependencies: meta.Dependencies,
 		Description:  meta.Description,
@@ -149,10 +150,10 @@ func getMeta(commit *git.Commit, name string) (FeatureMeta, error) {
 	}, nil
 }
 
-func (storage *GitStorage) GetFeature(name string) (Feature, error) {
+func (storage *GitStorage) GetFeature(name string) (shared.Feature, error) {
 	commit, err := storage.latestCommit()
 	if err != nil {
-		return Feature{}, err
+		return shared.Feature{}, err
 	}
 
 	return getFeature(commit, name)
@@ -162,49 +163,49 @@ func (storage *GitStorage) GetFeature(name string) (Feature, error) {
 //
 // commit:  The commit from which to obtain the feature information.
 // name:    The exact feature name.
-func getFeature(commit *git.Commit, name string) (Feature, error) {
+func getFeature(commit *git.Commit, name string) (shared.Feature, error) {
 	meta, err := getMeta(commit, name)
 	if err != nil {
-		return Feature{}, err
+		return shared.Feature{}, err
 	}
 
 	file, err := commit.File(path.Join(featureDir, name, featureSnippet))
 	if err != nil {
 		if err == git.ErrFileNotFound {
-			return Feature{Meta: meta}, nil
+			return shared.Feature{Meta: meta}, nil
 		}
-		return Feature{}, err
+		return shared.Feature{}, err
 	}
 
 	reader, err := file.Reader()
 	if err != nil {
-		return Feature{}, err
+		return shared.Feature{}, err
 	}
 
-	content, err := ioutil.ReadAll(reader)
+	snippet, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return Feature{}, err
+		return shared.Feature{}, err
 	}
 
-	return Feature{
-		Meta:    meta,
-		Snippet: string(content),
+	return shared.Feature{
+		Meta:         meta,
+		Snippet:      string(snippet),
 	}, nil
 }
 
-func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
+func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
 	var slice []string
 
 	commit, err := storage.latestCommit()
 	if err != nil {
-		return []string {}, map[string]Feature{}, err
+		return []string {}, map[string]shared.Feature{}, err
 	}
 
-	result := map[string]Feature{}
+	result := map[string]shared.Feature{}
 	for _, name := range names {
 		err = resolve(commit, name, &slice, result)
 		if err != nil {
-			return []string {}, map[string]Feature{}, err
+			return []string {}, map[string]shared.Feature{}, err
 		}
 	}
 
@@ -217,7 +218,7 @@ func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]Featur
 // commit:  The commit from which to obtain the feature information.
 // name:    The exact feature name.
 // result:  All features collected so far.
-func resolve(commit *git.Commit, name string, list *[]string, result map[string]Feature) error {
+func resolve(commit *git.Commit, name string, list *[]string, result map[string]shared.Feature) error {
 	if _, ok := result[name]; ok {
 		return nil
 	}

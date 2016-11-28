@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
 
+	"github.com/zalando-incubator/pazuzu/shared"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
@@ -106,7 +107,7 @@ func GetConfig() *Config {
 func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	switch config.StorageType {
 	case StorageTypeMemory:
-		data := []storageconnector.Feature{}
+		data := []shared.Feature{}
 		if config.Memory.InitialiseRandom {
 			data = generateRandomFeatures(config.Memory.RandomSetSize)
 		}
@@ -121,9 +122,9 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
 }
 
-func generateRandomFeatures(setsize int) []storageconnector.Feature {
+func generateRandomFeatures(setsize int) []shared.Feature {
 	// TODO: implement in case of need
-	return []storageconnector.Feature{}
+	return []shared.Feature{}
 }
 
 func UserHomeDir() string {

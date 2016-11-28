@@ -3,9 +3,11 @@ package storageconnector
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"regexp"
 	"strings"
+
+	_ "github.com/lib/pq"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 type postgresStorage struct {
@@ -45,8 +47,8 @@ func (store *postgresStorage) disconnect() {
 	store.db.Close()
 }
 
-func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
-	var fms []FeatureMeta
+func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
+	var fms []shared.FeatureMeta
 	var depText string
 	var snippet string
 	var index int
@@ -60,7 +62,7 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		var f FeatureMeta
+		var f shared.FeatureMeta
 		err := rows.Scan(&index, &f.Name, &f.Description, &f.Author, &f.UpdatedAt, &depText, &snippet)
 		if err != nil {
 			return nil, err
@@ -72,28 +74,28 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 	return fms, nil
 }
 
-func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
+func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
 	sqlQuery := fmt.Sprintf("select * from features where name ~ '%s';", name)
 	fms, err := store.scanMeta(sqlQuery)
 	if err != nil {
-		return make([]FeatureMeta, 0), err
+		return make([]shared.FeatureMeta, 0), err
 	}
 	return fms, err
 
 }
 
-func (store *postgresStorage) GetMeta(name string) (FeatureMeta, error) {
+func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
 	fms, err := store.scanMeta(sqlQuery)
 	if err != nil {
-		return FeatureMeta{}, err
+		return shared.FeatureMeta{}, err
 	}
 
 	return fms[0], nil
 }
 
-func (store *postgresStorage) GetFeature(name string) (Feature, error) {
-	var f Feature
+func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
+	var f shared.Feature
 	var index int
 	var dep_text string
 	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
@@ -101,27 +103,27 @@ func (store *postgresStorage) GetFeature(name string) (Feature, error) {
 	defer store.disconnect()
 	err := store.db.QueryRow(sqlQuery).Scan(&index, &f.Meta.Name, &f.Meta.Description, &f.Meta.Author, &f.Meta.UpdatedAt, &dep_text, &f.Snippet)
 	if err != nil {
-		return Feature{}, err
+		return shared.Feature{}, err
 	}
 	f.Meta.Dependencies = strings.Fields(dep_text)
 
 	return f, nil
 }
 
-func (store *postgresStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
+func (store *postgresStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
 	var slice []string
-	result := map[string]Feature{}
+	result := map[string]shared.Feature{}
 	for _, name := range names {
 		err := store.resolve(name, &slice, result)
 		if err != nil {
-			return []string {}, map[string]Feature{}, err
+			return []string {}, map[string]shared.Feature{}, err
 		}
 	}
 
 	return slice, result, nil
 }
 
-func (store *postgresStorage) resolve(name string, list *[]string, result map[string]Feature) error {
+func (store *postgresStorage) resolve(name string, list *[]string, result map[string]shared.Feature) error {
 	if _, ok := result[name]; ok {
 		return nil
 	}
