@@ -9,29 +9,31 @@ import (
 )
 
 
-const javaTestSpecFixture = `
-	#!/usr/bin/env bats
+const testSpecFixture = `#!/usr/bin/env bats
 
-	@test "Check that Java is installed" {
-	    command java -version
-	}
+@test "Check that Java is installed" {  
+    command java -version    
+}
 `
 
 func TestReadTestSpec(t *testing.T) {
 	t.Run("Return an empty string where is nothing to read", func(t *testing.T) {
 		reader := strings.NewReader("")
-		result, err := ReadTestSpec(reader)
+		result := ReadTestSpec(reader)
 
 		assert.Equal(t, result, "", "Result should be empty")
-		assert.Equal(t, err, nil, "No error should be returned")
 	})
 
-	t.Run("Return a proper test spec content", func(t *testing.T) {
-		reader := strings.NewReader(javaTestSpecFixture)
-		result, err := ReadTestSpec(reader)
+	t.Run("Return a proper test spec content without shebang and trailing whitespaces", func(t *testing.T) {
+		reader := strings.NewReader(testSpecFixture)
+		result := ReadTestSpec(reader)
 
-		assert.Equal(t, result, javaTestSpecFixture, "Result mismatched")
-		assert.Equal(t, err, nil, "No error should be returned")
+		expectedTestSpec := "@test \"Check that Java is installed\" {\n" +
+			"    command java -version\n" +
+			"}"
+
+
+		assert.Equal(t, result, expectedTestSpec, "Result mismatched")
 	})
 }
 

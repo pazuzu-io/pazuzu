@@ -1,21 +1,29 @@
 package shared
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"strings"
 )
 
 const shebang = "#!/usr/bin/env bats"
 
 
-func ReadTestSpec(reader io.Reader) (string, error) {
-	// TODO: Skip shebang line
-	snippet, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return "", err
+func ReadTestSpec(reader io.Reader) string {
+	var scanner = bufio.NewScanner(reader)
+	var buffer = bytes.NewBufferString("")
+	var line string
+
+	for scanner.Scan() {
+		line = strings.TrimRight(scanner.Text(), " \t\r\n")
+		if line != shebang {
+			buffer.WriteString(line + "\n")
+		}
 	}
-	return string(snippet), nil
+
+	return strings.TrimSpace(buffer.String())
 }
 
 func WriteTestSpec(writer io.Writer, features []Feature) error {

@@ -212,12 +212,7 @@ func getTestSpec(commit *git.Commit, name string) string {
 		return ""
 	}
 
-	content, err := shared.ReadTestSpec(reader)
-	if err != nil {
-		return ""
-	}
-
-	return content
+	return shared.ReadTestSpec(reader)
 }
 
 func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
