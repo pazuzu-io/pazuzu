@@ -5,12 +5,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 func TestMemoryGet(t *testing.T) {
-	storage := NewMemoryStorage([]Feature{
+	storage := NewMemoryStorage([]shared.Feature{
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureA",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureB", "FeatureC"},
@@ -18,7 +19,7 @@ func TestMemoryGet(t *testing.T) {
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:   "FeatureB",
 				Author: "SomeAuthor",
 			},
@@ -30,7 +31,7 @@ func TestMemoryGet(t *testing.T) {
 		result, err := storage.SearchMeta(regexp.MustCompile("FeatureA.*"))
 
 		assert.Nil(t, err)
-		assert.Equal(t, []FeatureMeta{{
+		assert.Equal(t, []shared.FeatureMeta{{
 			Name:         "FeatureA",
 			Author:       "SomeAuthor",
 			Dependencies: []string{"FeatureB", "FeatureC"},
@@ -41,14 +42,14 @@ func TestMemoryGet(t *testing.T) {
 		result, err := storage.SearchMeta(regexp.MustCompile("FooBoo"))
 
 		assert.Nil(t, err)
-		assert.Equal(t, []FeatureMeta{}, result)
+		assert.Equal(t, []shared.FeatureMeta{}, result)
 	})
 
 	t.Run("Try to get a feature Meta and find it", func(t *testing.T) {
 		result, err := storage.GetMeta("FeatureA")
 
 		assert.Nil(t, err)
-		assert.Equal(t, FeatureMeta{
+		assert.Equal(t, shared.FeatureMeta{
 			Name:         "FeatureA",
 			Author:       "SomeAuthor",
 			Dependencies: []string{"FeatureB", "FeatureC"},
@@ -64,8 +65,8 @@ func TestMemoryGet(t *testing.T) {
 		result, err := storage.GetFeature("FeatureA")
 
 		assert.Nil(t, err)
-		assert.Equal(t, Feature{
-			Meta: FeatureMeta{
+		assert.Equal(t, shared.Feature{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureA",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureB", "FeatureC"},
@@ -81,9 +82,9 @@ func TestMemoryGet(t *testing.T) {
 }
 
 func TestMemoryResolve(t *testing.T) {
-	storage := NewMemoryStorage([]Feature{
+	storage := NewMemoryStorage([]shared.Feature{
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureA",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureB", "FeatureC"},
@@ -91,14 +92,14 @@ func TestMemoryResolve(t *testing.T) {
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:   "FeatureB",
 				Author: "SomeAuthor",
 			},
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureC",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureD"},
@@ -106,14 +107,14 @@ func TestMemoryResolve(t *testing.T) {
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:   "FeatureD",
 				Author: "SomeAuthor",
 			},
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureE",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureD"},
@@ -121,7 +122,7 @@ func TestMemoryResolve(t *testing.T) {
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureF",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureG"},
@@ -129,7 +130,7 @@ func TestMemoryResolve(t *testing.T) {
 			Snippet: "",
 		},
 		{
-			Meta: FeatureMeta{
+			Meta: shared.FeatureMeta{
 				Name:         "FeatureG",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureF"},
@@ -139,9 +140,9 @@ func TestMemoryResolve(t *testing.T) {
 	})
 
 	t.Run("Resolve FeatureA", func(t *testing.T) {
-		expected := map[string]Feature{
+		expected := map[string]shared.Feature{
 			"FeatureA": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:         "FeatureA",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureB", "FeatureC"},
@@ -149,14 +150,14 @@ func TestMemoryResolve(t *testing.T) {
 				Snippet: "",
 			},
 			"FeatureB": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:   "FeatureB",
 					Author: "SomeAuthor",
 				},
 				Snippet: "",
 			},
 			"FeatureC": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:         "FeatureC",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureD"},
@@ -164,7 +165,7 @@ func TestMemoryResolve(t *testing.T) {
 				Snippet: "",
 			},
 			"FeatureD": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:   "FeatureD",
 					Author: "SomeAuthor",
 				},
@@ -178,16 +179,16 @@ func TestMemoryResolve(t *testing.T) {
 	})
 
 	t.Run("Resolve FeatureB and FeatureD", func(t *testing.T) {
-		expected := map[string]Feature{
+		expected := map[string]shared.Feature{
 			"FeatureB": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:   "FeatureB",
 					Author: "SomeAuthor",
 				},
 				Snippet: "",
 			},
 			"FeatureD": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:   "FeatureD",
 					Author: "SomeAuthor",
 				},
@@ -201,10 +202,10 @@ func TestMemoryResolve(t *testing.T) {
 	})
 
 	t.Run("Resolve features with the same dependencies should NOT result in duplicates", func(t *testing.T) {
-		expected := map[string]Feature{
+		expected := map[string]shared.Feature{
 
 			"FeatureC": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:         "FeatureC",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureD"},
@@ -212,14 +213,14 @@ func TestMemoryResolve(t *testing.T) {
 				Snippet: "",
 			},
 			"FeatureD": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:   "FeatureD",
 					Author: "SomeAuthor",
 				},
 				Snippet: "",
 			},
 			"FeatureE": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:         "FeatureE",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureD"},
@@ -234,9 +235,9 @@ func TestMemoryResolve(t *testing.T) {
 	})
 
 	t.Run("Resolve features with circular dependency", func(t *testing.T) {
-		expected := map[string]Feature{
+		expected := map[string]shared.Feature{
 			"FeatureF": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:         "FeatureF",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureG"},
@@ -244,7 +245,7 @@ func TestMemoryResolve(t *testing.T) {
 				Snippet: "",
 			},
 			"FeatureG": {
-				Meta: FeatureMeta{
+				Meta: shared.FeatureMeta{
 					Name:         "FeatureG",
 					Author:       "SomeAuthor",
 					Dependencies: []string{"FeatureF"},
@@ -266,6 +267,6 @@ func TestMemoryResolve(t *testing.T) {
 	t.Run("Resolve empty list of features", func(t *testing.T) {
 		_, result, err := storage.Resolve()
 		assert.Nil(t, err)
-		assert.Equal(t, map[string]Feature{}, result)
+		assert.Equal(t, map[string]shared.Feature{}, result)
 	})
 }

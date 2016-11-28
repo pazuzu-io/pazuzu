@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zalando-incubator/pazuzu/storageconnector"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 func TestDockerfileWriter(t *testing.T) {
@@ -35,8 +35,8 @@ func TestDockerfileWriter(t *testing.T) {
 
 	for _, f := range features {
 		err := writer.AppendFeature(
-			storageconnector.Feature{
-				Meta: storageconnector.FeatureMeta{
+			shared.Feature{
+				Meta: shared.FeatureMeta{
 					Name: f.name,
 				},
 				Snippet: f.data,

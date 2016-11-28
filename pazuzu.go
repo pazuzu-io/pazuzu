@@ -13,6 +13,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/zalando-incubator/pazuzu/shared"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
@@ -70,7 +71,7 @@ func (p *Pazuzu) Generate(baseimage string, features []string) error {
 	// TODO: add proper error handling
 	var featureNamesWithDep []string
 	featureNamesWithDep, featuresMap, _ := p.StorageReader.Resolve(resolvedFeatures...)
-	featuresWithDep := make([]storageconnector.Feature, 0, len(featuresMap))
+	featuresWithDep := make([]shared.Feature, 0, len(featuresMap))
 
 	for _, featureName := range featureNamesWithDep {
 		featuresWithDep = append(featuresWithDep, featuresMap[featureName])
@@ -96,7 +97,7 @@ func (p *Pazuzu) Cleanup() {
 }
 
 // generate in-memory Dockerfile from list of features.
-func (p *Pazuzu) generateDockerfile(baseimage string, features []storageconnector.Feature) error {
+func (p *Pazuzu) generateDockerfile(baseimage string, features []shared.Feature) error {
 	writer := NewDockerfileWriter()
 
 	err := writer.AppendRaw(fmt.Sprintf("FROM %s\n", baseimage))

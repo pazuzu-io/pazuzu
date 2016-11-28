@@ -7,7 +7,7 @@ import (
 
 	"github.com/docker/docker/builder/dockerfile/parser"
 
-	"github.com/zalando-incubator/pazuzu/storageconnector"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 var ErrInvalidCopyCmdSyntax = fmt.Errorf("Invalid 'COPY' command syntax")
@@ -30,7 +30,7 @@ func (c *DockerfileWriter) AppendRaw(chunk string) error {
 	return nil
 }
 
-func fixCopyCmd(node *parser.Node, feature storageconnector.Feature) (string, error) {
+func fixCopyCmd(node *parser.Node, feature shared.Feature) (string, error) {
 	srcNode := node.Next
 	if srcNode == nil {
 		return "", ErrInvalidCopyCmdSyntax
@@ -45,7 +45,7 @@ func fixCopyCmd(node *parser.Node, feature storageconnector.Feature) (string, er
 	return fixedCmd, nil
 }
 
-func (c *DockerfileWriter) AppendFeature(feature storageconnector.Feature) error {
+func (c *DockerfileWriter) AppendFeature(feature shared.Feature) error {
 	d := parser.Directive{LookingForDirectives: true}
 	parser.SetEscapeToken(parser.DefaultEscapeToken, &d)
 

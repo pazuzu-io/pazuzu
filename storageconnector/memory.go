@@ -4,19 +4,21 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 // MemoryStorage is a simple in-memory storage of features
 // usable for writing tests
 type MemoryStorage struct {
-	features     map[string]Feature
+	features     map[string]shared.Feature
 	featureNames []string // sorted list of feature names
 }
 
 // NewMemoryStorage is a constructor for in-memory storage
-func NewMemoryStorage(features []Feature) *MemoryStorage {
+func NewMemoryStorage(features []shared.Feature) *MemoryStorage {
 	m := &MemoryStorage{
-		features: map[string]Feature{},
+		features: map[string]shared.Feature{},
 	}
 	for _, f := range features {
 		m.features[f.Meta.Name] = f
@@ -27,8 +29,8 @@ func NewMemoryStorage(features []Feature) *MemoryStorage {
 	return m
 }
 
-func (m *MemoryStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
-	result := []FeatureMeta{}
+func (m *MemoryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
+	result := []shared.FeatureMeta{}
 	for _, n := range m.featureNames {
 		if name.MatchString(n) {
 			f := m.features[n]
@@ -38,24 +40,24 @@ func (m *MemoryStorage) SearchMeta(name *regexp.Regexp) ([]FeatureMeta, error) {
 	return result, nil
 }
 
-func (m *MemoryStorage) GetMeta(name string) (FeatureMeta, error) {
+func (m *MemoryStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	f, err := m.GetFeature(name)
 	return f.Meta, err
 }
 
-func (m *MemoryStorage) GetFeature(name string) (Feature, error) {
+func (m *MemoryStorage) GetFeature(name string) (shared.Feature, error) {
 	// TODO: make Get case-insensitive
 	f, ok := m.features[name]
 	if !ok {
-		return Feature{}, fmt.Errorf("Feature '%s' was not found", name)
+		return shared.Feature{}, fmt.Errorf("Feature '%s' was not found", name)
 	}
 
 	return f, nil
 }
 
-func (m *MemoryStorage) Resolve(names ...string) ([]string, map[string]Feature, error) {
+func (m *MemoryStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
 	var slice []string
-	result := map[string]Feature{}
+	result := map[string]shared.Feature{}
 	for _, name := range names {
 		if err := m.resolve(name, &slice, result); err != nil {
 			return []string{}, result, err
@@ -65,7 +67,7 @@ func (m *MemoryStorage) Resolve(names ...string) ([]string, map[string]Feature, 
 	return []string{}, result, nil
 }
 
-func (m *MemoryStorage) resolve(name string, list *[]string, resolved map[string]Feature) error {
+func (m *MemoryStorage) resolve(name string, list *[]string, resolved map[string]shared.Feature) error {
 	f, ok := m.features[name]
 	if !ok {
 		return fmt.Errorf("Feature '%s' was not found", name)
