@@ -65,11 +65,10 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]FeatureMeta, error) {
 		if err != nil {
 			return nil, err
 		}
-		f.Dependencies = strings.Split(depText, " ")
+		f.Dependencies = strings.Fields(depText)
 		fms = append(fms, f)
 	}
 	defer store.disconnect()
-
 	return fms, nil
 }
 
@@ -100,12 +99,11 @@ func (store *postgresStorage) GetFeature(name string) (Feature, error) {
 	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
 	store.connect()
 	defer store.disconnect()
-	err := store.db.QueryRow(sqlQuery).Scan(index, f.Meta.Name, f.Meta.Description, f.Meta.Author, f.Meta.UpdatedAt, dep_text, f.Snippet)
+	err := store.db.QueryRow(sqlQuery).Scan(&index, &f.Meta.Name, &f.Meta.Description, &f.Meta.Author, &f.Meta.UpdatedAt, &dep_text, &f.Snippet)
 	if err != nil {
 		return Feature{}, err
 	}
-
-	f.Meta.Dependencies = strings.Split(dep_text, " ")
+	f.Meta.Dependencies = strings.Fields(dep_text)
 
 	return f, nil
 }
@@ -132,7 +130,6 @@ func (store *postgresStorage) resolve(name string, list *[]string, result map[st
 	if err != nil {
 		return err
 	}
-
 	for _, depName := range feature.Meta.Dependencies {
 		err := store.resolve(depName, list, result)
 		if err != nil {
