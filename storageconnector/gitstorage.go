@@ -17,6 +17,7 @@ const (
 	featureDir               = "features"   // name of the directory where features are located.
 	featureFile              = "meta.yml"   // name of the file containing all metadata for a feature.
 	featureSnippet           = "Dockerfile" // the file containing the actual docker snippet.
+	testSnippet              = "test.bats"  // the file containing the bats test specification (https://github.com/sstephenson/bats)
 	defaultSearchParamsLimit = 100 // we should use this constant
 )
 
@@ -187,10 +188,36 @@ func getFeature(commit *git.Commit, name string) (shared.Feature, error) {
 		return shared.Feature{}, err
 	}
 
+	testSnippet := getTestSpec(commit, name)
+
 	return shared.Feature{
 		Meta:         meta,
 		Snippet:      string(snippet),
+		TestSnippet:  string(testSnippet),
 	}, nil
+}
+
+// getTestSpec returns test.bats file content
+//
+// commit:  The commit from which to obtain the feature information.
+// name:    The exact feature name.
+func getTestSpec(commit *git.Commit, name string) string {
+	file, err := commit.File(path.Join(featureDir, name, testSnippet))
+	if err != nil {
+		return ""
+	}
+
+	reader, err := file.Reader()
+	if err != nil {
+		return ""
+	}
+
+	content, err := shared.ReadTestSpec(reader)
+	if err != nil {
+		return ""
+	}
+
+	return content
 }
 
 func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
