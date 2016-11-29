@@ -54,7 +54,7 @@ type MemoryConfig struct {
 
 // PostgresConfig : config structure for PostgreSQL-storage
 type PostgreSQLConfig struct {
-	ConnectionString string `yaml:"connection" help:"PostgreSQL Connection String"`
+	ConnectionString string `yaml:"connection" setter:"SetConnectionString" help:"PostgreSQL Connection String"`
 }
 
 // Config : actual config data structure.
@@ -84,6 +84,11 @@ func (c *Config) SetGit(git GitConfig) {
 // SetURL : Setter of GitConfig.URL.
 func (g *GitConfig) SetURL(url string) {
 	g.URL = url
+}
+
+// SetConnectionString : Setter for PostgreSQLConfig.ConnectionString
+func (p *PostgreSQLConfig) SetConnectionString(connectionString string) {
+	p.ConnectionString = connectionString
 }
 
 // InitDefaultConfig : Initialize config variable with defaults. (Does not loading configuration file)
