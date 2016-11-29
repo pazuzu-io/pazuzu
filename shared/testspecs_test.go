@@ -48,9 +48,9 @@ func TestWriteTestSpec(t *testing.T) {
 				TestSnippet: "@test \"Check that Node.js is installed\" {}",
 			},
 		}
-		expectedOutput := "#!/usr/bin/env bats\n" +
-			"@test \"Check that Java is installed\" {}\n" +
-			"@test \"Check that Node.js is installed\" {}\n"
+		expectedOutput := "#!/usr/bin/env bats\n\n" +
+			"@test \"Check that Java is installed\" {}\n\n" +
+			"@test \"Check that Node.js is installed\" {}\n\n"
 
 		WriteTestSpec(buffer, features)
 
@@ -61,7 +61,7 @@ func TestWriteTestSpec(t *testing.T) {
 		var buffer = bytes.NewBufferString("")
 		var features = []Feature{}
 
-		expectedOutput := "#!/usr/bin/env bats\n"
+		expectedOutput := "#!/usr/bin/env bats\n\n"
 		WriteTestSpec(buffer, features)
 
 		assert.Equal(t, buffer.String(), expectedOutput, "Result should be empty")

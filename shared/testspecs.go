@@ -34,7 +34,7 @@ func WriteTestSpec(writer io.Writer, features []Feature) error {
 	}
 
 	for _, line := range lines {
-		_, err := fmt.Fprintln(writer, line)
+		_, err := fmt.Fprintf(writer, "%s\n\n", line)
 		if err != nil {
 			return err
 		}
