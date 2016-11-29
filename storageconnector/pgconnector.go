@@ -17,7 +17,8 @@ const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
 	author TEXT,
 	lastupdate timestamptz,
 	dependencies TEXT,
-	snippet TEXT
+	snippet TEXT,
+	test_snippet TEXT
 );`
 
 type postgresStorage struct {
