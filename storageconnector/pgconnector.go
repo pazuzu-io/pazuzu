@@ -10,6 +10,16 @@ import (
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 
+const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
+	id serial primary key,
+	name TEXT,
+	description TEXT,
+	author TEXT,
+	lastupdate timestamptz,
+	dependencies TEXT,
+	snippet TEXT
+);`
+
 type postgresStorage struct {
 	db       *sql.DB
 	username string
@@ -38,7 +48,8 @@ func (store *postgresStorage) connect() error {
 	if err != nil {
 		return err
 	}
-	db.Exec("CREATE TABLE IF NOT EXISTS features (index int, name text, description text, author text, lastupdate timestamptz, dependencies text, snippet text);")
+
+	db.Exec(createFeaturesTableQuery)
 	store.db = db
 	return nil
 }
