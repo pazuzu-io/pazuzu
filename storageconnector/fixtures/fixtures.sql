@@ -1,4 +1,4 @@
--- simple sql querys to add fixtures
+# simple sql querys to create a demo table for pazuzu in postgres
 
 COPY features (id, name, description, author, lastupdate, dependencies, snippet, test_snippet) FROM stdin;
 1	java	openjdk8	Olaf	2016-11-25 11:36:25+01		RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list\nRUN echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list\n\nRUN apt-get update\nRUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections\nRUN echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections\nRUN apt-get update && apt-get install -y oracle-java8-installer\nRUN update-java-alternatives -s java-8-oracle\n	#!/usr/bin/env bats\n\n@test "Check that Java is installed" {\n    command java -version\n}

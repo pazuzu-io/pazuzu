@@ -105,7 +105,6 @@ func (store *PostgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	if len(fms) == 0 {
 		err = errors.New("Requested feature was not found.")
 		return shared.FeatureMeta{}, err
-	}
 	return fms[0], nil
 }
 

@@ -8,7 +8,7 @@ import (
 func TestPostgresStorage_SearchMeta(t *testing.T) {
 	t.Run("FeatureContainingJava", func(t *testing.T) {
 		name, _ := regexp.Compile("java")
-		expected := 3
+		expected := 2
 
 		features, err := pgStorage.SearchMeta(name)
 		if err != nil {
@@ -16,17 +16,14 @@ func TestPostgresStorage_SearchMeta(t *testing.T) {
 		}
 
 		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
+			t.Fatalf("Feature count should be %d but was %d", expected, len(features))
 		}
 
-		if features[0].Name != "A-java-lein" {
-			t.Errorf("Name of feature 0 should be 'A-java-lein' but was '%s'", features[0].Name)
+		if features[0].Name != "java" {
+			t.Errorf("Name of feature 0 should be 'java' but was '%s'", features[0].Name)
 		}
-		if features[1].Name != "B-java-node" {
-			t.Errorf("Name of feature 1 should be 'B-java-node' but was '%s'", features[1].Name)
-		}
-		if features[2].Name != "java" {
-			t.Errorf("Name of feature 2 should be 'java' but was '%s'", features[2].Name)
+		if features[1].Name != "java-python2" {
+			t.Errorf("Name of feature 1 should be 'java-python2' but was '%s'", features[1].Name)
 		}
 	})
 }
@@ -39,7 +36,7 @@ func TestPostgresStorage_GetMeta(t *testing.T) {
 		}
 
 		if meta.Name != "java" {
-			t.Errorf("Feature name shoule be 'java' but was '%s'", meta.Name)
+			t.Errorf("Feature name should be 'java' but was '%s'", meta.Name)
 		}
 	})
 
