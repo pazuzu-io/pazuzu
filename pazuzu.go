@@ -110,7 +110,8 @@ func (p *Pazuzu) generateDockerfile(baseimage string, features []shared.Feature)
 		return err
 	}
 
-	for _, feature := range features {
+	dockerFeatures := append(features, shared.BatsFeature)
+	for _, feature := range dockerFeatures {
 		err = writer.AppendRaw(fmt.Sprintf("# %s\n", feature.Meta.Name))
 		if err != nil {
 			return err

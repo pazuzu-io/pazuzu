@@ -9,6 +9,20 @@ import (
 )
 
 const shebang = "#!/usr/bin/env bats"
+const batsSnippet = `
+RUN git clone https://github.com/sstephenson/bats.git \
+    && cd bats \
+    && ./install.sh /usr/local \
+    && cd .. \
+	&& rm -rf bats
+`
+
+var BatsFeature = Feature{
+	Meta: FeatureMeta{
+		Name: "Bats",
+	},
+	Snippet: batsSnippet,
+}
 
 
 func ReadTestSpec(reader io.Reader) string {
