@@ -50,13 +50,13 @@ func TestPostgresStorage_GetMeta(t *testing.T) {
 
 func TestPostgresStorage_Get(t *testing.T) {
 	t.Run("ExistingFeatureWithoutSnippet", func(t *testing.T) {
-		feature, err := pgStorage.GetFeature("A-java-lein")
+		feature, err := pgStorage.GetFeature("java-python2")
 		if err != nil {
 			t.Error(err)
 		}
 
-		if feature.Meta.Name != "A-java-lein" {
-			t.Errorf("Feature name should be 'A-java-lein' but was '%s'", feature.Meta.Name)
+		if feature.Meta.Name != "java-python2" {
+			t.Errorf("Feature name should be 'java-python2' but was '%s'", feature.Meta.Name)
 		}
 
 		if feature.Snippet != "" {
@@ -110,7 +110,7 @@ func TestPostgresStorage_Resolve(t *testing.T) {
 	t.Run("FeatureWithTwoDependencies", func(t *testing.T) {
 		expected := 3
 
-		list, features, err := pgStorage.Resolve("A-java-lein")
+		list, features, err := pgStorage.Resolve("java-python2")
 		if err != nil {
 			t.Error(err)
 		}
@@ -123,14 +123,14 @@ func TestPostgresStorage_Resolve(t *testing.T) {
 			t.Errorf("Feature count should be %d but was %d", expected, len(features))
 		}
 
-		if _, ok := features["A-java-lein"]; !ok {
+		if _, ok := features["java-python2"]; !ok {
 			t.Error("Missing feature 'A-java-lein")
-		}
-		if _, ok := features["leiningen"]; !ok {
-			t.Error("Missing feature 'leiningen")
 		}
 		if _, ok := features["java"]; !ok {
 			t.Error("Missing feature 'java")
+		}
+		if _, ok := features["python2"]; !ok {
+			t.Error("Missing feature 'python2")
 		}
 	})
 }
