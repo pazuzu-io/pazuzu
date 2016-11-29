@@ -23,23 +23,23 @@ const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
 	test_snippet TEXT
 );`
 
-type postgresStorage struct {
+type PostgresStorage struct {
 	db               *sql.DB
 	connectionString string
 }
 
-func (store *postgresStorage) init(connectionString string) {
+func (store *PostgresStorage) init(connectionString string) {
 	store.connectionString = connectionString
 }
 
-func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
-	var pg postgresStorage
+func NewPostgresStorage(connectionString string) (*PostgresStorage, error) {
+	var pg PostgresStorage
 	pg.init(connectionString)
 
 	return &pg, nil
 }
 
-func (store *postgresStorage) connect() error {
+func (store *PostgresStorage) connect() error {
 	db, err := sql.Open("postgres", store.connectionString)
 	if err != nil {
 		return err
@@ -54,11 +54,11 @@ func (store *postgresStorage) connect() error {
 	return nil
 }
 
-func (store *postgresStorage) disconnect() {
+func (store *PostgresStorage) disconnect() {
 	store.db.Close()
 }
 
-func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
+func (store *PostgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
 	var fms []shared.FeatureMeta
 	var depText string
 	var snippet string
@@ -86,7 +86,7 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, e
 	return fms, nil
 }
 
-func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
+func (store *PostgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
 	sqlQuery := fmt.Sprintf("select * from features where name ~ '%s';", name)
 	fms, err := store.scanMeta(sqlQuery)
 	if err != nil {
@@ -96,20 +96,20 @@ func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 
 }
 
-func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
+func (store *PostgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
 	fms, err := store.scanMeta(sqlQuery)
 	if err != nil {
 		return shared.FeatureMeta{}, err
 	}
-	if (len(fms) == 0) {
+	if len(fms) == 0 {
 		err = errors.New("Requested feature was not found.")
 		return shared.FeatureMeta{}, err
 	}
 	return fms[0], nil
 }
 
-func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
+func (store *PostgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var f shared.Feature
 	var index int
 	var dep_text string
@@ -134,20 +134,20 @@ func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	return f, nil
 }
 
-func (store *postgresStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
+func (store *PostgresStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
 	var slice []string
 	result := map[string]shared.Feature{}
 	for _, name := range names {
 		err := store.resolve(name, &slice, result)
 		if err != nil {
-			return []string {}, map[string]shared.Feature{}, err
+			return []string{}, map[string]shared.Feature{}, err
 		}
 	}
 
 	return slice, result, nil
 }
 
-func (store *postgresStorage) resolve(name string, list *[]string, result map[string]shared.Feature) error {
+func (store *PostgresStorage) resolve(name string, list *[]string, result map[string]shared.Feature) error {
 	if _, ok := result[name]; ok {
 		return nil
 	}
