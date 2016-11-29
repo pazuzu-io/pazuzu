@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
+	"errors"
 	_ "github.com/lib/pq"
 	"github.com/zalando-incubator/pazuzu/shared"
 )
@@ -90,7 +90,10 @@ func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	if err != nil {
 		return shared.FeatureMeta{}, err
 	}
-
+	if (len(fms) == 0) {
+		err = errors.New("Requested feature was not found.")
+		return shared.FeatureMeta{}, err
+	}
 	return fms[0], nil
 }
 
