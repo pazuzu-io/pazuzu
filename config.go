@@ -124,7 +124,7 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	case StorageTypeGit:
 		return storageconnector.NewGitStorage(config.Git.URL)
 	case StorageTypePG:
-		return storageconnector.NewPostgresStorage("omaurer", "pazuzu") // FIXME: this is for testing, it needs to be properly put in the config file
+		return storageconnector.NewPostgresStorage(config.PostgreSQL.ConnectionString)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
