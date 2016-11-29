@@ -11,7 +11,7 @@ var composeAction = func(c *cli.Context) error {
 	var (
 		initFeatures       = getFeaturesList(c.String("init"))
 		addFeatures        = getFeaturesList(c.String("add"))
-		destination        = c.String("destination")
+		destination        = c.String(directoryOption)
 		pazuzufileFeatures []string
 		baseImage          string
 	)
