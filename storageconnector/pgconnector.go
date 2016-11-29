@@ -1,14 +1,27 @@
 package storageconnector
 
 import (
+	"bytes"
 	"database/sql"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
-	"errors"
+
 	_ "github.com/lib/pq"
 	"github.com/zalando-incubator/pazuzu/shared"
 )
+
+const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
+	id serial primary key,
+	name TEXT,
+	description TEXT,
+	author TEXT,
+	lastupdate timestamptz,
+	dependencies TEXT,
+	snippet TEXT,
+	test_snippet TEXT
+);`
 
 type postgresStorage struct {
 	db       *sql.DB
@@ -38,7 +51,8 @@ func (store *postgresStorage) connect() error {
 	if err != nil {
 		return err
 	}
-	db.Exec("CREATE TABLE IF NOT EXISTS features (index int, name text, description text, author text, lastupdate timestamptz, dependencies text, snippet text);")
+
+	db.Exec(createFeaturesTableQuery)
 	store.db = db
 	return nil
 }
@@ -51,6 +65,7 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, e
 	var fms []shared.FeatureMeta
 	var depText string
 	var snippet string
+	var testSnippet string
 	var index int
 	err := store.connect()
 	if err != nil {
@@ -63,7 +78,7 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, e
 	}
 	for rows.Next() {
 		var f shared.FeatureMeta
-		err := rows.Scan(&index, &f.Name, &f.Description, &f.Author, &f.UpdatedAt, &depText, &snippet)
+		err := rows.Scan(&index, &f.Name, &f.Description, &f.Author, &f.UpdatedAt, &depText, &snippet, &testSnippet)
 		if err != nil {
 			return nil, err
 		}
@@ -101,13 +116,22 @@ func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var f shared.Feature
 	var index int
 	var dep_text string
+	var testSnippet string
+
 	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
 	store.connect()
 	defer store.disconnect()
-	err := store.db.QueryRow(sqlQuery).Scan(&index, &f.Meta.Name, &f.Meta.Description, &f.Meta.Author, &f.Meta.UpdatedAt, &dep_text, &f.Snippet)
+
+	err := store.db.QueryRow(sqlQuery).Scan(&index, &f.Meta.Name, &f.Meta.Description, &f.Meta.Author, &f.Meta.UpdatedAt, &dep_text, &f.Snippet, &testSnippet)
 	if err != nil {
 		return shared.Feature{}, err
 	}
+
+	fmt.Print(f.Snippet)
+
+	buffer := bytes.NewBufferString(testSnippet)
+
+	f.TestSnippet = shared.ReadTestSpec(buffer)
 	f.Meta.Dependencies = strings.Fields(dep_text)
 
 	return f, nil

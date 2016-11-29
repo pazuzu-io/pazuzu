@@ -11,6 +11,7 @@ var composeAction = func(c *cli.Context) error {
 	var (
 		initFeatures       = getFeaturesList(c.String("init"))
 		addFeatures        = getFeaturesList(c.String("add"))
+		destination        = c.String("destination")
 		pazuzufileFeatures []string
 		baseImage          string
 	)
@@ -20,7 +21,14 @@ var composeAction = func(c *cli.Context) error {
 		return errors.New("ERROR: No feature specified. Please use at least one of -a or -i for the compose command.")
 	}
 
-	pazuzufilePath, dockerfilePath, err := getAbsoluteFilePaths(c.String("destination"))
+	err := checkDestination(destination)
+	if err != nil {
+		return err
+	}
+
+	pazuzufilePath := getAbsoluteFilePath(destination, PazuzufileName)
+	dockerfilePath := getAbsoluteFilePath(destination, DockerfileName)
+	testSpecPath := getAbsoluteFilePath(destination, TestSpecFileName)
 
 	pazuzuFile, success := readPazuzuFile(pazuzufilePath)
 	if success {
@@ -68,7 +76,15 @@ var composeAction = func(c *cli.Context) error {
 	p := pazuzu.Pazuzu{StorageReader: storageReader}
 	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
 
-	err = writeDockerFile(dockerfilePath, p.Dockerfile)
+	err = writeFile(dockerfilePath, p.Dockerfile)
+	if err != nil {
+		return err
+	} else {
+		fmt.Println(" [DONE]")
+	}
+
+	fmt.Printf("Generating %s...", testSpecPath)
+	err = writeFile(testSpecPath, p.TestSpec)
 	if err != nil {
 		return err
 	} else {
