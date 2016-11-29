@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
 )
@@ -14,6 +14,11 @@ var composeAction = func(c *cli.Context) error {
 		pazuzufileFeatures []string
 		baseImage          string
 	)
+
+	if (c.String("add") == "") && (c.String("init") == "") {
+		cli.ShowCommandHelp(c, "compose")
+		return errors.New("ERROR: No feature specified. Please use at least one of -a or -i for the compose command.")
+	}
 
 	pazuzufilePath, dockerfilePath, err := getAbsoluteFilePaths(c.String("destination"))
 
