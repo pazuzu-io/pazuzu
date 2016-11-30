@@ -101,53 +101,118 @@ pazuzu build -n hellodocker -d /tmp
 
 `-d` (or `--directory`) option sets the working directory where `Dockerfile` is located.
 
----
-## Installation and Configuration
-All set configuration will be stored ` ~/.pazuzu/config`
+### Configuration
 
--  Setup snippets provider:
+`pazuzu config` provides a set of tools to configure pazuzu CLI. Configuration is stored in ` ~/.pazuzu/config` .
 
-    ```
-    $ pazuzu config set git.url git@github.com:zalando-incubator/pazuzu.git
-    $ pazuzu config set github.url https://github.com/zalando-incubator/pazuzu.git
-    ```
-- Setup base image
+```bash
+pazuzu config list  # lists all configurations
+pazuzu config set git.url git@github.com:zalando-incubator/features-repository.git  # sets git.url parameter
+pazuzu confi get git.url  # gets value of git.url parameter
+```
 
+## Initial setup
+
+### Git repository
+
+Every Git repository with snippets should contain a `features` folder with snippets inside:
+
+```text
+features/
+├── A
+│   └── meta.yml
+├── B
+│   └── meta.yml
+├── C-A-B
+│   └── meta.yml
+├── java
+│   ├── Dockerfile
+│   ├── meta.yml
+│   └── test.bats
+├── leiningen
+│   ├── Dockerfile
+│   ├── meta.yml
+│   └── test.bats
+└── node
+    ├── Dockerfile
+    ├── meta.yml
+    └── test.bats
+```
+
+There are 2 types of features: simple and composite.
+
+Every simple feature should contain:
+- a `Dockerfile` with docker steps,
+- a `test.bats` file with few test scenarios
+- a `meta.yml` file providing some meta information for a feature
+
+Composite feature should provide a proper `meta.yml` file which lists all the dependencies.
+
+You can check few example features inside `features` folder.
+
+#### Initial configurations
+
+```bash
+pazuzu config set git.url git@github.com:zalando-incubator/pazuzu.git  # Should be replaced with the proper Git repository
+pazuzu config set storage git
+```
+
+### PostgreSQL
+
+PostgreSQL repository stores the data inside a `features` table of given PostgreSQL database.
+The `features` table has the following schema:
+
+```sql
+CREATE TABLE features (
+	id serial primary key,
+	name TEXT,
+	description TEXT,
+	author TEXT,
+	lastupdate timestamptz,
+	dependencies TEXT,
+	snippet TEXT,
+	test_snippet TEXT
+);
+```
+
+Some sample snippets can be found inside `storageconnector/fixtures/fixtures.sql` file.
+
+When PostgreSQL is configured as a storage, the `features` table is created automatically
+if it doesn't exists after launching any pazuzu command which is using the DB connection, e.g.
+
+  ```bash
+  pazuzu search feature
   ```
-  $ pazuzu config set base-image ubuntu:16.04
-  ```
+
+#### Initial configurations
+
+```bash
+pazuzu set pg.connection "user=pazuzu dbname=pazuzu sslmode=disable"  # You can find more details in pq doc: https://godoc.org/github.com/lib/pq
+pazuzu set storage postgres
+```
+
+### Base image
+
+Base image can be also set using `pazuzu config` command.
+
+```bash
+pazuzu config set base ubuntu:16.04
+```
 
 ## Helpers
 
 - Switch on verbose mode using `-v/--verbose`:
-    ```
-	$ pazuzu -v compose node npm
+  ```bash
+	pazuzu -v compose -a node,npm
 	```
 - Getting help message:
-	```
-	$ pazuzu help
+	```bash
+	pazuzu help
+
 	NAME:
 	   pazuzu - Build Docker features from pazuzu-registry
-
-	USAGE:
-	   pazuzu [global options] command [command options] [arguments...]
-
-	VERSION:
-	   0.1
-
-	COMMANDS:
-	     search   search for features in registry
-	     compose  Compose Pazuzufile out of the selected features
-	     build    build Dockerfile out of Pazuzufile
-	     config   Configure pazuzu
-	     help, h  Shows a list of commands or help for one command
-
-	GLOBAL OPTIONS:
-	   --verbose, -v  Verbose output
-	   --help, -h     show help
-	   --version      Print version
-
-	```
+     ...
+  ```
 
 ## Development environment installation (macOS)
 
