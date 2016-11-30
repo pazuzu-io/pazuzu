@@ -102,7 +102,7 @@ func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	if err != nil {
 		return shared.FeatureMeta{}, err
 	}
-	if (len(fms) == 0) {
+	if len(fms) == 0 {
 		err = errors.New("Requested feature was not found.")
 		return shared.FeatureMeta{}, err
 	}
@@ -124,8 +124,6 @@ func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 		return shared.Feature{}, err
 	}
 
-	fmt.Print(f.Snippet)
-
 	buffer := bytes.NewBufferString(testSnippet)
 
 	f.TestSnippet = shared.ReadTestSpec(buffer)
@@ -140,7 +138,7 @@ func (store *postgresStorage) Resolve(names ...string) ([]string, map[string]sha
 	for _, name := range names {
 		err := store.resolve(name, &slice, result)
 		if err != nil {
-			return []string {}, map[string]shared.Feature{}, err
+			return []string{}, map[string]shared.Feature{}, err
 		}
 	}
 
