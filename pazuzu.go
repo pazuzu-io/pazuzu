@@ -213,7 +213,7 @@ func (p *Pazuzu) appendFeaturesFiles(tr *tar.Writer) error {
 func (p *Pazuzu) DockerBuild(name string) error {
 	client, err := docker.NewClient(p.DockerEndpoint)
 	if err != nil {
-		fmt.Errorf("Error: %s", err)
+		return fmt.Errorf("Error: %s", err)
 		return err
 	}
 

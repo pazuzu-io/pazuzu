@@ -37,7 +37,7 @@ func buildFeatures(c *cli.Context) error {
 	}
 	err2 := p.DockerBuild(name)
 	if err2 != nil {
-		return fmt.Errorf("should not fail: %s", err)
+		return fmt.Errorf("should not fail: %s", err2)
 	}
 	return nil
 }
