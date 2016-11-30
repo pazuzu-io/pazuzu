@@ -59,18 +59,35 @@ Basically, pazuzu CLI tool has 4 subcommands:
   pazuzu search ja*
   ```
 
-## Compose features
-Compose step actually creates features file out of specified
-```
-$ pazuzu compose <space-separated-feature-names>
-```
-### Available options
-- **--with-base NAME** - specify base image
-- **-o/--out FILENAME** - specify name of the output features file. Default is Pazuzu file
-### Examples:
-`$ pazuzu compose node java8` - generate Pazuzufile from the list of features
+### Compose features
 
-`$ pazuzu compose node java8 --out node-und-java8.yml` - Save everything to **node-und-java8.yml** file
+`pazuzu compose` step creates `Pazuzufile`, `Dockerfile` and `test.bats` for specified set of features.
+
+  ```bash
+  pazuzu compose -i node,java
+  ```
+
+If `Pazuzufile` already exists in the directory, `pazuzu compose` takes it as a base. If not, it generates
+the new one based on the given features and default base image specified in the configuration.
+
+`-i` (or `--init`) flag forces pazuzu to generate files with a new set of features.
+
+`-a` (or `--add`) flag adds features to an existing set of features.
+
+  ```bash
+  pazuzu compose -i node       # initialises a Pazuzufile, Dockerfile and test.bats with Node.js feature
+  pazuzu compose -a java,lein  # adds Java and Leiningen to an existing set of features
+  ```
+
+`-d` (or `--directory`) options sets the working directory to a specified path.
+
+  ```bash
+  pazuzu compose -a node -d /tmp
+  ```
+
+  In the given example, Node.js feature will be added to the list of features specified in `/tmp/Pazuzufile`
+  (if it exists) and the output files will be saved back to `/tmp/`
+
 
 ## Build Dockerfile
 This step aims to actually create **Dockerfile** out of the snippets configured for features.
