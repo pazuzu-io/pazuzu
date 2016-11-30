@@ -90,10 +90,10 @@ func writePazuzuFile(path string, pazuzuFile *pazuzu.PazuzuFile) error {
 	return nil
 }
 
-func writeDockerFile(path string, contents []byte) error {
+func writeFile(path string, contents []byte) error {
 	file, err := os.Create(path)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not create %v", DockerfileName))
+		return errors.New(fmt.Sprintf("Could not create %v", path))
 	}
 	defer file.Close()
 
@@ -120,26 +120,29 @@ func checkFeaturesInRepository(names []string, storage storageconnector.StorageR
 	return features, nil
 }
 
-// Gets absolute file paths for Pazuzufile and Dockerfile
-// returns Pazuzufile path, Dockerfile path and an error
-func getAbsoluteFilePaths(destination string) (string, string, error) {
-	var pazuzufilePath = PazuzufileName
-	var dockerfilePath = DockerfileName
-
+func checkDestination(destination string) error {
 	if destination != "" {
 		destination, err := filepath.Abs(destination)
 		if err != nil {
-			return "", "", err
+			return err
 		}
 
 		_, err = os.Stat(destination)
 		if err != nil {
 			err = errors.New(fmt.Sprintf("Destination path %s is not found", destination))
-			return "", "", err
+			return err
 		}
-
-		pazuzufilePath = filepath.Join(destination, PazuzufileName)
-		dockerfilePath = filepath.Join(destination, DockerfileName)
 	}
-	return pazuzufilePath, dockerfilePath, nil
+	return nil
+}
+
+// Gets absolute file paths for Pazuzufile and Dockerfile
+// returns Pazuzufile, Dockerfile and test_spec file paths and an error
+func getAbsoluteFilePath(destination string, name string) string {
+	var path = name
+
+	if destination != "" {
+		path = filepath.Join(destination, name)
+	}
+	return path
 }
