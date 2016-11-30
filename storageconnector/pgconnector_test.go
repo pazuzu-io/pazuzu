@@ -1,6 +1,8 @@
 package storageconnector
 
 import (
+	"fmt"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"regexp"
 	"testing"
 )
@@ -8,13 +10,20 @@ import (
 func TestPostgresStorage_SearchMeta(t *testing.T) {
 	t.Run("FeatureContainingJava", func(t *testing.T) {
 		name, _ := regexp.Compile("java")
-		expected := 2
+		expected := 3
 
+		mock.ExpectBegin()
+		rows := sqlmock.NewRows([]string{"index", "name", "description", "author", "UpdatedAt", "dependencies", "snippet", "testSnippet"}).
+			AddRow(1, "A-java-lein", "", "", "", "", "", "").
+			AddRow(2, "B-java-node", "", "", "", "", "", "").
+			AddRow(3, "java", "", "", "", "", "", "")
+
+		mock.ExpectQuery("select").WillReturnRows(rows)
 		features, err := pgStorage.SearchMeta(name)
 		if err != nil {
 			t.Error(err)
 		}
-
+		fmt.Println(features)
 		if len(features) != expected {
 			t.Fatalf("Feature count should be %d but was %d", expected, len(features))
 		}
@@ -30,6 +39,10 @@ func TestPostgresStorage_SearchMeta(t *testing.T) {
 
 func TestPostgresStorage_GetMeta(t *testing.T) {
 	t.Run("ExistingFeature", func(t *testing.T) {
+		mock.ExpectBegin()
+		rows := sqlmock.NewRows([]string{"index", "name", "description", "author", "UpdatedAt", "dependencies", "snippet", "testSnippet"}).
+			AddRow(1, "java", "", "", "", "", "", "")
+		mock.ExpectQuery("SELECT").WillReturnRows(rows)
 		meta, err := pgStorage.GetMeta("java")
 		if err != nil {
 			t.Error(err)
@@ -40,6 +53,9 @@ func TestPostgresStorage_GetMeta(t *testing.T) {
 		}
 	})
 
+	mock.ExpectBegin()
+	rows := sqlmock.NewRows([]string{"index", "name", "description", "author", "UpdatedAt", "dependencies", "snippet", "testSnippet"})
+	mock.ExpectQuery("SELECT").WillReturnRows(rows)
 	t.Run("NonExistingFeature", func(t *testing.T) {
 		_, err := pgStorage.GetMeta("reallynotafeature")
 		if err == nil {
@@ -50,6 +66,11 @@ func TestPostgresStorage_GetMeta(t *testing.T) {
 
 func TestPostgresStorage_Get(t *testing.T) {
 	t.Run("ExistingFeatureWithoutSnippet", func(t *testing.T) {
+
+		mock.ExpectBegin()
+		rows := sqlmock.NewRows([]string{"index", "name", "description", "author", "UpdatedAt", "dependencies", "snippet", "testSnippet"}).
+			AddRow(1, "java-python2", "", "", "", "", "", "")
+		mock.ExpectQuery("SELECT").WillReturnRows(rows)
 		feature, err := pgStorage.GetFeature("java-python2")
 		if err != nil {
 			t.Error(err)
@@ -64,6 +85,10 @@ func TestPostgresStorage_Get(t *testing.T) {
 		}
 	})
 
+	mock.ExpectBegin()
+	rows := sqlmock.NewRows([]string{"index", "name", "description", "author", "UpdatedAt", "dependencies", "snippet", "testSnippet"}).
+		AddRow(1, "java", "", "", "", "", "install java!!!", "")
+	mock.ExpectQuery("SELECT").WillReturnRows(rows)
 	t.Run("ExistingFeatureWithSnippet", func(t *testing.T) {
 		feature, err := pgStorage.GetFeature("java")
 		if err != nil {
@@ -78,6 +103,9 @@ func TestPostgresStorage_Get(t *testing.T) {
 			t.Error("Feature snippet should not be empty", feature.Snippet)
 		}
 	})
+	mock.ExpectBegin()
+	rows = sqlmock.NewRows([]string{"index", "name", "description", "author", "UpdatedAt", "dependencies", "snippet", "testSnippet"})
+	mock.ExpectQuery("SELECT").WillReturnRows(rows)
 
 	t.Run("NonExistingFeature", func(t *testing.T) {
 		_, err := pgStorage.GetFeature("reallynotafeature")

@@ -2,18 +2,19 @@ package storageconnector
 
 import (
 	"fmt"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gopkg.in/src-d/go-git.v4"
 	"os"
 	"path/filepath"
 	"regexp"
 	"testing"
-
-	"gopkg.in/src-d/go-git.v4"
 )
 
 var (
 	testRepository = filepath.Join("fixtures", "git")
 	gitStorage     StorageReader
 	pgStorage      StorageReader
+	mock           sqlmock.Sqlmock
 )
 
 func TestMain(m *testing.M) {
@@ -23,9 +24,9 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	gitStorage = &GitStorage{repo: repo}
-
-	stor, err := NewPostgresStorage("omaurer", "pazuzu")
-	pgStorage = stor
+	db, testmock, err := sqlmock.New()
+	pgStorage = &PostgresStorage{db: db}
+	mock = testmock
 	os.Exit(m.Run())
 }
 
