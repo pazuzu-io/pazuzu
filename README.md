@@ -2,20 +2,6 @@
 [![Travis BuildStatus](https://travis-ci.org/zalando-incubator/pazuzu.svg?branch=master)](https://travis-ci.org/zalando-incubator/pazuzu)
 [![Stories in Ready](https://badge.waffle.io/zalando/pazuzu.png?label=ready&title=Ready)](https://waffle.io/zalando/pazuzu)
 
-A note to the next team
----------------
-Pazuzu is a big enough project to keep you busy for more than 2 weeks 
-of onboarding, so please pick your tasks wisely and leave the rest to 
-the next team. Good place to start picking tasks is already existing 
-TODO list: https://github.com/zalando-incubator/pazuzu/wiki/TODO
-
-You can find overview of the whole project: 
-https://github.com/zalando-incubator/pazuzu/wiki/Overview-of-Pazuzu-project
-
-These flow diagrams may help you understand better how pazuzu is going 
-to be used from command line: https://github.com/zalando-incubator/pazuzu/wiki/CLI-commands-flow
-
-Good luck! :)
 
 What is Pazuzu?
 ---------------
@@ -55,9 +41,9 @@ Mask `node-v4.6*|java8|mvn` will use following features:
 - latest `java8` release available in feature snippets provider(default java8 )
 
 ## Compose features
-Compose step actually creates features file out of specified 
+Compose step actually creates features file out of specified
 ```
-$ pazuzu compose <space-separated-feature-names> 
+$ pazuzu compose <space-separated-feature-names>
 ```
 ### Available options
 - **--with-base NAME** - specify base image
@@ -75,7 +61,7 @@ This step aims to actually create **Dockerfile** out of the snippets configured 
 ` $ pazuzu build <node-with-babel.yml>` - Builds a **Dockerfile** from specified feature file.
 
 **NOTE:** build command gives a sample command of how to run `docker
-build` 
+build`
 
 ## Run docker build
 Execute `docker build` command to actually create image
@@ -95,7 +81,7 @@ All set configuration will be stored ` ~/.pazuzu/config`
   ```
   $ pazuzu config set base-image ubuntu:16.04
   ```
-  
+
 ## Helpers
 
 - Switch on verbose mode using `-v/--verbose`:
@@ -107,25 +93,25 @@ All set configuration will be stored ` ~/.pazuzu/config`
 	$ pazuzu help
 	NAME:
 	   pazuzu - Build Docker features from pazuzu-registry
-	
+
 	USAGE:
 	   pazuzu [global options] command [command options] [arguments...]
-	
+
 	VERSION:
 	   0.1
-	
+
 	COMMANDS:
 	     search   search for features in registry
 	     compose  Compose Pazuzufile out of the selected features
 	     build    build Dockerfile out of Pazuzufile
 	     config   Configure pazuzu
 	     help, h  Shows a list of commands or help for one command
-	
+
 	GLOBAL OPTIONS:
 	   --verbose, -v  Verbose output
 	   --help, -h     show help
 	   --version      Print version
-	
+
 	```
 
 ## Development environment installation (macOS)
