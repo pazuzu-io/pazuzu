@@ -3,8 +3,7 @@
 [![Stories in Ready](https://badge.waffle.io/zalando/pazuzu.png?label=ready&title=Ready)](https://waffle.io/zalando/pazuzu)
 
 
-What is Pazuzu?
----------------
+# What is Pazuzu?
 Pazuzu is a tool that builds Docker images from feature snippets, while
 resolving all dependencies between them. One of the common use cases is
 Continuous Integration environment, where jobs require specific tooling present
@@ -13,12 +12,33 @@ letting user choose from a wide selection of predefined Dockerfile snippets
 that represent those dependencies (e.g. Golang, Python, Android SDK, customized
 NPM installs).
 
-## Build
-Make sure you setup Go acording to: https://golang.org/doc/install#install
-```
-go get -v
-go build
-```
+
+## Building Pazuzu
+1. Make sure you setup Go according to: https://golang.org/doc/install#install
+
+2. Clone Pazuzu repository:
+  ```bash
+  git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
+  ```
+
+3. Make sure that the tests are passing:
+  ```bash
+  $GOPATH/src/github.com/zalando-incubator/pazuzu/
+  go get -t -v
+  go test -v ./...
+  ```
+
+4. Build command-line utilities:
+  ```bash
+  $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  go get -v
+  go build
+  ```
+
+5. Install pazuzu command globally [Optional]:
+  ```bash
+  go install
+  ```
 
 ## Usage
 
