@@ -42,10 +42,11 @@ NPM installs).
 
 ## Usage
 
-Basicaly, pazuzu cli tool has 3 steps:
-- **search** - search for available features
-- **compose** - compose **Pazuzufile** with desired features
-- **build** - create Dockerfile out of Pazuzufile
+Basically, pazuzu CLI tool has 4 subcommands:
+- `search` - search for available features inside the repository
+- `compose` - compose `Pazuzufile`, `Dockerfile` and `test.bats` files with desired features
+- `build` - create a Docker image based on `Dockerfile`
+- `config` - configure pazuzu tool
 
 ## Search features
 List step is used to check what features are actually available in configured snippet provider
