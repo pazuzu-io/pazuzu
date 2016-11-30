@@ -34,6 +34,9 @@ const (
 
 	// StorageTypePostgres: Postgresql storage
 	StorageTypePG = "postgres"
+
+	// Default PostgreSQL connection string
+	ConnectionString = "user=pazuzu dbname=pazuzu sslmode=disable"
 )
 
 var config Config
@@ -49,12 +52,18 @@ type MemoryConfig struct {
 	RandomSetSize    int  `yaml:"random_size" help:"???"`
 }
 
+// PostgresConfig : config structure for PostgreSQL-storage
+type PostgreSQLConfig struct {
+	ConnectionString string `yaml:"connection" setter:"SetConnectionString" help:"PostgreSQL Connection String"`
+}
+
 // Config : actual config data structure.
 type Config struct {
-	Base        string       `yaml:"base" setter:"SetBase" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
-	StorageType string       `yaml:"storage" setter:"SetStorageType" help:"Storage-type ('git' or 'memory')"`
-	Git         GitConfig    `yaml:"git" help:"Git storage configs."`
-	Memory      MemoryConfig `yaml:"memory" help:"Memory storage configs."`
+	Base        string           `yaml:"base" setter:"SetBase" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
+	StorageType string           `yaml:"storage" setter:"SetStorageType" help:"Storage-type ('git' or 'memory')"`
+	Git         GitConfig        `yaml:"git" help:"Git storage configs."`
+	Memory      MemoryConfig     `yaml:"memory" help:"Memory storage configs."`
+	PostgreSQL  PostgreSQLConfig `yaml:"pg" help:"PostgreSQ configs."`
 }
 
 // SetBase : Setter of "Base".
@@ -77,15 +86,19 @@ func (g *GitConfig) SetURL(url string) {
 	g.URL = url
 }
 
+// SetConnectionString : Setter for PostgreSQLConfig.ConnectionString
+func (p *PostgreSQLConfig) SetConnectionString(connectionString string) {
+	p.ConnectionString = connectionString
+}
+
 // InitDefaultConfig : Initialize config variable with defaults. (Does not loading configuration file)
 func InitDefaultConfig() {
 	config = Config{
 		StorageType: "git",
 		Base:        BaseImage,
 		Git:         GitConfig{URL: URL},
-		Memory: MemoryConfig{
-			InitialiseRandom: false,
-		},
+		Memory:      MemoryConfig{InitialiseRandom: false,},
+		PostgreSQL:  PostgreSQLConfig{ConnectionString: ConnectionString, },
 	}
 }
 
@@ -116,7 +129,7 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	case StorageTypeGit:
 		return storageconnector.NewGitStorage(config.Git.URL)
 	case StorageTypePG:
-		return storageconnector.NewPostgresStorage("omaurer", "pazuzu") // FIXME: this is for testing, it needs to be properly put in the config file
+		return storageconnector.NewPostgresStorage(config.PostgreSQL.ConnectionString)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)

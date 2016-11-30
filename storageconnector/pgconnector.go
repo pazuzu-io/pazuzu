@@ -24,26 +24,23 @@ const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
 );`
 
 type postgresStorage struct {
-	db       *sql.DB
-	username string
-	dbname   string
+	db               *sql.DB
+	connectionString string
 }
 
-func (store *postgresStorage) init(username string, dbname string) {
-	store.username = username
-	store.dbname = dbname
+func (store *postgresStorage) init(connectionString string) {
+	store.connectionString = connectionString
 }
 
-func NewPostgresStorage(username string, dbname string) (*postgresStorage, error) {
+func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
 	var pg postgresStorage
-	pg.init(username, dbname)
+	pg.init(connectionString)
 
 	return &pg, nil
 }
 
 func (store *postgresStorage) connect() error {
-	command := fmt.Sprintf("user=%s dbname=%s sslmode=disable", store.username, store.dbname)
-	db, err := sql.Open("postgres", command)
+	db, err := sql.Open("postgres", store.connectionString)
 	if err != nil {
 		return err
 	}
