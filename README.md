@@ -75,11 +75,11 @@ the new one based on the given features and default base image specified in the 
 `-a` (or `--add`) flag adds features to an existing set of features.
 
   ```bash
-  pazuzu compose -i node       # initialises a Pazuzufile, Dockerfile and test.bats with Node.js feature
+  pazuzu compose -i node       # initializes a Pazuzufile, Dockerfile and test.bats with Node.js feature
   pazuzu compose -a java,lein  # adds Java and Leiningen to an existing set of features
   ```
 
-`-d` (or `--directory`) options sets the working directory to a specified path.
+`-d` (or `--directory`) option sets the working directory to a specified path.
 
   ```bash
   pazuzu compose -a node -d /tmp
@@ -89,18 +89,17 @@ the new one based on the given features and default base image specified in the 
   (if it exists) and the output files will be saved back to `/tmp/`
 
 
-## Build Dockerfile
-This step aims to actually create **Dockerfile** out of the snippets configured for features.
+### Build Docker image
 
-`$ pazuzu build . `  - Builds a **Dockerfile** from **Pazuzufile** located in the current directory.
+`pazuzu build` is responsible for a final step - building the Docker image.
 
-` $ pazuzu build <node-with-babel.yml>` - Builds a **Dockerfile** from specified feature file.
+```
+pazuzu build -n hellodocker -d /tmp
+```
 
-**NOTE:** build command gives a sample command of how to run `docker
-build`
+`-n` (or `--name`) option sets the name for the created Docker image.
 
-## Run docker build
-Execute `docker build` command to actually create image
+`-d` (or `--directory`) option sets the working directory where `Dockerfile` is located.
 
 ---
 ## Installation and Configuration
@@ -175,9 +174,7 @@ All set configuration will be stored ` ~/.pazuzu/config`
   ```
 
 
----
-License
----
+## License
 
 The MIT License (MIT)
 Copyright © 2016 Zalando SE, https://tech.zalando.com
