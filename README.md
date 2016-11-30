@@ -48,18 +48,16 @@ Basically, pazuzu CLI tool has 4 subcommands:
 - `build` - create a Docker image based on `Dockerfile`
 - `config` - configure pazuzu tool
 
-## Search features
-List step is used to check what features are actually available in configured snippet provider
-```
-$ pazuzu search [regexp]
-```
-Mask is a valid regexp, i.e.:
-```
-$ pazuzu search "node-v4.6*|java8|mvn"
-```
-Mask `node-v4.6*|java8|mvn` will use following features:
-- latest `node` version that match regexp **node-v4.6***
-- latest `java8` release available in feature snippets provider(default java8 )
+### Search features
+
+`pazuzu search` is used to check which features are actually available in configured repository:
+
+  ```bash
+  pazuzu search [regexp]
+
+  pazuzu search node
+  pazuzu search ja*
+  ```
 
 ## Compose features
 Compose step actually creates features file out of specified
