@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 	"testing"
-
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 
@@ -87,12 +86,11 @@ func TestWrite(t *testing.T) {
 // Test building a generated Dockerfile.
 func TestDockerBuild(t *testing.T) {
 	pazuzu := Pazuzu{
-		dockerEndpoint: "unix:///var/run/docker.sock",
+		DockerEndpoint: "unix:///var/run/docker.sock",
 		Dockerfile: []byte(`FROM ubuntu:latest
 RUN apt-get update && apt-get install python --yes`),
 		testSpec: "test_spec.json",
 	}
-
 	err := pazuzu.DockerBuild("test")
 	if err != nil {
 		t.Errorf("should not fail: %s", err)

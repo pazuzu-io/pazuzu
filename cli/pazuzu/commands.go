@@ -14,6 +14,7 @@ const (
 	PazuzufileName   = "Pazuzufile"
 	DockerfileName   = "Dockerfile"
 	TestSpecFileName = "test.bats"
+	directoryOption = "directory"
 )
 
 var cnfGetCmd = cli.Command{
@@ -164,8 +165,8 @@ var composeFlags = []cli.Flag{
 		Usage: "Init set of features from comma-separated list of `FEATURES`",
 	},
 	cli.StringFlag{
-		Name:  "d, destination",
-		Usage: "Sets destination path for Docketfile and Pazuzufile to `DESTINATION`",
+		Name:  "d, directory",
+		Usage: "Sets destination directory for Docketfile and Pazuzufile to `DESTINATION`",
 	},
 }
 
@@ -179,14 +180,22 @@ var composeCmd = cli.Command{
 	Action: composeAction,
 }
 
+var buildFlags = []cli.Flag {
+	cli.StringFlag{
+		Name:  "d, directory",
+		Usage: "Sets source path where Docketfile are located.",
+	},
+	cli.StringFlag{
+		Name:  "n, name",
+		Usage: "Sets a name for docker image",
+	},
+
+}
+
 var buildCmd = cli.Command{
 	Name:      "build",
 	Usage:     "Builds and tests Docker image from Dockerfile",
 	ArgsUsage: " ",
+	Flags: buildFlags,
 	Action:    buildFeatures,
-}
-
-// Fetches and builds features into a docker image.
-func buildFeatures(c *cli.Context) error {
-	return pazuzu.ErrNotImplemented
 }

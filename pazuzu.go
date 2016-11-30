@@ -23,7 +23,7 @@ type Pazuzu struct {
 	Dockerfile     []byte
 	TestSpec       []byte
 	testSpec       string
-	dockerEndpoint string
+	DockerEndpoint string
 	docker         *docker.Client
 	files          map[string]string
 }
@@ -211,8 +211,9 @@ func (p *Pazuzu) appendFeaturesFiles(tr *tar.Writer) error {
 
 // DockerBuild builds a docker image based on the generated Dockerfile.
 func (p *Pazuzu) DockerBuild(name string) error {
-	client, err := docker.NewClient(p.dockerEndpoint)
+	client, err := docker.NewClient(p.DockerEndpoint)
 	if err != nil {
+		return fmt.Errorf("Error: %s", err)
 		return err
 	}
 
@@ -251,8 +252,9 @@ func (p *Pazuzu) DockerBuild(name string) error {
 		OutputStream: os.Stdout,
 	}
 
-	err = client.BuildImage(opts)
-	if err != nil {
+	err2 := client.BuildImage(opts)
+	if err2 != nil {
+		fmt.Errorf("Error: %s", err2)
 		return err
 	}
 
@@ -262,7 +264,7 @@ func (p *Pazuzu) DockerBuild(name string) error {
 // Start a docker container running /bin/bash.
 func (p *Pazuzu) dockerStart(image string) (*docker.Container, error) {
 	var err error
-	p.docker, err = docker.NewClient(p.dockerEndpoint)
+	p.docker, err = docker.NewClient(p.DockerEndpoint)
 	if err != nil {
 		return nil, err
 	}
