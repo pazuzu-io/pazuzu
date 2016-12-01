@@ -97,8 +97,8 @@ func InitDefaultConfig() {
 		StorageType: "git",
 		Base:        BaseImage,
 		Git:         GitConfig{URL: URL},
-		Memory:      MemoryConfig{InitialiseRandom: false,},
-		PostgreSQL:  PostgreSQLConfig{ConnectionString: ConnectionString, },
+		Memory:      MemoryConfig{InitialiseRandom: false},
+		PostgreSQL:  PostgreSQLConfig{ConnectionString: ConnectionString},
 	}
 }
 

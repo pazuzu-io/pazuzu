@@ -17,7 +17,7 @@ type FeatureMeta struct {
 // Feature is a definition for a piece of work to be done. Contains meta information as well as
 // all necessary data to compose a piece of Dockerfile at the end.
 type Feature struct {
-	Meta         FeatureMeta
-	Snippet      string
-	TestSnippet  string
+	Meta        FeatureMeta
+	Snippet     string
+	TestSnippet string
 }

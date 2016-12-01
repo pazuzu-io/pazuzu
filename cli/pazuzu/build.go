@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu"
 	"fmt"
 	"io/ioutil"
+
+	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu"
 )
 
 // Fetches and builds features into a docker image.
@@ -28,7 +29,7 @@ func buildFeatures(c *cli.Context) error {
 
 	p := pazuzu.Pazuzu{StorageReader: storageReader,
 		DockerEndpoint: "unix:///var/run/docker.sock",
-		Dockerfile:dat,
+		Dockerfile:     dat,
 	}
 
 	name := "pazuzu image"
@@ -41,4 +42,3 @@ func buildFeatures(c *cli.Context) error {
 	}
 	return nil
 }
-

@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
 const testSpecFixture = `#!/usr/bin/env bats
 
 @test "Check that Java is installed" {  
@@ -31,7 +30,6 @@ func TestReadTestSpec(t *testing.T) {
 		expectedTestSpec := "@test \"Check that Java is installed\" {\n" +
 			"    command java -version\n" +
 			"}"
-
 
 		assert.Equal(t, result, expectedTestSpec, "Result mismatched")
 	})
