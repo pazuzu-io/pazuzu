@@ -24,7 +24,6 @@ var BatsFeature = Feature{
 	Snippet: batsSnippet,
 }
 
-
 func ReadTestSpec(reader io.Reader) string {
 	var scanner = bufio.NewScanner(reader)
 	var buffer = bytes.NewBufferString("")

@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 

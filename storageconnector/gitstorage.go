@@ -18,7 +18,7 @@ const (
 	featureFile              = "meta.yml"   // name of the file containing all metadata for a feature.
 	featureSnippet           = "Dockerfile" // the file containing the actual docker snippet.
 	testSnippet              = "test.bats"  // the file containing the bats test specification (https://github.com/sstephenson/bats)
-	defaultSearchParamsLimit = 100 // we should use this constant
+	defaultSearchParamsLimit = 100          // we should use this constant
 )
 
 // yamlFeatureMeta is used for unmarshalling of meta.yml files.
@@ -191,9 +191,9 @@ func getFeature(commit *git.Commit, name string) (shared.Feature, error) {
 	testSnippet := getTestSpec(commit, name)
 
 	return shared.Feature{
-		Meta:         meta,
-		Snippet:      string(snippet),
-		TestSnippet:  string(testSnippet),
+		Meta:        meta,
+		Snippet:     string(snippet),
+		TestSnippet: string(testSnippet),
 	}, nil
 }
 
@@ -220,14 +220,14 @@ func (storage *GitStorage) Resolve(names ...string) ([]string, map[string]shared
 
 	commit, err := storage.latestCommit()
 	if err != nil {
-		return []string {}, map[string]shared.Feature{}, err
+		return []string{}, map[string]shared.Feature{}, err
 	}
 
 	result := map[string]shared.Feature{}
 	for _, name := range names {
 		err = resolve(commit, name, &slice, result)
 		if err != nil {
-			return []string {}, map[string]shared.Feature{}, err
+			return []string{}, map[string]shared.Feature{}, err
 		}
 	}
 

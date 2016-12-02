@@ -14,7 +14,7 @@ const (
 	PazuzufileName   = "Pazuzufile"
 	DockerfileName   = "Dockerfile"
 	TestSpecFileName = "test.bats"
-	directoryOption = "directory"
+	directoryOption  = "directory"
 )
 
 var cnfGetCmd = cli.Command{
@@ -180,7 +180,7 @@ var composeCmd = cli.Command{
 	Action: composeAction,
 }
 
-var buildFlags = []cli.Flag {
+var buildFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:  "d, directory",
 		Usage: "Sets source path where Docketfile are located.",
@@ -189,13 +189,12 @@ var buildFlags = []cli.Flag {
 		Name:  "n, name",
 		Usage: "Sets a name for docker image",
 	},
-
 }
 
 var buildCmd = cli.Command{
 	Name:      "build",
 	Usage:     "Builds and tests Docker image from Dockerfile",
 	ArgsUsage: " ",
-	Flags: buildFlags,
+	Flags:     buildFlags,
 	Action:    buildFeatures,
 }
