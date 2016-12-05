@@ -36,6 +36,41 @@ func (store *postgresStorage) init(connectionString string) {
 	store.connectionString = connectionString
 }
 
+// Reads feature from the database
+func readFeature(scanner *sql.Rows) (shared.Feature, error) {
+	var (
+		meta shared.FeatureMeta
+		id int
+		dependencies string
+		snippet string
+		testSnippet string
+	)
+
+	err := scanner.Scan(
+		&id,
+		&meta.Name,
+		&meta.Description,
+		&meta.Author,
+		&meta.UpdatedAt,
+		&dependencies,
+		&snippet,
+		&testSnippet)
+
+	if err != nil {
+		return shared.Feature{}, err
+	}
+
+	meta.Dependencies = strings.Fields(dependencies)
+	buffer := bytes.NewBufferString(testSnippet)
+
+	feature := shared.Feature{
+		Meta: meta,
+		Snippet: snippet,
+		TestSnippet: shared.ReadTestSpec(buffer),
+	}
+	return feature, nil
+}
+
 func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
 	var pg postgresStorage
 	pg.init(connectionString)
@@ -65,29 +100,26 @@ func (store *postgresStorage) disconnect() {
 
 func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
 	var fms []shared.FeatureMeta
-	var depText string
-	var snippet string
-	var testSnippet string
-	var index int
+
 	err := store.connect()
 	if err != nil {
 		return nil, err
 	}
+	defer store.disconnect()
 
 	rows, err := store.db.Query(SqlQuery)
 	if err != nil {
 		return nil, err
 	}
+
 	for rows.Next() {
-		var f shared.FeatureMeta
-		err := rows.Scan(&index, &f.Name, &f.Description, &f.Author, &f.UpdatedAt, &depText, &snippet, &testSnippet)
+		f, err := readFeature(rows)
 		if err != nil {
 			return nil, err
 		}
-		f.Dependencies = strings.Fields(depText)
-		fms = append(fms, f)
+		fms = append(fms, f.Meta)
 	}
-	defer store.disconnect()
+
 	return fms, nil
 }
 
@@ -116,23 +148,21 @@ func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 
 func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var f shared.Feature
-	var index int
-	var dep_text string
-	var testSnippet string
 
 	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
 	store.connect()
 	defer store.disconnect()
 
-	err := store.db.QueryRow(sqlQuery).Scan(&index, &f.Meta.Name, &f.Meta.Description, &f.Meta.Author, &f.Meta.UpdatedAt, &dep_text, &f.Snippet, &testSnippet)
+	rows, err := store.db.Query(sqlQuery)
 	if err != nil {
 		return shared.Feature{}, err
 	}
 
-	buffer := bytes.NewBufferString(testSnippet)
-
-	f.TestSnippet = shared.ReadTestSpec(buffer)
-	f.Meta.Dependencies = strings.Fields(dep_text)
+	rows.Next()
+	f, err = readFeature(rows)
+	if err != nil {
+		return shared.Feature{}, err
+	}
 
 	return f, nil
 }
