@@ -12,16 +12,20 @@ import (
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 
-const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
-	id serial primary key,
-	name TEXT,
-	description TEXT,
-	author TEXT,
-	lastupdate timestamptz,
-	dependencies TEXT,
-	snippet TEXT,
-	test_snippet TEXT
-);`
+const (
+	createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
+		id serial primary key,
+		name TEXT,
+		description TEXT,
+		author TEXT,
+		lastupdate timestamptz,
+		dependencies TEXT,
+		snippet TEXT,
+		test_snippet TEXT
+	);`
+	getFeatureQuery = "SELECT * FROM features WHERE name = '%s';"
+	searchFeatureQuery = "SELECT * FROM features WHERE name ~ '%s';"
+)
 
 type postgresStorage struct {
 	db               *sql.DB
@@ -38,6 +42,7 @@ func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
 
 	return &pg, nil
 }
+
 
 func (store *postgresStorage) connect() error {
 	db, err := sql.Open("postgres", store.connectionString)
@@ -87,7 +92,7 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, e
 }
 
 func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
-	sqlQuery := fmt.Sprintf("select * from features where name ~ '%s';", name)
+	sqlQuery := fmt.Sprintf(searchFeatureQuery, name)
 	fms, err := store.scanMeta(sqlQuery)
 	if err != nil {
 		return make([]shared.FeatureMeta, 0), err
@@ -97,7 +102,7 @@ func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 }
 
 func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
-	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
+	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
 	fms, err := store.scanMeta(sqlQuery)
 	if err != nil {
 		return shared.FeatureMeta{}, err
@@ -115,7 +120,7 @@ func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var dep_text string
 	var testSnippet string
 
-	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
+	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
 	store.connect()
 	defer store.disconnect()
 
