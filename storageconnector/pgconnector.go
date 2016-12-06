@@ -27,8 +27,8 @@ const (
 	searchFeatureQuery = "SELECT * FROM features WHERE name ~ '%s';"
 )
 
-// Reads feature from the database
-func readFeature(scanner *sql.Rows) (shared.Feature, error) {
+// Reads feature using scanFunc
+func readFeature(scanFunc func(dest ...interface{}) error) (shared.Feature, error) {
 	var (
 		meta         shared.FeatureMeta
 		id           int
@@ -37,7 +37,7 @@ func readFeature(scanner *sql.Rows) (shared.Feature, error) {
 		testSnippet  string
 	)
 
-	err := scanner.Scan(
+	err := scanFunc(
 		&id,
 		&meta.Name,
 		&meta.Description,
@@ -122,7 +122,7 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, e
 	}
 
 	for rows.Next() {
-		f, err := readFeature(rows)
+		f, err := readFeature(rows.Scan)
 		if err != nil {
 			return nil, err
 		}
@@ -152,13 +152,8 @@ func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	store.connect()
 	defer store.disconnect()
 
-	rows, err := store.db.Query(sqlQuery)
-	if err != nil {
-		return shared.Feature{}, err
-	}
-
-	rows.Next()
-	f, err = readFeature(rows)
+	row := store.db.QueryRow(sqlQuery)
+	f, err := readFeature(row.Scan)
 	if err != nil {
 		return shared.Feature{}, err
 	}
