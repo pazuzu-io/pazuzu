@@ -27,6 +27,8 @@ const (
 	searchFeatureQuery = "SELECT * FROM features WHERE name ~ '%s';"
 )
 
+var ErrNotFound = errors.New("Requested feature was not found.")
+
 // Reads feature using scanFunc
 func readFeature(scanFunc func(dest ...interface{}) error) (shared.Feature, error) {
 	var (
@@ -139,8 +141,7 @@ func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 		return shared.FeatureMeta{}, err
 	}
 	if len(fms) == 0 {
-		err = errors.New("Requested feature was not found.")
-		return shared.FeatureMeta{}, err
+		return shared.FeatureMeta{}, ErrNotFound
 	}
 	return fms[0], nil
 }
