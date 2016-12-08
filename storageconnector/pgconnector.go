@@ -97,23 +97,45 @@ func (store *postgresStorage) init(connectionString string) {
 }
 
 func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
-	sqlQuery := fmt.Sprintf(searchFeatureQuery, name)
-	fms, err := store.scanMeta(sqlQuery)
-	if err != nil {
-		return make([]shared.FeatureMeta, 0), err
-	}
-	return fms, err
-
-}
-
-func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
-	var fms []shared.FeatureMeta
+	var featureMetas []shared.FeatureMeta
 
 	db, err := createDBConnection(store.connectionString)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close()
+
+	query := fmt.Sprintf(searchFeatureQuery, name)
+	featureMetas, err = store.scanMeta(db, query)
+	if err != nil {
+		return featureMetas, err
+	}
+	return featureMetas, err
+
+}
+
+func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
+	var f shared.FeatureMeta
+
+	db, err := createDBConnection(store.connectionString)
+	if err != nil {
+		return f, err
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf(getFeatureQuery, name)
+	fms, err := store.scanMeta(db, query)
+	if err != nil {
+		return f, err
+	}
+	if len(fms) == 0 {
+		return f, ErrNotFound
+	}
+	return fms[0], nil
+}
+
+func (store *postgresStorage) scanMeta(db *sql.DB, SqlQuery string) ([]shared.FeatureMeta, error) {
+	var fms []shared.FeatureMeta
 
 	rows, err := db.Query(SqlQuery)
 	if err != nil {
@@ -129,18 +151,6 @@ func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, e
 	}
 
 	return fms, nil
-}
-
-func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
-	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
-	fms, err := store.scanMeta(sqlQuery)
-	if err != nil {
-		return shared.FeatureMeta{}, err
-	}
-	if len(fms) == 0 {
-		return shared.FeatureMeta{}, ErrNotFound
-	}
-	return fms[0], nil
 }
 
 func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
