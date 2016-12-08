@@ -71,32 +71,29 @@ func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
 	return &pg, nil
 }
 
+func createDBConnection(connectionString string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", connectionString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	db.Exec(createFeaturesTableQuery)
+	return db, nil
+}
+
+
 type postgresStorage struct {
-	db               *sql.DB
 	connectionString string
 }
 
 func (store *postgresStorage) init(connectionString string) {
 	store.connectionString = connectionString
-}
-
-func (store *postgresStorage) connect() error {
-	db, err := sql.Open("postgres", store.connectionString)
-	if err != nil {
-		return err
-	}
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	db.Exec(createFeaturesTableQuery)
-	store.db = db
-	return nil
-}
-
-func (store *postgresStorage) disconnect() {
-	store.db.Close()
 }
 
 func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
@@ -112,13 +109,13 @@ func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
 	var fms []shared.FeatureMeta
 
-	err := store.connect()
+	db, err := createDBConnection(store.connectionString)
 	if err != nil {
 		return nil, err
 	}
-	defer store.disconnect()
+	defer db.Close()
 
-	rows, err := store.db.Query(SqlQuery)
+	rows, err := db.Query(SqlQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +146,16 @@ func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var f shared.Feature
 
-	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
-	store.connect()
-	defer store.disconnect()
+	db, err := createDBConnection(store.connectionString)
+	if err != nil {
+		return f, err
+	}
+	defer db.Close()
 
-	row := store.db.QueryRow(sqlQuery)
-	f, err := readFeature(row.Scan)
+	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
+
+	row := db.QueryRow(sqlQuery)
+	f, err = readFeature(row.Scan)
 	if err != nil {
 		return shared.Feature{}, err
 	}
