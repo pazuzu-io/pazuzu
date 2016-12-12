@@ -17,7 +17,7 @@ cli/pazuzu/pazuzu
 # Internal data files
 Pazuzufile
 Dockerfile
-test_spec.json
+test.bats
 
 !features/*/Dockerfile
 !features/*/test_spec.json

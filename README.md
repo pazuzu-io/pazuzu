@@ -61,7 +61,7 @@ Basically, pazuzu CLI tool has 4 subcommands:
 
 ### Compose features
 
-`pazuzu compose` step creates `Pazuzufile`, `Dockerfile` and `test.bats` for specified set of features.
+`pazuzu compose` step creates `Pazuzufile`, `Dockerfile` and `test.bats` for the specified set of features.
 
   ```bash
   pazuzu compose -i node,java
@@ -91,7 +91,7 @@ the new one based on the given features and default base image specified in the 
 
 ### Build Docker image
 
-`pazuzu build` is responsible for a final step - building the Docker image.
+`pazuzu build` is responsible for a final step - building and validating the Docker image.
 
 ```
 pazuzu build -n hellodocker -d /tmp
@@ -103,7 +103,7 @@ pazuzu build -n hellodocker -d /tmp
 
 ### Configuration
 
-`pazuzu config` provides a set of tools to configure pazuzu CLI. Configuration is stored in ` ~/.pazuzu/config` .
+`pazuzu config` provides a set of tools to configure pazuzu CLI. Configurations are stored in ` ~/.pazuzu/config` .
 
 ```bash
 pazuzu config list  # lists all configurations
@@ -115,7 +115,7 @@ pazuzu confi get git.url  # gets value of git.url parameter
 
 ### Git repository
 
-Every Git repository with snippets should contain a `features` folder with snippets inside:
+Every pazuzu-compatible Git repository should contain a `features` folder with snippets meta-information inside:
 
 ```text
 features/
