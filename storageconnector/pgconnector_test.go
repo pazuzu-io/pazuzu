@@ -1,10 +1,12 @@
 package storageconnector
 
 import (
+	"database/sql/driver"
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/zalando-incubator/pazuzu/shared"
@@ -53,5 +55,37 @@ func TestReadFeature(t *testing.T) {
 			"@test \"Check that Java is installed\" {command java -version}")
 
 		assert.Equal(t, err, nil)
+	})
+}
+
+func TestScanMeta(t *testing.T) {
+	t.Run("Test reads features", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+		defer db.Close()
+
+		query := "SELECT (.+) FROM features WHERE name = 'java';"
+
+		columns := []string{"id", "name", "description", "author", "lastupdate", "dependencies", "snippet", "test_snippet"}
+		values := []driver.Value{1, "Name", "Description", "John", beginningOf2016, "Dependency", "Snippet", "Test"}
+
+		mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows(columns).AddRow(values...))
+
+		storage, err := NewPostgresStorage("Fake connection")
+		assert.Equal(t, err, nil)
+
+		result, err := storage.scanMeta(db, query)
+		assert.Equal(t, err, nil)
+		assert.Equal(t, len(result), 1)
+		assert.Equal(t, result[0].Name, "Name")
+		assert.Equal(t, result[0].Description, "Description")
+		assert.Equal(t, result[0].Author, "John")
+		assert.Equal(t, result[0].UpdatedAt, beginningOf2016)
+
+		if err := mock.ExpectationsWereMet(); err != nil {
+			t.Errorf("there were unfulfilled expections: %s", err)
+		}
 	})
 }
