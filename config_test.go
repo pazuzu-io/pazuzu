@@ -2,9 +2,8 @@ package pazuzu
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
+	"io/ioutil"
 	"os"
-	"path"
 	"strings"
 	"testing"
 )
@@ -70,12 +69,11 @@ func TestConfigGitSetURL(t *testing.T) {
 func TestConfigSaveAndLoad(t *testing.T) {
 	config := getConfig(t)
 
-	tempFn := path.Join(os.TempDir(), uuid.NewV4().String())
-	t.Logf("TEMP-FN = [%s]\n", tempFn)
-
-	defer func() {
-		_ = os.Remove(tempFn)
-	}()
+	tempFile, err := ioutil.TempFile(os.TempDir(), "pazuzu_config_test")
+	if err != nil {
+		t.Error(err)
+	}
+	defer os.Remove(tempFile.Name())
 
 	const ExpectBase = "MyBase"
 	const ExpectStorageType = "git"
@@ -89,17 +87,17 @@ func TestConfigSaveAndLoad(t *testing.T) {
 	config.SetStorageType(ExpectStorageType)
 	config.Git.SetURL(ExpectGitURL)
 
-	errSave := config.SaveToFile(tempFn)
+	errSave := config.SaveToFile(tempFile.Name())
 	if errSave != nil {
 		t.Fatalf("SaveToFile FAIL! filename=[%s], reason=[%v]\n",
-			tempFn, errSave)
+			tempFile.Name(), errSave)
 	}
 
 	config.SetBase(UnexpectBase)
 	config.SetStorageType(UnexpectStorageType)
 	config.Git.SetURL(UnexpectGitURL)
 
-	config.LoadFromFile(tempFn)
+	config.LoadFromFile(tempFile.Name())
 
 	if config.Base != ExpectBase {
 		t.Fatalf("'Base' config-val should be equals with [%s], but [%s]",
