@@ -3,6 +3,7 @@ package storageconnector
 import (
 	"database/sql/driver"
 	"errors"
+	"regexp"
 	"testing"
 	"time"
 
@@ -58,34 +59,69 @@ func TestReadFeature(t *testing.T) {
 	})
 }
 
-func TestScanMeta(t *testing.T) {
-	t.Run("Test reads features", func(t *testing.T) {
+func TestListFeatures(t *testing.T) {
+	t.Run("Test success", func(t *testing.T) {
 		db, mock, err := sqlmock.New()
 		if err != nil {
 			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 		}
 		defer db.Close()
 
-		query := "SELECT (.+) FROM features WHERE name = 'java';"
-
 		columns := []string{"id", "name", "description", "author", "lastupdate", "dependencies", "snippet", "test_snippet"}
 		values := []driver.Value{1, "Name", "Description", "John", beginningOf2016, "Dependency", "Snippet", "Test"}
 
-		mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows(columns).AddRow(values...))
+		query := regexp.QuoteMeta(listFeaturesQuery)
+		mock.ExpectQuery(query).WithArgs("java").WillReturnRows(sqlmock.NewRows(columns).AddRow(values...))
 
 		storage, err := NewPostgresStorage("Fake connection")
 		assert.Equal(t, err, nil)
 
-		result, err := storage.scanMeta(db, query)
+		result, err := storage.listFeatures(db, "java")
 		assert.Equal(t, err, nil)
 		assert.Equal(t, len(result), 1)
 		assert.Equal(t, result[0].Name, "Name")
 		assert.Equal(t, result[0].Description, "Description")
 		assert.Equal(t, result[0].Author, "John")
 		assert.Equal(t, result[0].UpdatedAt, beginningOf2016)
+		assert.Equal(t, result[0].Dependencies, []string{"Dependency"})
 
 		if err := mock.ExpectationsWereMet(); err != nil {
 			t.Errorf("there were unfulfilled expections: %s", err)
 		}
 	})
+
+}
+
+func TestGetFeature(t *testing.T) {
+	t.Run("Test success", func(t *testing.T) {
+		db, mock, err := sqlmock.New()
+		if err != nil {
+			t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+		}
+		defer db.Close()
+
+		columns := []string{"id", "name", "description", "author", "lastupdate", "dependencies", "snippet", "test_snippet"}
+		values := []driver.Value{1, "Name", "Description", "John", beginningOf2016, "Dependency", "Snippet", "Test"}
+
+		query := regexp.QuoteMeta(getFeatureQuery)
+		mock.ExpectQuery(query).WithArgs("java").WillReturnRows(sqlmock.NewRows(columns).AddRow(values...))
+
+		storage, err := NewPostgresStorage("Fake connection")
+		assert.Equal(t, err, nil)
+
+		result, err := storage.getFeature(db, "java")
+		assert.Equal(t, err, nil)
+		assert.Equal(t, result.Snippet, "Snippet")
+		assert.Equal(t, result.TestSnippet, "Test")
+		assert.Equal(t, result.Meta.Name, "Name")
+		assert.Equal(t, result.Meta.Description, "Description")
+		assert.Equal(t, result.Meta.Author, "John")
+		assert.Equal(t, result.Meta.UpdatedAt, beginningOf2016)
+		assert.Equal(t, result.Meta.Dependencies, []string{"Dependency"})
+
+		if err := mock.ExpectationsWereMet(); err != nil {
+			t.Errorf("there were unfulfilled expections: %s", err)
+		}
+	})
+
 }

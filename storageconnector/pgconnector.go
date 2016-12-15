@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -23,8 +22,8 @@ const (
 		snippet TEXT,
 		test_snippet TEXT
 	);`
-	getFeatureQuery    = "SELECT * FROM features WHERE name = '%s';"
-	searchFeatureQuery = "SELECT * FROM features WHERE name ~ '%s';"
+	getFeatureQuery    = "SELECT * FROM features WHERE name = $1;"
+	listFeaturesQuery = "SELECT * FROM features WHERE name ~ $1;"
 )
 
 var ErrNotFound = errors.New("Requested feature was not found.")
@@ -105,8 +104,7 @@ func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 	}
 	defer db.Close()
 
-	query := fmt.Sprintf(searchFeatureQuery, name)
-	featureMetas, err = store.scanMeta(db, query)
+	featureMetas, err = store.listFeatures(db, name.String())
 	if err != nil {
 		return featureMetas, err
 	}
@@ -114,30 +112,10 @@ func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 
 }
 
-func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
-	var f shared.FeatureMeta
-
-	db, err := createDBConnection(store.connectionString)
-	if err != nil {
-		return f, err
-	}
-	defer db.Close()
-
-	query := fmt.Sprintf(getFeatureQuery, name)
-	fms, err := store.scanMeta(db, query)
-	if err != nil {
-		return f, err
-	}
-	if len(fms) == 0 {
-		return f, ErrNotFound
-	}
-	return fms[0], nil
-}
-
-func (store *postgresStorage) scanMeta(db *sql.DB, SqlQuery string) ([]shared.FeatureMeta, error) {
+func (store *postgresStorage) listFeatures(db *sql.DB, name string) ([]shared.FeatureMeta, error) {
 	var fms []shared.FeatureMeta
 
-	rows, err := db.Query(SqlQuery)
+	rows, err := db.Query(listFeaturesQuery, name)
 	if err != nil {
 		return nil, err
 	}
@@ -153,6 +131,22 @@ func (store *postgresStorage) scanMeta(db *sql.DB, SqlQuery string) ([]shared.Fe
 	return fms, nil
 }
 
+
+func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
+	db, err := createDBConnection(store.connectionString)
+	if err != nil {
+		return shared.FeatureMeta{}, err
+	}
+	defer db.Close()
+
+	f, err := store.getFeature(db, name)
+	if err != nil {
+		return shared.FeatureMeta{}, err
+	}
+
+	return f.Meta, nil
+}
+
 func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var f shared.Feature
 
@@ -162,10 +156,13 @@ func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	}
 	defer db.Close()
 
-	sqlQuery := fmt.Sprintf(getFeatureQuery, name)
+	return store.getFeature(db, name)
+}
 
-	row := db.QueryRow(sqlQuery)
-	f, err = readFeature(row.Scan)
+func (store *postgresStorage) getFeature(db *sql.DB, name string) (shared.Feature, error) {
+	row := db.QueryRow(getFeatureQuery, name)
+
+	f, err := readFeature(row.Scan)
 	if err != nil {
 		return shared.Feature{}, err
 	}
