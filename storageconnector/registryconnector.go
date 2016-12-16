@@ -12,13 +12,15 @@ type registryStorage struct {
 	Token string     // OAUTH2 Token
 }
 
-func (store *registryStorage) init() {
-	//TODO
+func (store *registryStorage) init(hostname string, port int) {
+	store.Hostname = hostname
+	store.Port = port
+	store.Endpoint = "/api"
 }
 
-func NewRegistryStorage(connectionString string) (*registryStorage, error) {
+func NewRegistryStorage(hostname string, port int) (*registryStorage, error) {
 	var rs registryStorage
-	rs.init()
+	rs.init(hostname, port)
 	return &rs, nil
 }
 
