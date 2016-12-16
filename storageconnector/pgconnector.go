@@ -3,7 +3,6 @@ package storageconnector
 import (
 	"bytes"
 	"database/sql"
-	"errors"
 	"regexp"
 	"strings"
 
@@ -25,8 +24,6 @@ const (
 	getFeatureQuery    = "SELECT * FROM features WHERE name = $1;"
 	listFeaturesQuery = "SELECT * FROM features WHERE name ~ $1;"
 )
-
-var ErrNotFound = errors.New("Requested feature was not found.")
 
 // Reads feature using scanFunc
 func readFeature(scanFunc func(dest ...interface{}) error) (shared.Feature, error) {
