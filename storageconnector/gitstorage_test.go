@@ -2,17 +2,19 @@ package storageconnector
 
 import (
 	"fmt"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gopkg.in/src-d/go-git.v4"
 	"os"
 	"path/filepath"
 	"regexp"
 	"testing"
-
-	"gopkg.in/src-d/go-git.v4"
 )
 
 var (
 	testRepository = filepath.Join("fixtures", "git")
-	storage        StorageReader
+	gitStorage     StorageReader
+	pgStorage      StorageReader
+	mock           sqlmock.Sqlmock
 )
 
 func TestMain(m *testing.M) {
@@ -21,7 +23,10 @@ func TestMain(m *testing.M) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	storage = &GitStorage{repo: repo}
+	gitStorage = &GitStorage{repo: repo}
+	db, testmock, err := sqlmock.New()
+	pgStorage = &PostgresStorage{db: db}
+	mock = testmock
 	os.Exit(m.Run())
 }
 
@@ -30,7 +35,7 @@ func TestGitStorage_SearchMeta(t *testing.T) {
 		name, _ := regexp.Compile("java")
 		expected := 3
 
-		features, err := storage.SearchMeta(name)
+		features, err := gitStorage.SearchMeta(name)
 		if err != nil {
 			t.Error(err)
 		}
@@ -53,7 +58,7 @@ func TestGitStorage_SearchMeta(t *testing.T) {
 
 func TestGitStorage_GetMeta(t *testing.T) {
 	t.Run("ExistingFeature", func(t *testing.T) {
-		meta, err := storage.GetMeta("java")
+		meta, err := gitStorage.GetMeta("java")
 		if err != nil {
 			t.Error(err)
 		}
@@ -64,16 +69,16 @@ func TestGitStorage_GetMeta(t *testing.T) {
 	})
 
 	t.Run("NonExistingFeature", func(t *testing.T) {
-		_, err := storage.GetMeta("reallynotafeature")
+		_, err := gitStorage.GetMeta("reallynotafeature")
 		if err == nil {
-			t.Error("Error expected when getting meatdata for non existing feature")
+			t.Error("Error expected when getting metadata for non existing feature")
 		}
 	})
 }
 
 func TestGitStorage_Get(t *testing.T) {
 	t.Run("ExistingFeatureWithoutSnippet", func(t *testing.T) {
-		feature, err := storage.GetFeature("A-java-lein")
+		feature, err := gitStorage.GetFeature("A-java-lein")
 		if err != nil {
 			t.Error(err)
 		}
@@ -88,7 +93,7 @@ func TestGitStorage_Get(t *testing.T) {
 	})
 
 	t.Run("ExistingFeatureWithSnippet", func(t *testing.T) {
-		feature, err := storage.GetFeature("java")
+		feature, err := gitStorage.GetFeature("java")
 		if err != nil {
 			t.Error(err)
 		}
@@ -103,7 +108,7 @@ func TestGitStorage_Get(t *testing.T) {
 	})
 
 	t.Run("NonExistingFeature", func(t *testing.T) {
-		_, err := storage.GetFeature("reallynotafeature")
+		_, err := gitStorage.GetFeature("reallynotafeature")
 		if err == nil {
 			t.Error("Error expected when getting non existing feature")
 		}
@@ -114,7 +119,7 @@ func TestGitStorage_Resolve(t *testing.T) {
 	t.Run("FeatureWithoutDependencies", func(t *testing.T) {
 		expected := 1
 
-		list, features, err := storage.Resolve("java")
+		list, features, err := gitStorage.Resolve("java")
 		if err != nil {
 			t.Error(err)
 		}
@@ -133,7 +138,7 @@ func TestGitStorage_Resolve(t *testing.T) {
 	t.Run("FeatureWithTwoDependencies", func(t *testing.T) {
 		expected := 3
 
-		list, features, err := storage.Resolve("A-java-lein")
+		list, features, err := gitStorage.Resolve("A-java-lein")
 		if err != nil {
 			t.Error(err)
 		}
