@@ -158,7 +158,7 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	case StorageTypePG:
 		return storageconnector.NewPostgresStorage(config.PostgreSQL.ConnectionString)
 	case StorageTypeRegistry:
-		return storageconnector.NewRegistryStorage(config.Registry.Hostname, config.Registry.Port)
+		return storageconnector.NewRegistryStorage(config.Registry.Hostname, config.Registry.Port, nil)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
