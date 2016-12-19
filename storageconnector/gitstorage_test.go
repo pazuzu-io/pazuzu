@@ -4,18 +4,23 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"testing"
 
 	"gopkg.in/src-d/go-git.v4"
+	"github.com/zalando-incubator/pazuzu/shared"
+	"github.com/davecgh/go-spew/spew"
 )
 
 var (
 	testRepository = filepath.Join("fixtures", "git")
-	storage        StorageReader
+	storage StorageReader
 )
 
 func TestMain(m *testing.M) {
+	spew.Config = spew.ConfigState{
+		DisableCapacities: true,
+		DisablePointerAddresses: true,
+	}
 	repo, err := git.NewFilesystemRepository(testRepository)
 	if err != nil {
 		fmt.Println(err)
@@ -26,88 +31,35 @@ func TestMain(m *testing.M) {
 }
 
 func TestGitStorage_SearchMeta(t *testing.T) {
-	t.Run("FeatureContainingJava", func(t *testing.T) {
-		name, _ := regexp.Compile("java")
-		expected := 3
-
-		features, err := storage.SearchMeta(name)
-		if err != nil {
-			t.Error(err)
-		}
-
-		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
-		}
-
-		if features[0].Name != "A-java-lein" {
-			t.Errorf("Name of feature 0 should be 'A-java-lein' but was '%s'", features[0].Name)
-		}
-		if features[1].Name != "B-java-node" {
-			t.Errorf("Name of feature 1 should be 'B-java-node' but was '%s'", features[1].Name)
-		}
-		if features[2].Name != "java" {
-			t.Errorf("Name of feature 2 should be 'java' but was '%s'", features[2].Name)
-		}
-	})
+	expected := []shared.FeatureMeta{{
+		Name: "A-java-lein",
+		Description: "Java + Leiningen",
+		Author: "",
+		Dependencies: []string{"java", "leiningen"},
+	}, {
+		Name: "B-java-node",
+		Description: "Java + Node",
+		Author: "",
+		Dependencies: []string{"java", "node"},
+	}, {
+		Name: "java",
+		Description: "basic java feature",
+		Author: "",
+	},
+	}
+	searchMetaAndFindResultTest(t, "java", expected, storage)
+	searchMetaAndFindNothingTest(t, "NotAFeature", storage)
 }
 
 func TestGitStorage_GetMeta(t *testing.T) {
-	t.Run("ExistingFeature", func(t *testing.T) {
-		meta, err := storage.GetMeta("java")
-		if err != nil {
-			t.Error(err)
-		}
-
-		if meta.Name != "java" {
-			t.Errorf("Feature name shoule be 'java' but was '%s'", meta.Name)
-		}
-	})
-
-	t.Run("NonExistingFeature", func(t *testing.T) {
-		_, err := storage.GetMeta("reallynotafeature")
-		if err == nil {
-			t.Error("Error expected when getting meatdata for non existing feature")
-		}
-	})
+	getExistingFeatureMetaTest(t, "java", storage)
+	getNonExistingFeatureMetaTest(t, "NotAFeature", storage)
 }
 
 func TestGitStorage_Get(t *testing.T) {
-	t.Run("ExistingFeatureWithoutSnippet", func(t *testing.T) {
-		feature, err := storage.GetFeature("A-java-lein")
-		if err != nil {
-			t.Error(err)
-		}
-
-		if feature.Meta.Name != "A-java-lein" {
-			t.Errorf("Feature name should be 'A-java-lein' but was '%s'", feature.Meta.Name)
-		}
-
-		if feature.Snippet != "" {
-			t.Errorf("Feature snippet should be empty but was '%s'", feature.Snippet)
-		}
-	})
-
-	t.Run("ExistingFeatureWithSnippet", func(t *testing.T) {
-		feature, err := storage.GetFeature("java")
-		if err != nil {
-			t.Error(err)
-		}
-
-		if feature.Meta.Name != "java" {
-			t.Errorf("Feature name should be 'java' but was '%s'", feature.Meta.Name)
-		}
-
-		if feature.Snippet == "" {
-			t.Error("Feature snippet should not be empty", feature.Snippet)
-		}
-	})
-
-	t.Run("NonExistingFeature", func(t *testing.T) {
-		_, err := storage.GetFeature("reallynotafeature")
-		if err == nil {
-			t.Error("Error expected when getting non existing feature")
-		}
-	})
+	getExistingFeatureTest(t, "java", storage)
+	getExistingFeatureWithoutSnippetTest(t, "A-java-lein", storage)
+	getNonExistingFeatureTest(t, "NotAFeature", storage)
 }
 
 func TestGitStorage_Resolve(t *testing.T) {
