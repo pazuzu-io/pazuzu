@@ -23,13 +23,6 @@ type Feature struct {
 	TestSnippet string
 }
 
-func NewEmptyFeature() Feature{
-
-	var f Feature
-
-	return f
-}
-
 func NewFeature(feature *models.Feature) Feature{
 	var m FeatureMeta
 	m.Name = feature.Name
