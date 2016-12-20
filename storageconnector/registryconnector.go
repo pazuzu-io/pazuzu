@@ -68,7 +68,6 @@ func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 			return shared.NewFeature(ft), err
 		}
 	}
-
 	return shared.Feature{}, err
 }
 
