@@ -1,14 +1,11 @@
 package storageconnector
 
 import (
-	"regexp"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 
-func TestMemoryGet(t *testing.T) {
+func TestMemory_SearchMeta(t *testing.T) {
 	storage := NewMemoryStorage([]shared.Feature{
 		{
 			Meta: shared.FeatureMeta{
@@ -26,59 +23,59 @@ func TestMemoryGet(t *testing.T) {
 			Snippet: "",
 		},
 	})
+	expected := []shared.FeatureMeta{{
+		Name:         "FeatureA",
+		Author:       "SomeAuthor",
+		Dependencies: []string{"FeatureB", "FeatureC"},
+	},
+	}
+	searchMetaAndFindResultTest(t, "FeatureA", expected, storage)
+	searchMetaAndFindNothingTest(t, "NotAFeature", storage)
+}
 
-	t.Run("Run search and find 1 Feature", func(t *testing.T) {
-		result, err := storage.SearchMeta(regexp.MustCompile("FeatureA.*"))
-
-		assert.Nil(t, err)
-		assert.Equal(t, []shared.FeatureMeta{{
-			Name:         "FeatureA",
-			Author:       "SomeAuthor",
-			Dependencies: []string{"FeatureB", "FeatureC"},
-		}}, result)
-	})
-
-	t.Run("Run search and find no Features", func(t *testing.T) {
-		result, err := storage.SearchMeta(regexp.MustCompile("FooBoo"))
-
-		assert.Nil(t, err)
-		assert.Equal(t, []shared.FeatureMeta{}, result)
-	})
-
-	t.Run("Try to get a feature Meta and find it", func(t *testing.T) {
-		result, err := storage.GetMeta("FeatureA")
-
-		assert.Nil(t, err)
-		assert.Equal(t, shared.FeatureMeta{
-			Name:         "FeatureA",
-			Author:       "SomeAuthor",
-			Dependencies: []string{"FeatureB", "FeatureC"},
-		}, result)
-	})
-
-	t.Run("Try to get a feature Meta and find nothing", func(t *testing.T) {
-		_, err := storage.GetMeta("FooBoo")
-		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
-	})
-
-	t.Run("Try to get a feature and find it", func(t *testing.T) {
-		result, err := storage.GetFeature("FeatureA")
-
-		assert.Nil(t, err)
-		assert.Equal(t, shared.Feature{
+func TestMemory_GetMeta(t *testing.T) {
+	storage := NewMemoryStorage([]shared.Feature{
+		{
 			Meta: shared.FeatureMeta{
 				Name:         "FeatureA",
 				Author:       "SomeAuthor",
 				Dependencies: []string{"FeatureB", "FeatureC"},
 			},
 			Snippet: "",
-		}, result)
+		},
+		{
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureB",
+				Author: "SomeAuthor",
+			},
+			Snippet: "",
+		},
 	})
+	getExistingFeatureMetaTest(t, "FeatureA", storage)
+	getNonExistingFeatureMetaTest(t, "NotAFeature", storage)
+}
 
-	t.Run("Try to get a feature and find nothing", func(t *testing.T) {
-		_, err := storage.GetFeature("FooBoo")
-		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
+func TestMemory_Get(t *testing.T) {
+	storage := NewMemoryStorage([]shared.Feature{
+		{
+			Meta: shared.FeatureMeta{
+				Name:         "FeatureA",
+				Author:       "SomeAuthor",
+				Dependencies: []string{"FeatureB", "FeatureC"},
+			},
+			Snippet: "RUN something",
+		},
+		{
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureB",
+				Author: "SomeAuthor",
+			},
+			Snippet: "",
+		},
 	})
+	getExistingFeatureTest(t, "FeatureA", storage)
+	getExistingFeatureWithoutSnippetTest(t, "FeatureB", storage)
+	getNonExistingFeatureMetaTest(t, "NotAFeature", storage)
 }
 
 func TestMemoryResolve(t *testing.T) {
@@ -139,134 +136,61 @@ func TestMemoryResolve(t *testing.T) {
 		},
 	})
 
-	t.Run("Resolve FeatureA", func(t *testing.T) {
-		expected := map[string]shared.Feature{
-			"FeatureA": {
-				Meta: shared.FeatureMeta{
-					Name:         "FeatureA",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureB", "FeatureC"},
-				},
-				Snippet: "",
-			},
-			"FeatureB": {
-				Meta: shared.FeatureMeta{
-					Name:   "FeatureB",
-					Author: "SomeAuthor",
-				},
-				Snippet: "",
-			},
-			"FeatureC": {
-				Meta: shared.FeatureMeta{
-					Name:         "FeatureC",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureD"},
-				},
-				Snippet: "",
-			},
-			"FeatureD": {
-				Meta: shared.FeatureMeta{
-					Name:   "FeatureD",
-					Author: "SomeAuthor",
-				},
-				Snippet: "",
-			},
-		}
+	resolveEmptyFeaturesTest(t, storage)
 
-		_, result, err := storage.Resolve("FeatureA")
-		assert.Nil(t, err)
-		assert.Equal(t, expected, result)
-	})
+	resolveNonExistingFeatureTest(t, "NotAFeatuer", storage)
 
-	t.Run("Resolve FeatureB and FeatureD", func(t *testing.T) {
-		expected := map[string]shared.Feature{
-			"FeatureB": {
-				Meta: shared.FeatureMeta{
-					Name:   "FeatureB",
-					Author: "SomeAuthor",
-				},
-				Snippet: "",
+	resolveFeaturesTest(t, "Resolve single feature", []string{"FeatureA"}, map[string]shared.Feature{
+		"FeatureA": {
+			Meta: shared.FeatureMeta{
+				Name:         "FeatureA",
 			},
-			"FeatureD": {
-				Meta: shared.FeatureMeta{
-					Name:   "FeatureD",
-					Author: "SomeAuthor",
-				},
-				Snippet: "",
+		},
+		"FeatureB": {
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureB",
 			},
-		}
-
-		_, result, err := storage.Resolve("FeatureB", "FeatureD")
-		assert.Nil(t, err)
-		assert.Equal(t, expected, result)
-	})
-
-	t.Run("Resolve features with the same dependencies should NOT result in duplicates", func(t *testing.T) {
-		expected := map[string]shared.Feature{
-
-			"FeatureC": {
-				Meta: shared.FeatureMeta{
-					Name:         "FeatureC",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureD"},
-				},
-				Snippet: "",
+		},
+		"FeatureC": {
+			Meta: shared.FeatureMeta{
+				Name:         "FeatureC",
 			},
-			"FeatureD": {
-				Meta: shared.FeatureMeta{
-					Name:   "FeatureD",
-					Author: "SomeAuthor",
-				},
-				Snippet: "",
+		},
+		"FeatureD": {
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureD",
 			},
-			"FeatureE": {
-				Meta: shared.FeatureMeta{
-					Name:         "FeatureE",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureD"},
-				},
-				Snippet: "",
+		},
+	}, storage)
+
+	resolveFeaturesTest(t, "Resolve multiple features with the same dependencies", []string{"FeatureC", "FeatureE"}, map[string]shared.Feature{
+		"FeatureC": {
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureC",
 			},
-		}
-
-		_, result, err := storage.Resolve("FeatureC", "FeatureE")
-		assert.Nil(t, err)
-		assert.Equal(t, expected, result)
-	})
-
-	t.Run("Resolve features with circular dependency", func(t *testing.T) {
-		expected := map[string]shared.Feature{
-			"FeatureF": {
-				Meta: shared.FeatureMeta{
-					Name:         "FeatureF",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureG"},
-				},
-				Snippet: "",
+		},
+		"FeatureD": {
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureD",
 			},
-			"FeatureG": {
-				Meta: shared.FeatureMeta{
-					Name:         "FeatureG",
-					Author:       "SomeAuthor",
-					Dependencies: []string{"FeatureF"},
-				},
-				Snippet: "",
+		},
+		"FeatureE": {
+			Meta: shared.FeatureMeta{
+				Name:   "FeatureE",
 			},
-		}
+		},
+	}, storage)
 
-		_, result, err := storage.Resolve("FeatureF", "FeatureG")
-		assert.Nil(t, err)
-		assert.Equal(t, expected, result)
-	})
-
-	t.Run("Resolve Non-existing feature", func(t *testing.T) {
-		_, _, err := storage.Resolve("FooBoo", "FeatureD")
-		assert.EqualError(t, err, "Feature 'FooBoo' was not found")
-	})
-
-	t.Run("Resolve empty list of features", func(t *testing.T) {
-		_, result, err := storage.Resolve()
-		assert.Nil(t, err)
-		assert.Equal(t, map[string]shared.Feature{}, result)
-	})
+	resolveFeaturesTest(t, "Resolve multiple features with the circular dependencies", []string{"FeatureF", "FeatureG"}, map[string]shared.Feature{
+		"FeatureF": {
+			Meta: shared.FeatureMeta{
+				Name:         "FeatureF",
+			},
+		},
+		"FeatureG": {
+			Meta: shared.FeatureMeta{
+				Name:         "FeatureG",
+			},
+		},
+	}, storage)
 }

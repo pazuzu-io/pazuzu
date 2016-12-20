@@ -63,49 +63,54 @@ func TestGitStorage_Get(t *testing.T) {
 }
 
 func TestGitStorage_Resolve(t *testing.T) {
-	t.Run("FeatureWithoutDependencies", func(t *testing.T) {
-		expected := 1
 
-		list, features, err := storage.Resolve("java")
-		if err != nil {
-			t.Error(err)
-		}
-		if len(list) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(list))
-		}
+	resolveNonExistingFeatureTest(t, "NotAFeature", storage)
 
-		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
-		}
-		if _, ok := features["java"]; !ok {
-			t.Error("Missing feature 'java'")
-		}
-	})
+	resolveEmptyFeaturesTest(t, storage)
 
-	t.Run("FeatureWithTwoDependencies", func(t *testing.T) {
-		expected := 3
+	resolveSingleFeatureWithoutDependenciesTest(t, "java", storage)
 
-		list, features, err := storage.Resolve("A-java-lein")
-		if err != nil {
-			t.Error(err)
-		}
+	resolveFeaturesTest(t, "Resolve single feature", []string{"A-java-lein"}, map[string]shared.Feature{
+		"A-java-lein": {
+			Meta: shared.FeatureMeta{
+				Name:         "A-java-lein",
+			},
+		},
+		"java": {
+			Meta: shared.FeatureMeta{
+				Name:         "java",
+			},
+		},
+		"leiningen": {
+			Meta: shared.FeatureMeta{
+				Name:   "leiningen",
+			},
+		}, }, storage)
 
-		if len(list) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(list))
-		}
-
-		if len(features) != expected {
-			t.Errorf("Feature count should be %d but was %d", expected, len(features))
-		}
-
-		if _, ok := features["A-java-lein"]; !ok {
-			t.Error("Missing feature 'A-java-lein")
-		}
-		if _, ok := features["leiningen"]; !ok {
-			t.Error("Missing feature 'leiningen")
-		}
-		if _, ok := features["java"]; !ok {
-			t.Error("Missing feature 'java")
-		}
-	})
+	resolveFeaturesTest(t, "Resolve features with same dependencies", []string{"A-java-lein", "B-java-node"}, map[string]shared.Feature{
+		"A-java-lein": {
+			Meta: shared.FeatureMeta{
+				Name:         "A-java-lein",
+			},
+		},
+		"java": {
+			Meta: shared.FeatureMeta{
+				Name:         "java",
+			},
+		},
+		"leiningen": {
+			Meta: shared.FeatureMeta{
+				Name:   "leiningen",
+			},
+		},
+		"B-java-node": {
+			Meta: shared.FeatureMeta{
+				Name:         "B-java-node",
+			},
+		},
+		"node": {
+			Meta: shared.FeatureMeta{
+				Name: "node",
+			},
+		}, }, storage)
 }
