@@ -5,6 +5,7 @@ package models
 
 import (
 	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	"github.com/go-openapi/errors"
 )
@@ -13,25 +14,43 @@ import (
 // swagger:model Feature
 type Feature struct {
 
-	// description of the feature
-	Description string `json:"description,omitempty"`
+	// meta
+	Meta *FeatureMeta `json:"meta,omitempty"`
 
 	// Docker file part to be used with that feature.
-	DockerData string `json:"docker_data,omitempty"`
-
-	// Unique identifier representing a specific feature.
-	Name string `json:"name,omitempty"`
+	Snippet string `json:"snippet,omitempty"`
 
 	// how to test that feature is working
-	TestInstruction string `json:"test_instruction,omitempty"`
+	TestSnippet string `json:"test_snippet,omitempty"`
 }
 
 // Validate validates this feature
 func (m *Feature) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateMeta(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Feature) validateMeta(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Meta) { // not required
+		return nil
+	}
+
+	if m.Meta != nil {
+
+		if err := m.Meta.Validate(formats); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

@@ -4,6 +4,7 @@ package features
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"net/http"
 	"time"
 
 	"golang.org/x/net/context"
@@ -51,19 +52,25 @@ for the get API features operation typically these are written to a http.Request
 */
 type GetAPIFeaturesParams struct {
 
+	/*Limit
+	  maximum number of features to return.
+
+	*/
+	Limit *int64
 	/*Name
 	  value, that must present in feature name.
 
 	*/
 	Name []string
-	/*Sorted
-	  flag to indicate if output should be sorted
+	/*Offset
+	  the offset to start from.
 
 	*/
-	Sorted *int64
+	Offset *int64
 
-	timeout time.Duration
-	Context context.Context
+	timeout    time.Duration
+	Context    context.Context
+	HTTPClient *http.Client
 }
 
 // WithTimeout adds the timeout to the get API features params
@@ -88,6 +95,17 @@ func (o *GetAPIFeaturesParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
+// WithLimit adds the limit to the get API features params
+func (o *GetAPIFeaturesParams) WithLimit(limit *int64) *GetAPIFeaturesParams {
+	o.SetLimit(limit)
+	return o
+}
+
+// SetLimit adds the limit to the get API features params
+func (o *GetAPIFeaturesParams) SetLimit(limit *int64) {
+	o.Limit = limit
+}
+
 // WithName adds the name to the get API features params
 func (o *GetAPIFeaturesParams) WithName(name []string) *GetAPIFeaturesParams {
 	o.SetName(name)
@@ -99,15 +117,15 @@ func (o *GetAPIFeaturesParams) SetName(name []string) {
 	o.Name = name
 }
 
-// WithSorted adds the sorted to the get API features params
-func (o *GetAPIFeaturesParams) WithSorted(sorted *int64) *GetAPIFeaturesParams {
-	o.SetSorted(sorted)
+// WithOffset adds the offset to the get API features params
+func (o *GetAPIFeaturesParams) WithOffset(offset *int64) *GetAPIFeaturesParams {
+	o.SetOffset(offset)
 	return o
 }
 
-// SetSorted adds the sorted to the get API features params
-func (o *GetAPIFeaturesParams) SetSorted(sorted *int64) {
-	o.Sorted = sorted
+// SetOffset adds the offset to the get API features params
+func (o *GetAPIFeaturesParams) SetOffset(offset *int64) {
+	o.Offset = offset
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -115,6 +133,22 @@ func (o *GetAPIFeaturesParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 
 	r.SetTimeout(o.timeout)
 	var res []error
+
+	if o.Limit != nil {
+
+		// query param limit
+		var qrLimit int64
+		if o.Limit != nil {
+			qrLimit = *o.Limit
+		}
+		qLimit := swag.FormatInt64(qrLimit)
+		if qLimit != "" {
+			if err := r.SetQueryParam("limit", qLimit); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	valuesName := o.Name
 
@@ -124,16 +158,16 @@ func (o *GetAPIFeaturesParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 
-	if o.Sorted != nil {
+	if o.Offset != nil {
 
-		// query param sorted
-		var qrSorted int64
-		if o.Sorted != nil {
-			qrSorted = *o.Sorted
+		// query param offset
+		var qrOffset int64
+		if o.Offset != nil {
+			qrOffset = *o.Offset
 		}
-		qSorted := swag.FormatInt64(qrSorted)
-		if qSorted != "" {
-			if err := r.SetQueryParam("sorted", qSorted); err != nil {
+		qOffset := swag.FormatInt64(qrOffset)
+		if qOffset != "" {
+			if err := r.SetQueryParam("offset", qOffset); err != nil {
 				return err
 			}
 		}

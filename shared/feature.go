@@ -25,13 +25,13 @@ type Feature struct {
 
 func NewFeature(feature *models.Feature) Feature{
 	var m FeatureMeta
-	m.Name = feature.Name
-	m.Description = feature.Description
+	m.Name = feature.Meta.Name
+	m.Description = feature.Meta.Description
 
 	var f Feature
 	f.Meta = m
-	f.Snippet = feature.DockerData
-	f.TestSnippet = feature.TestInstruction
+	f.Snippet = feature.Snippet
+	f.TestSnippet = feature.TestSnippet
 
 	return f
 }

@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"swaggen/client/features"
-	"swaggen/client/files"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
@@ -19,7 +18,6 @@ type registryStorage struct {
 	Token string     // OAUTH2 Token
 
 	Features 	*features.Client
-	Files		*files.Client
 	Transport	runtime.ClientTransport
 }
 
@@ -35,7 +33,6 @@ func (store *registryStorage) init(hostname string, port int, formats strfmt.Reg
 
 	store.Transport = transport
 	store.Features = features.New(transport, formats)
-	store.Files = files.New(transport, formats)
 }
 
 func NewRegistryStorage(hostname string, port int, formats strfmt.Registry) (*registryStorage, error) {
@@ -64,7 +61,7 @@ func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 
 	// let's check that the name and feature name actually match
 	for _,ft := range apiFeatures.Payload {
-		if ft.Name == name {
+		if ft.Meta.Name == name {
 			return shared.NewFeature(ft), err
 		}
 	}
@@ -85,7 +82,7 @@ func (store *registryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 	}
 
 	for _,ft := range apiFeatures.Payload {
-		if name.MatchString(ft.Name) {
+		if name.MatchString(ft.Meta.Name) {
 			ft2 := shared.NewFeature(ft)
 			result = append(result, ft2.Meta)
 		}
