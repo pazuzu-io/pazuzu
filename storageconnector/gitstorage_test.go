@@ -1,14 +1,11 @@
 package storageconnector
 
 import (
-	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 
 	"gopkg.in/src-d/go-git.v4"
 	"github.com/zalando-incubator/pazuzu/shared"
-	"github.com/davecgh/go-spew/spew"
 )
 
 var (
@@ -16,18 +13,13 @@ var (
 	storage StorageReader
 )
 
-func TestMain(m *testing.M) {
-	spew.Config = spew.ConfigState{
-		DisableCapacities: true,
-		DisablePointerAddresses: true,
-	}
+func InitGitTest() error {
 	repo, err := git.NewFilesystemRepository(testRepository)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return err
 	}
 	storage = &GitStorage{repo: repo}
-	os.Exit(m.Run())
+	return nil
 }
 
 func TestGitStorage_SearchMeta(t *testing.T) {
