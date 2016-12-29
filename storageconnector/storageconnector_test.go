@@ -5,7 +5,38 @@ import (
 	"regexp"
 	"github.com/stretchr/testify/assert"
 	"github.com/zalando-incubator/pazuzu/shared"
+	"time"
+	"github.com/davecgh/go-spew/spew"
+	"fmt"
+	"os"
 )
+
+var (
+	featureA = shared.NewFeature_str("A", "descA", "authA", time.Now(), nil, "snipA", "testA")
+	featureB = shared.NewFeature_str("B", "descB", "authB", time.Now(), nil, "snipB", "testB")
+	featureC = shared.NewFeature_str("C", "descC", "authC", time.Now(), nil, "snipC", "testC")
+	featureD = shared.NewFeature_str("D", "descD", "authD", time.Now(), []string{"A", "B"}, "snipD", "testD")
+	featureE = shared.NewFeature_str("E", "descE", "authE", time.Now(), []string{"A", "C"}, "snipE", "testE")
+	featureF = shared.NewFeature_str("F", "descF", "authF", time.Now(), []string{"D"}, "snipF", "testF")
+)
+
+func TestMain(m *testing.M) {
+	spew.Config = spew.ConfigState{
+		DisableCapacities: true,
+		DisablePointerAddresses: true,
+	}
+	var err error
+	err = InitGitTest()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	err = InitRegistryTests()
+	// err being non-nil doesn't matter
+
+	os.Exit(m.Run())
+}
 
 func searchMetaAndFindResultTest(t *testing.T, name string, expected []shared.FeatureMeta, storage StorageReader) {
 	t.Run("Search meta and find results", func(t *testing.T) {
