@@ -35,6 +35,15 @@ const (
 	// StorageTypePostgres: Postgresql storage
 	StorageTypePG = "postgres"
 
+	// StorageTypeRegistry: pazuzu-registry storage
+	StorageTypeRegistry = "registry"
+	// Default hostnamefor the registry
+	DefaultRegistryHostname = "hostname"
+	// StorageTypeRegistry: pazuzu-registry storage
+	DefaultRegistryPort = 8080
+
+
+
 	// Default PostgreSQL connection string
 	ConnectionString = "user=pazuzu dbname=pazuzu sslmode=disable"
 )
@@ -57,6 +66,12 @@ type PostgreSQLConfig struct {
 	ConnectionString string `yaml:"connection" setter:"SetConnectionString" help:"PostgreSQL Connection String"`
 }
 
+// registryConfig : config structure for Registry-storage
+type RegistryConfig struct {
+	Hostname string `yaml:"hostname" setter:"SetHostname" help:"Hostname String"`
+	Port int  `yaml:"port" setter:"SetPort" help:"Port Integer"`
+}
+
 // Config : actual config data structure.
 type Config struct {
 	Base        string           `yaml:"base" setter:"SetBase" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
@@ -64,6 +79,7 @@ type Config struct {
 	Git         GitConfig        `yaml:"git" help:"Git storage configs."`
 	Memory      MemoryConfig     `yaml:"memory" help:"Memory storage configs."`
 	PostgreSQL  PostgreSQLConfig `yaml:"pg" help:"PostgreSQ configs."`
+	Registry    RegistryConfig   `yaml:"registry" help:"Pazuzu-registry configs"`
 }
 
 // SetBase : Setter of "Base".
@@ -86,6 +102,16 @@ func (g *GitConfig) SetURL(url string) {
 	g.URL = url
 }
 
+// SetRegistryHostname : Setter of RegistryConfig.Hostname.
+func (r *RegistryConfig) SetHostname(hostname string) {
+	r.Hostname = hostname
+}
+
+// SetRegistryPort : Setter of RegistryConfig.Port.
+func (r *RegistryConfig) SetPort(port int) {
+	r.Port = port
+}
+
 // SetConnectionString : Setter for PostgreSQLConfig.ConnectionString
 func (p *PostgreSQLConfig) SetConnectionString(connectionString string) {
 	p.ConnectionString = connectionString
@@ -99,6 +125,7 @@ func InitDefaultConfig() {
 		Git:         GitConfig{URL: URL},
 		Memory:      MemoryConfig{InitialiseRandom: false},
 		PostgreSQL:  PostgreSQLConfig{ConnectionString: ConnectionString},
+		Registry:    RegistryConfig{DefaultRegistryHostname, DefaultRegistryPort},
 	}
 }
 
@@ -130,6 +157,8 @@ func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 		return storageconnector.NewGitStorage(config.Git.URL)
 	case StorageTypePG:
 		return storageconnector.NewPostgresStorage(config.PostgreSQL.ConnectionString)
+	case StorageTypeRegistry:
+		return storageconnector.NewRegistryStorage(config.Registry.Hostname, config.Registry.Port, nil)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)

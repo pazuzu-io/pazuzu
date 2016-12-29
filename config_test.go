@@ -66,6 +66,26 @@ func TestConfigGitSetURL(t *testing.T) {
 	}
 }
 
+func TestConfigSetRegistry(t *testing.T) {
+	config := getConfig(t)
+
+	beforeHost := config.Registry.Hostname
+	config.Registry.SetHostname("betterhost")
+
+	if strings.Compare(config.Registry.Hostname, "betterhost") != 0 {
+		t.Errorf("SetHostname FAIL! [%v]", config.Registry.Hostname)
+	}
+	if strings.Compare(config.Registry.Hostname, beforeHost) == 0 {
+		t.Error("No changes made.")
+	}
+
+	beforePort := config.Registry.Port
+	config.Registry.SetPort(8081)
+	if config.Registry.Port - beforePort != 1 {
+		t.Errorf("SetPort FAIL! [%v]", config.Registry.Port)
+	}
+}
+
 func TestConfigSaveAndLoad(t *testing.T) {
 	config := getConfig(t)
 
