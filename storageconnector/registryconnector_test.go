@@ -18,12 +18,12 @@ var (
 func InitRegistryTests() error {
 	registry2, err := NewRegistryStorage(hostname, port, nil)
 
-	_ = registry2.addFeature(featureA)
-	_ = registry2.addFeature(featureB)
-	_ = registry2.addFeature(featureC)
-	_ = registry2.addFeature(featureD)
-	_ = registry2.addFeature(featureE)
-	_ = registry2.addFeature(featureF)
+	_ = registry2.AddFeature(featureA)
+	_ = registry2.AddFeature(featureB)
+	_ = registry2.AddFeature(featureC)
+	_ = registry2.AddFeature(featureD)
+	_ = registry2.AddFeature(featureE)
+	_ = registry2.AddFeature(featureF)
 
 	_,err = registry2.GetMeta("F")
 
