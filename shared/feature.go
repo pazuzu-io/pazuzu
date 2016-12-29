@@ -31,8 +31,8 @@ func NewFeature(feature *models.Feature) Feature{
 	return f
 }
 
-func NewFeature_str(name string, desc string, auth string, updated time.Time, dependencies []string, snippet string, testSnippet string) Feature{
-	m := NewMeta_str(name, desc, auth, updated, dependencies)
+func NewFeature_str(name string, desc string, auth string, dependencies []string, snippet string, testSnippet string) Feature{
+	m := NewMeta_str(name, desc, auth, dependencies)
 	return Feature{Meta:m, Snippet:snippet, TestSnippet:testSnippet}
 }
 
@@ -47,12 +47,11 @@ func NewMeta(meta *models.FeatureMeta) FeatureMeta{
 	return m
 }
 
-func NewMeta_str(name string, desc string, auth string, updated time.Time, dependencies []string) FeatureMeta{
+func NewMeta_str(name string, desc string, auth string, dependencies []string) FeatureMeta{
 	var m FeatureMeta
 	m.Name = name
 	m.Description = desc
 	m.Author = auth
-	m.UpdatedAt = updated
 	m.Dependencies = dependencies
 
 	return m

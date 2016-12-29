@@ -5,19 +5,18 @@ import (
 	"regexp"
 	"github.com/stretchr/testify/assert"
 	"github.com/zalando-incubator/pazuzu/shared"
-	"time"
 	"github.com/davecgh/go-spew/spew"
 	"fmt"
 	"os"
 )
 
 var (
-	featureA = shared.NewFeature_str("A", "descA", "authA", time.Now(), nil, "snipA", "testA")
-	featureB = shared.NewFeature_str("B", "descB", "authB", time.Now(), nil, "snipB", "testB")
-	featureC = shared.NewFeature_str("C", "descC", "authC", time.Now(), nil, "snipC", "testC")
-	featureD = shared.NewFeature_str("D", "descD", "authD", time.Now(), []string{"A", "B"}, "snipD", "testD")
-	featureE = shared.NewFeature_str("E", "descE", "authE", time.Now(), []string{"A", "C"}, "snipE", "testE")
-	featureF = shared.NewFeature_str("F", "descF", "authF", time.Now(), []string{"D"}, "snipF", "testF")
+	featureA = shared.NewFeature_str("A", "descA", "authA", nil, "snipA", "testA")
+	featureB = shared.NewFeature_str("B", "descB", "authB", nil, "snipB", "testB")
+	featureC = shared.NewFeature_str("C", "descC", "authC", nil, "snipC", "testC")
+	featureD = shared.NewFeature_str("D", "descD", "authD", []string{"A", "B"}, "snipD", "testD")
+	featureE = shared.NewFeature_str("E", "descE", "authE", []string{"A", "C"}, "snipE", "testE")
+	featureF = shared.NewFeature_str("F", "descF", "authF", []string{"D"}, "snipF", "testF")
 )
 
 func TestMain(m *testing.M) {
