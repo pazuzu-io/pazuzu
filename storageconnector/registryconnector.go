@@ -75,8 +75,7 @@ func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 
 // Use the given regex to return a list of FeatureMeta.
 // name		a regex used to filter out FeatureMeta
-// TODO issue #138 -> update method with the new API
-// TODO issue registry-#111 -> investigate possibility of regex support server-side to optimize
+// TODO issue registry-#111 -> investigate regex support server-side to optimize
 func (store *registryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
 
 	result := []shared.FeatureMeta{}
