@@ -22,6 +22,7 @@ func InitGitTest() error {
 	return nil
 }
 
+// TODO issue #159 -> method does not test regex contrary to specs
 func TestGitStorage_SearchMeta(t *testing.T) {
 	expected := []shared.FeatureMeta{{
 		Name: "A-java-lein",

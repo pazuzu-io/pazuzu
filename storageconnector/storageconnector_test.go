@@ -80,7 +80,7 @@ func getNonExistingFeatureMetaTest(t *testing.T, name string, storage StorageRea
 }
 
 func getExistingFeatureTest(t *testing.T, name string, storage StorageReader) {
-	t.Run("Get existing feature meta", func(t *testing.T) {
+	t.Run("Get existing feature", func(t *testing.T) {
 		assert := assert.New(t)
 		feature, err := storage.GetFeature(name)
 		assert.Nil(err)
@@ -90,7 +90,7 @@ func getExistingFeatureTest(t *testing.T, name string, storage StorageReader) {
 }
 
 func getExistingFeatureWithoutSnippetTest(t *testing.T, name string, storage StorageReader) {
-	t.Run("Get existing feature meta", func(t *testing.T) {
+	t.Run("Get existing feature", func(t *testing.T) {
 		assert := assert.New(t)
 		feature, err := storage.GetFeature(name)
 		assert.Nil(err)
@@ -100,7 +100,7 @@ func getExistingFeatureWithoutSnippetTest(t *testing.T, name string, storage Sto
 }
 
 func getNonExistingFeatureTest(t *testing.T, name string, storage StorageReader) {
-	t.Run("Get non existing feature meta", func(t *testing.T) {
+	t.Run("Get non existing feature", func(t *testing.T) {
 		_, err := storage.GetFeature(name)
 		assert.NotNil(t, err)
 	})
