@@ -49,7 +49,7 @@ func NewGetAPIFeaturesNameOK() *GetAPIFeaturesNameOK {
 
 /*GetAPIFeaturesNameOK handles this case with default header values.
 
-a singel feature
+a single feature
 */
 type GetAPIFeaturesNameOK struct {
 	Payload *models.Feature

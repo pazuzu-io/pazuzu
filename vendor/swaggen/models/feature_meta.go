@@ -26,7 +26,7 @@ type FeatureMeta struct {
 	// Unique identifier representing a specific feature.
 	Name string `json:"name,omitempty"`
 
-	// Last update date in ISO 8601	format
+	// Last update date in ISO 8601 format
 	UpdatedAt string `json:"updated_at,omitempty"`
 }
 

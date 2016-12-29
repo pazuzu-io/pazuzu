@@ -52,11 +52,11 @@ for the get API resolved features operation typically these are written to a htt
 */
 type GetAPIResolvedFeaturesParams struct {
 
-	/*Name
+	/*Names
 	  feature names.
 
 	*/
-	Name []string
+	Names []string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -85,15 +85,15 @@ func (o *GetAPIResolvedFeaturesParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithName adds the name to the get API resolved features params
-func (o *GetAPIResolvedFeaturesParams) WithName(name []string) *GetAPIResolvedFeaturesParams {
-	o.SetName(name)
+// WithNames adds the names to the get API resolved features params
+func (o *GetAPIResolvedFeaturesParams) WithNames(names []string) *GetAPIResolvedFeaturesParams {
+	o.SetNames(names)
 	return o
 }
 
-// SetName adds the name to the get API resolved features params
-func (o *GetAPIResolvedFeaturesParams) SetName(name []string) {
-	o.Name = name
+// SetNames adds the names to the get API resolved features params
+func (o *GetAPIResolvedFeaturesParams) SetNames(names []string) {
+	o.Names = names
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -102,11 +102,11 @@ func (o *GetAPIResolvedFeaturesParams) WriteToRequest(r runtime.ClientRequest, r
 	r.SetTimeout(o.timeout)
 	var res []error
 
-	valuesName := o.Name
+	valuesNames := o.Names
 
-	joinedName := swag.JoinByFormat(valuesName, "")
-	// query array param name
-	if err := r.SetQueryParam("name", joinedName...); err != nil {
+	joinedNames := swag.JoinByFormat(valuesNames, "")
+	// query array param names
+	if err := r.SetQueryParam("names", joinedNames...); err != nil {
 		return err
 	}
 

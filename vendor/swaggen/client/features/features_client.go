@@ -57,7 +57,7 @@ func (a *Client) DeleteAPIFeaturesName(params *DeleteAPIFeaturesNameParams) (*De
 /*
 GetAPIFeatures gets all features
 
-Returns all the features without it's dependencies.
+Returns all the features without its dependencies.
 
 */
 func (a *Client) GetAPIFeatures(params *GetAPIFeaturesParams) (*GetAPIFeaturesOK, error) {
@@ -88,7 +88,7 @@ func (a *Client) GetAPIFeatures(params *GetAPIFeaturesParams) (*GetAPIFeaturesOK
 /*
 GetAPIFeaturesName gets single feature
 
-Returns all the feature data without it's dependencies.
+Returns all the feature data without its dependencies.
 
 */
 func (a *Client) GetAPIFeaturesName(params *GetAPIFeaturesNameParams) (*GetAPIFeaturesNameOK, error) {
@@ -119,7 +119,7 @@ func (a *Client) GetAPIFeaturesName(params *GetAPIFeaturesNameParams) (*GetAPIFe
 /*
 GetAPIResolvedFeatures resolves all features by name
 
-Returns all the features with all it's dependencies in a single array.
+Returns all the features with all its dependencies in a single array.
 
 */
 func (a *Client) GetAPIResolvedFeatures(params *GetAPIResolvedFeaturesParams) (*GetAPIResolvedFeaturesOK, error) {

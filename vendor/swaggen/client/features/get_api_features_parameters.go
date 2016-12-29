@@ -57,11 +57,11 @@ type GetAPIFeaturesParams struct {
 
 	*/
 	Limit *int64
-	/*Name
+	/*Names
 	  value, that must present in feature name.
 
 	*/
-	Name []string
+	Names []string
 	/*Offset
 	  the offset to start from.
 
@@ -106,15 +106,15 @@ func (o *GetAPIFeaturesParams) SetLimit(limit *int64) {
 	o.Limit = limit
 }
 
-// WithName adds the name to the get API features params
-func (o *GetAPIFeaturesParams) WithName(name []string) *GetAPIFeaturesParams {
-	o.SetName(name)
+// WithNames adds the names to the get API features params
+func (o *GetAPIFeaturesParams) WithNames(names []string) *GetAPIFeaturesParams {
+	o.SetNames(names)
 	return o
 }
 
-// SetName adds the name to the get API features params
-func (o *GetAPIFeaturesParams) SetName(name []string) {
-	o.Name = name
+// SetNames adds the names to the get API features params
+func (o *GetAPIFeaturesParams) SetNames(names []string) {
+	o.Names = names
 }
 
 // WithOffset adds the offset to the get API features params
@@ -150,11 +150,11 @@ func (o *GetAPIFeaturesParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 
 	}
 
-	valuesName := o.Name
+	valuesNames := o.Names
 
-	joinedName := swag.JoinByFormat(valuesName, "")
-	// query array param name
-	if err := r.SetQueryParam("name", joinedName...); err != nil {
+	joinedNames := swag.JoinByFormat(valuesNames, "")
+	// query array param names
+	if err := r.SetQueryParam("names", joinedNames...); err != nil {
 		return err
 	}
 

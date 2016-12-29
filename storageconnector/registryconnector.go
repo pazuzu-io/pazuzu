@@ -52,7 +52,7 @@ func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 
 	// let's get features containing name on the registry
 	params := features.NewGetAPIFeaturesParams()
-	params.Name = []string{name}
+	params.Names = []string{name}
 	apiFeatures,err := store.Features.GetAPIFeatures(params)
 
 	if (err != nil) {
