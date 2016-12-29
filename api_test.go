@@ -42,6 +42,8 @@ func TestGetFeatures(t *testing.T) {
 	if len(fs) != 1 {
 		t.Errorf("expected 1 feature, got %d", 1, len(fs))
 	}
+
+	t.Error("Forced test failure.", nil)
 }
 
 // Test getting error response from API.
