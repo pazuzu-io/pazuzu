@@ -120,7 +120,7 @@ func (store *registryStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 func (store *registryStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
 
 	params := features.NewGetAPIResolvedFeaturesParams()
-	params.Name = names
+	params.Names = names
 
 	features, err := store.Features.GetAPIResolvedFeatures(params)
 	if err != nil {
