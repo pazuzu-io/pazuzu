@@ -18,12 +18,14 @@ var (
 func InitRegistryTests() error {
 	registry2, err := NewRegistryStorage(hostname, port, nil)
 
-	err = registry2.addFeature(featureA)
-	err = registry2.addFeature(featureB)
-	err = registry2.addFeature(featureC)
-	err = registry2.addFeature(featureD)
-	err = registry2.addFeature(featureE)
-	err = registry2.addFeature(featureF)
+	_ = registry2.addFeature(featureA)
+	_ = registry2.addFeature(featureB)
+	_ = registry2.addFeature(featureC)
+	_ = registry2.addFeature(featureD)
+	_ = registry2.addFeature(featureE)
+	_ = registry2.addFeature(featureF)
+
+	_,err = registry2.GetMeta("F")
 
 	if err == nil {
 		setupOk = true
@@ -53,6 +55,16 @@ func TestRegistry_GetFeature(t *testing.T) {
 	getNonExistingFeatureTest(t, "NotAFeature", registry)
 }
 
+// TODO issue #159 -> method does not test regex contrary to specs
+func TestRegistry_SearchMeta(t *testing.T) {
+	if !setupOk {
+		t.Skipf("No endpoint listening at %v:%v", hostname, port)
+	}
+
+	searchMetaAndFindResultTest(t, "D", []shared.FeatureMeta{featureA.Meta, featureB.Meta, featureD.Meta}, storage)
+	searchMetaAndFindNothingTest(t, "NotAFeature", storage)
+}
+
 func TestRegistry_ResolveOne(t *testing.T){
 	if !setupOk {
 		t.Skipf("No endpoint listening at %v:%v", hostname, port)
@@ -63,5 +75,8 @@ func TestRegistry_ResolveOne(t *testing.T){
 	resolveSingleFeatureWithoutDependenciesTest(t, "A", registry)
 	resolveFeaturesTest(t, "resolve single feature with deps", []string{"D"},
 		map[string]shared.Feature{"A":featureA, "B":featureB, "D":featureD}, registry)
+
+	resolveFeaturesTest(t, "resolve features with intersecting deps", []string{"E", "F"},
+		map[string]shared.Feature{"A":featureA, "B":featureB, "C":featureC, "D":featureD, "E":featureE, "F":featureF}, registry)
 
 }

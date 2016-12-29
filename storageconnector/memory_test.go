@@ -5,6 +5,7 @@ import (
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 
+// TODO issue #159 -> method does not test regex contrary to specs
 func TestMemory_SearchMeta(t *testing.T) {
 	storage := NewMemoryStorage([]shared.Feature{
 		{

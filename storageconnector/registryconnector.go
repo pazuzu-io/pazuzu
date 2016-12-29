@@ -53,7 +53,6 @@ func NewRegistryStorage(hostname string, port int, formats strfmt.Registry) (*re
 // Return a full feature data from the storage.
 // For the registry, the filtering is done server-side to reduce result size.
 // name:	a value, that must present in feature name (from API doc)
-// TODO issue #138 -> untested function !
 func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 
 	// let's get features containing name on the registry
@@ -76,22 +75,19 @@ func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 
 // Use the given regex to return a list of FeatureMeta.
 // name		a regex used to filter out FeatureMeta
-// TODO issue #138 -> untested function !
-// TODO issue #138 -> update method with the new API
-// TODO issue registry-#111 -> investigate possibility of regex support server-side to optimize
+// TODO issue registry-#111 -> investigate regex support server-side to optimize
 func (store *registryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
 
 	result := []shared.FeatureMeta{}
 
-	apiFeatures,err := store.Features.GetAPIFeatures(nil)
-	if (err != nil) {
-		return result, err
-	}
+	params := feature_metas.NewGetAPIFeatureMetasParams()
+	params.Name = []string{name.String()}
 
-	for _,ft := range apiFeatures.Payload {
-		if name.MatchString(ft.Meta.Name) {
-			ft2 := shared.NewFeature(ft)
-			result = append(result, ft2.Meta)
+	metas, err := store.Metas.GetAPIFeatureMetas(params)
+
+	if err == nil {
+		for _,meta := range metas.Payload {
+			result=append(result, shared.NewMeta(meta))
 		}
 	}
 
@@ -100,7 +96,6 @@ func (store *registryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 
 // Return a feature metadata from the storage.
 // name:	a value, that must present in feature name
-// TODO issue #138 -> untested function !
 func (store *registryStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 
 	params := feature_metas.NewGetAPIFeatureMetasNameParams()
@@ -116,8 +111,10 @@ func (store *registryStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 
 // Resolve a list of features and their dependencies from the storage. Return non-nil err if at least one feature not found.
 // names:	an array of feature names
-// TODO issue #138 -> untested function !
 func (store *registryStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {
+	if len(names) == 0 {
+		names = append(names, "")
+	}
 
 	params := features.NewGetAPIResolvedFeaturesParams()
 	params.Names = names
