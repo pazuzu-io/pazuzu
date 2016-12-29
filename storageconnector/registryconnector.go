@@ -137,7 +137,7 @@ func (store *registryStorage) Resolve(names ...string) ([]string, map[string]sha
 	return slice, result, nil
 }
 
-func (store *registryStorage) addFeature(feature shared.Feature) error {
+func (store *registryStorage) AddFeature(feature shared.Feature) error {
 
 
 	meta := models.FeatureMeta{
