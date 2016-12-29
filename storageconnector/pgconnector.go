@@ -3,8 +3,6 @@ package storageconnector
 import (
 	"bytes"
 	"database/sql"
-	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -12,24 +10,54 @@ import (
 	"github.com/zalando-incubator/pazuzu/shared"
 )
 
-const createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
-	id serial primary key,
-	name TEXT,
-	description TEXT,
-	author TEXT,
-	lastupdate timestamptz,
-	dependencies TEXT,
-	snippet TEXT,
-	test_snippet TEXT
-);`
+const (
+	createFeaturesTableQuery = `CREATE TABLE IF NOT EXISTS features (
+		id serial primary key,
+		name TEXT,
+		description TEXT,
+		author TEXT,
+		lastupdate timestamptz,
+		dependencies TEXT,
+		snippet TEXT,
+		test_snippet TEXT
+	);`
+	getFeatureQuery    = "SELECT * FROM features WHERE name = $1;"
+	listFeaturesQuery = "SELECT * FROM features WHERE name ~ $1;"
+)
 
-type postgresStorage struct {
-	db               *sql.DB
-	connectionString string
-}
+// Reads feature using scanFunc
+func readFeature(scanFunc func(dest ...interface{}) error) (shared.Feature, error) {
+	var (
+		meta         shared.FeatureMeta
+		id           int
+		dependencies string
+		snippet      string
+		testSnippet  string
+	)
 
-func (store *postgresStorage) init(connectionString string) {
-	store.connectionString = connectionString
+	err := scanFunc(
+		&id,
+		&meta.Name,
+		&meta.Description,
+		&meta.Author,
+		&meta.UpdatedAt,
+		&dependencies,
+		&snippet,
+		&testSnippet)
+
+	if err != nil {
+		return shared.Feature{}, err
+	}
+
+	meta.Dependencies = strings.Fields(dependencies)
+	buffer := bytes.NewBufferString(testSnippet)
+
+	feature := shared.Feature{
+		Meta:        meta,
+		Snippet:     snippet,
+		TestSnippet: shared.ReadTestSpec(buffer),
+	}
+	return feature, nil
 }
 
 func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
@@ -39,95 +67,102 @@ func NewPostgresStorage(connectionString string) (*postgresStorage, error) {
 	return &pg, nil
 }
 
-func (store *postgresStorage) connect() error {
-	db, err := sql.Open("postgres", store.connectionString)
+func createDBConnection(connectionString string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", connectionString)
+
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	err = db.Ping()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	db.Exec(createFeaturesTableQuery)
-	store.db = db
-	return nil
+	return db, nil
 }
 
-func (store *postgresStorage) disconnect() {
-	store.db.Close()
+
+type postgresStorage struct {
+	connectionString string
 }
 
-func (store *postgresStorage) scanMeta(SqlQuery string) ([]shared.FeatureMeta, error) {
-	var fms []shared.FeatureMeta
-	var depText string
-	var snippet string
-	var testSnippet string
-	var index int
-	err := store.connect()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := store.db.Query(SqlQuery)
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var f shared.FeatureMeta
-		err := rows.Scan(&index, &f.Name, &f.Description, &f.Author, &f.UpdatedAt, &depText, &snippet, &testSnippet)
-		if err != nil {
-			return nil, err
-		}
-		f.Dependencies = strings.Fields(depText)
-		fms = append(fms, f)
-	}
-	defer store.disconnect()
-	return fms, nil
+func (store *postgresStorage) init(connectionString string) {
+	store.connectionString = connectionString
 }
 
 func (store *postgresStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
-	sqlQuery := fmt.Sprintf("select * from features where name ~ '%s';", name)
-	fms, err := store.scanMeta(sqlQuery)
+	var featureMetas []shared.FeatureMeta
+
+	db, err := createDBConnection(store.connectionString)
 	if err != nil {
-		return make([]shared.FeatureMeta, 0), err
+		return nil, err
 	}
-	return fms, err
+	defer db.Close()
+
+	featureMetas, err = store.listFeatures(db, name.String())
+	if err != nil {
+		return featureMetas, err
+	}
+	return featureMetas, err
 
 }
 
+func (store *postgresStorage) listFeatures(db *sql.DB, name string) ([]shared.FeatureMeta, error) {
+	var fms []shared.FeatureMeta
+
+	rows, err := db.Query(listFeaturesQuery, name)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		f, err := readFeature(rows.Scan)
+		if err != nil {
+			return nil, err
+		}
+		fms = append(fms, f.Meta)
+	}
+
+	return fms, nil
+}
+
+
 func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
-	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
-	fms, err := store.scanMeta(sqlQuery)
+	db, err := createDBConnection(store.connectionString)
 	if err != nil {
 		return shared.FeatureMeta{}, err
 	}
-	if len(fms) == 0 {
-		err = errors.New("Requested feature was not found.")
+	defer db.Close()
+
+	f, err := store.getFeature(db, name)
+	if err != nil {
 		return shared.FeatureMeta{}, err
 	}
-	return fms[0], nil
+
+	return f.Meta, nil
 }
 
 func (store *postgresStorage) GetFeature(name string) (shared.Feature, error) {
 	var f shared.Feature
-	var index int
-	var dep_text string
-	var testSnippet string
 
-	sqlQuery := fmt.Sprintf("select * from features where name = '%s';", name)
-	store.connect()
-	defer store.disconnect()
+	db, err := createDBConnection(store.connectionString)
+	if err != nil {
+		return f, err
+	}
+	defer db.Close()
 
-	err := store.db.QueryRow(sqlQuery).Scan(&index, &f.Meta.Name, &f.Meta.Description, &f.Meta.Author, &f.Meta.UpdatedAt, &dep_text, &f.Snippet, &testSnippet)
+	return store.getFeature(db, name)
+}
+
+func (store *postgresStorage) getFeature(db *sql.DB, name string) (shared.Feature, error) {
+	row := db.QueryRow(getFeatureQuery, name)
+
+	f, err := readFeature(row.Scan)
 	if err != nil {
 		return shared.Feature{}, err
 	}
-
-	buffer := bytes.NewBufferString(testSnippet)
-
-	f.TestSnippet = shared.ReadTestSpec(buffer)
-	f.Meta.Dependencies = strings.Fields(dep_text)
 
 	return f, nil
 }
