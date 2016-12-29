@@ -24,14 +24,35 @@ type Feature struct {
 }
 
 func NewFeature(feature *models.Feature) Feature{
-	var m FeatureMeta
-	m.Name = feature.Name
-	m.Description = feature.Description
-
 	var f Feature
-	f.Meta = m
-	f.Snippet = feature.DockerData
-	f.TestSnippet = feature.TestInstruction
-
+	f.Meta = NewMeta(feature.Meta)
+	f.Snippet = feature.Snippet
+	f.TestSnippet = feature.TestSnippet
 	return f
+}
+
+func NewFeature_str(name string, desc string, auth string, dependencies []string, snippet string, testSnippet string) Feature{
+	m := NewMeta_str(name, desc, auth, dependencies)
+	return Feature{Meta:m, Snippet:snippet, TestSnippet:testSnippet}
+}
+
+func NewMeta(meta *models.FeatureMeta) FeatureMeta{
+	var m FeatureMeta
+	m.Name = meta.Name
+	m.Description = meta.Description
+	m.Author = meta.Author
+	m.UpdatedAt,_ = time.Parse(meta.UpdatedAt, "2006-01-02T15:04:05-0700")
+	m.Dependencies = meta.Dependencies
+
+	return m
+}
+
+func NewMeta_str(name string, desc string, auth string, dependencies []string) FeatureMeta{
+	var m FeatureMeta
+	m.Name = name
+	m.Description = desc
+	m.Author = auth
+	m.Dependencies = dependencies
+
+	return m
 }

@@ -4,6 +4,7 @@ package features
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"net/http"
 	"time"
 
 	"golang.org/x/net/context"
@@ -53,10 +54,11 @@ for the post API features operation typically these are written to a http.Reques
 type PostAPIFeaturesParams struct {
 
 	/*Feature*/
-	Feature *models.FeatureToCreate
+	Feature *models.Feature
 
-	timeout time.Duration
-	Context context.Context
+	timeout    time.Duration
+	Context    context.Context
+	HTTPClient *http.Client
 }
 
 // WithTimeout adds the timeout to the post API features params
@@ -82,13 +84,13 @@ func (o *PostAPIFeaturesParams) SetContext(ctx context.Context) {
 }
 
 // WithFeature adds the feature to the post API features params
-func (o *PostAPIFeaturesParams) WithFeature(feature *models.FeatureToCreate) *PostAPIFeaturesParams {
+func (o *PostAPIFeaturesParams) WithFeature(feature *models.Feature) *PostAPIFeaturesParams {
 	o.SetFeature(feature)
 	return o
 }
 
 // SetFeature adds the feature to the post API features params
-func (o *PostAPIFeaturesParams) SetFeature(feature *models.FeatureToCreate) {
+func (o *PostAPIFeaturesParams) SetFeature(feature *models.Feature) {
 	o.Feature = feature
 }
 
@@ -99,7 +101,7 @@ func (o *PostAPIFeaturesParams) WriteToRequest(r runtime.ClientRequest, reg strf
 	var res []error
 
 	if o.Feature == nil {
-		o.Feature = new(models.FeatureToCreate)
+		o.Feature = new(models.Feature)
 	}
 
 	if err := r.SetBodyParam(o.Feature); err != nil {

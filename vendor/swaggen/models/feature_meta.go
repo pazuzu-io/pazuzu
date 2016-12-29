@@ -10,28 +10,28 @@ import (
 	"github.com/go-openapi/errors"
 )
 
-// FeatureToCreate feature to create
-// swagger:model FeatureToCreate
-type FeatureToCreate struct {
+// FeatureMeta feature meta
+// swagger:model FeatureMeta
+type FeatureMeta struct {
 
-	// dependencies
+	// Name of the feature author
+	Author string `json:"author,omitempty"`
+
+	// array of feature names
 	Dependencies []string `json:"dependencies"`
 
-	// Description of the feature.
+	// Description of the feature
 	Description string `json:"description,omitempty"`
-
-	// Docker file part to be used with that feature.
-	DockerData string `json:"docker_data,omitempty"`
 
 	// Unique identifier representing a specific feature.
 	Name string `json:"name,omitempty"`
 
-	// How to test that feature is working.
-	TestInstruction string `json:"test_instruction,omitempty"`
+	// Last update date in ISO 8601 format
+	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
-// Validate validates this feature to create
-func (m *FeatureToCreate) Validate(formats strfmt.Registry) error {
+// Validate validates this feature meta
+func (m *FeatureMeta) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateDependencies(formats); err != nil {
@@ -45,7 +45,7 @@ func (m *FeatureToCreate) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FeatureToCreate) validateDependencies(formats strfmt.Registry) error {
+func (m *FeatureMeta) validateDependencies(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Dependencies) { // not required
 		return nil

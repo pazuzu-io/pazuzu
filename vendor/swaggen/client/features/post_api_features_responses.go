@@ -35,6 +35,9 @@ func (o *PostAPIFeaturesReader) ReadResponse(response runtime.ClientResponse, co
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
 		return nil, result
 	}
 }
@@ -49,7 +52,7 @@ func NewPostAPIFeaturesCreated() *PostAPIFeaturesCreated {
 Feature successfully created
 */
 type PostAPIFeaturesCreated struct {
-	Payload *models.FeatureFull
+	Payload *models.Feature
 }
 
 func (o *PostAPIFeaturesCreated) Error() string {
@@ -58,7 +61,7 @@ func (o *PostAPIFeaturesCreated) Error() string {
 
 func (o *PostAPIFeaturesCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.FeatureFull)
+	o.Payload = new(models.Feature)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
