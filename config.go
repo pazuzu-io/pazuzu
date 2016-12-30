@@ -38,7 +38,7 @@ const (
 	// StorageTypeRegistry: pazuzu-registry storage
 	StorageTypeRegistry = "registry"
 	// Default hostnamefor the registry
-	DefaultRegistryHostname = "hostname"
+	DefaultRegistryHostname = "localhost"
 	// StorageTypeRegistry: pazuzu-registry storage
 	DefaultRegistryPort = 8080
 
