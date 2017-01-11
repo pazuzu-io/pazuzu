@@ -10,6 +10,7 @@ import (
 
 const shebang = "#!/usr/bin/env bats"
 const batsSnippet = `
+RUN apt-get install -y git
 RUN git clone https://github.com/sstephenson/bats.git \
     && cd bats \
     && ./install.sh /usr/local \
