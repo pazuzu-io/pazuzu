@@ -1,13 +1,13 @@
 package storageconnector
 
 import (
-	"testing"
-	"regexp"
+	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/zalando-incubator/pazuzu/shared"
-	"github.com/davecgh/go-spew/spew"
-	"fmt"
 	"os"
+	"regexp"
+	"testing"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 
 func TestMain(m *testing.M) {
 	spew.Config = spew.ConfigState{
-		DisableCapacities: true,
+		DisableCapacities:       true,
 		DisablePointerAddresses: true,
 	}
 	var err error
@@ -139,7 +139,7 @@ func resolveEmptyFeaturesTest(t *testing.T, storage StorageReader) {
 	})
 }
 
-func resolveNonExistingFeatureTest(t *testing.T, name string,  storage StorageReader) {
+func resolveNonExistingFeatureTest(t *testing.T, name string, storage StorageReader) {
 	t.Run("Resolve non-existing feature", func(t *testing.T) {
 		_, _, err := storage.Resolve(name)
 		assert.NotNil(t, err)

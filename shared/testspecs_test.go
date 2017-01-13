@@ -39,10 +39,10 @@ func TestWriteTestSpec(t *testing.T) {
 	t.Run("Writes all features test and shebang", func(t *testing.T) {
 		var buffer = bytes.NewBufferString("")
 		var features = []Feature{
-			Feature{
+			{
 				TestSnippet: "@test \"Check that Java is installed\" {}",
 			},
-			Feature{
+			{
 				TestSnippet: "@test \"Check that Node.js is installed\" {}",
 			},
 		}

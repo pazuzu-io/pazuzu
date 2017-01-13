@@ -4,13 +4,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"gopkg.in/src-d/go-git.v4"
 	"github.com/zalando-incubator/pazuzu/shared"
+	"gopkg.in/src-d/go-git.v4"
 )
 
 var (
 	testRepository = filepath.Join("fixtures", "git")
-	storage StorageReader
+	storage        StorageReader
 )
 
 func InitGitTest() error {
@@ -25,19 +25,19 @@ func InitGitTest() error {
 // TODO issue #159 -> method does not test regex contrary to specs
 func TestGitStorage_SearchMeta(t *testing.T) {
 	expected := []shared.FeatureMeta{{
-		Name: "A-java-lein",
-		Description: "Java + Leiningen",
-		Author: "",
+		Name:         "A-java-lein",
+		Description:  "Java + Leiningen",
+		Author:       "",
 		Dependencies: []string{"java", "leiningen"},
 	}, {
-		Name: "B-java-node",
-		Description: "Java + Node",
-		Author: "",
+		Name:         "B-java-node",
+		Description:  "Java + Node",
+		Author:       "",
 		Dependencies: []string{"java", "node"},
 	}, {
-		Name: "java",
+		Name:        "java",
 		Description: "basic java feature",
-		Author: "",
+		Author:      "",
 	},
 	}
 	searchMetaAndFindResultTest(t, "java", expected, storage)
@@ -66,44 +66,44 @@ func TestGitStorage_Resolve(t *testing.T) {
 	resolveFeaturesTest(t, "Resolve single feature", []string{"A-java-lein"}, map[string]shared.Feature{
 		"A-java-lein": {
 			Meta: shared.FeatureMeta{
-				Name:         "A-java-lein",
+				Name: "A-java-lein",
 			},
 		},
 		"java": {
 			Meta: shared.FeatureMeta{
-				Name:         "java",
+				Name: "java",
 			},
 		},
 		"leiningen": {
 			Meta: shared.FeatureMeta{
-				Name:   "leiningen",
+				Name: "leiningen",
 			},
-		}, }, storage)
+		}}, storage)
 
 	resolveFeaturesTest(t, "Resolve features with same dependencies", []string{"A-java-lein", "B-java-node"}, map[string]shared.Feature{
 		"A-java-lein": {
 			Meta: shared.FeatureMeta{
-				Name:         "A-java-lein",
+				Name: "A-java-lein",
 			},
 		},
 		"java": {
 			Meta: shared.FeatureMeta{
-				Name:         "java",
+				Name: "java",
 			},
 		},
 		"leiningen": {
 			Meta: shared.FeatureMeta{
-				Name:   "leiningen",
+				Name: "leiningen",
 			},
 		},
 		"B-java-node": {
 			Meta: shared.FeatureMeta{
-				Name:         "B-java-node",
+				Name: "B-java-node",
 			},
 		},
 		"node": {
 			Meta: shared.FeatureMeta{
 				Name: "node",
 			},
-		}, }, storage)
+		}}, storage)
 }

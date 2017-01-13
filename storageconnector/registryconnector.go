@@ -4,32 +4,32 @@ import (
 	"regexp"
 	"strconv"
 
-	"swaggen/client/features"
-	"swaggen/client/feature_metas"
-	"github.com/zalando-incubator/pazuzu/shared"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
+	"github.com/zalando-incubator/pazuzu/shared"
+	"swaggen/client/feature_metas"
+	"swaggen/client/features"
 
+	"context"
 	httptransport "github.com/go-openapi/runtime/client"
 	"swaggen/models"
-	"context"
 )
 
 type registryStorage struct {
-	Hostname string  // localhost
-	Port int	 // 8080
-	Token string     // OAUTH2 Token
+	Hostname string // localhost
+	Port     int    // 8080
+	Token    string // OAUTH2 Token
 
-	Features 	*features.Client
-	Metas		*feature_metas.Client
-	Transport	runtime.ClientTransport
+	Features  *features.Client
+	Metas     *feature_metas.Client
+	Transport runtime.ClientTransport
 }
 
 func (store *registryStorage) init(hostname string, port int, formats strfmt.Registry) {
 	store.Hostname = hostname
 	store.Port = port
 
-	host := hostname +":"+strconv.Itoa(port)
+	host := hostname + ":" + strconv.Itoa(port)
 	path := "/"
 	schemes := []string{"http"}
 
@@ -58,14 +58,14 @@ func (store *registryStorage) GetFeature(name string) (shared.Feature, error) {
 	// let's get features containing name on the registry
 	params := features.NewGetAPIFeaturesParams()
 	params.Names = []string{name}
-	apiFeatures,err := store.Features.GetAPIFeatures(params)
+	apiFeatures, err := store.Features.GetAPIFeatures(params)
 
-	if (err != nil) {
+	if err != nil {
 		return shared.Feature{}, err
 	}
 
 	// let's check that the name and feature name actually match
-	for _,ft := range apiFeatures.Payload {
+	for _, ft := range apiFeatures.Payload {
 		if ft.Meta.Name == name {
 			return shared.NewFeature(ft), err
 		}
@@ -86,8 +86,8 @@ func (store *registryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 	metas, err := store.Metas.GetAPIFeatureMetas(params)
 
 	if err == nil {
-		for _,meta := range metas.Payload {
-			result=append(result, shared.NewMeta(meta))
+		for _, meta := range metas.Payload {
+			result = append(result, shared.NewMeta(meta))
 		}
 	}
 
@@ -121,13 +121,13 @@ func (store *registryStorage) Resolve(names ...string) ([]string, map[string]sha
 
 	features, err := store.Features.GetAPIResolvedFeatures(params)
 	if err != nil {
-		return []string{}, map[string]shared.Feature{},err
+		return []string{}, map[string]shared.Feature{}, err
 	}
 
 	var slice []string
 	result := map[string]shared.Feature{}
 
-	for _,feature := range features.Payload {
+	for _, feature := range features.Payload {
 
 		feature2 := shared.NewFeature(feature)
 		name := feature2.Meta.Name
@@ -139,18 +139,17 @@ func (store *registryStorage) Resolve(names ...string) ([]string, map[string]sha
 
 func (store *registryStorage) AddFeature(feature shared.Feature) error {
 
-
 	meta := models.FeatureMeta{
-		Name: feature.Meta.Name,
-		Description: feature.Meta.Description,
-		Author: feature.Meta.Author,
+		Name:         feature.Meta.Name,
+		Description:  feature.Meta.Description,
+		Author:       feature.Meta.Author,
 		Dependencies: feature.Meta.Dependencies,
-		UpdatedAt: feature.Meta.UpdatedAt.UTC().Format("2006-01-02T15:04:05-0700"),
+		UpdatedAt:    feature.Meta.UpdatedAt.UTC().Format("2006-01-02T15:04:05-0700"),
 	}
 
 	newfeature := models.Feature{
-		Meta: &meta,
-		Snippet: feature.Snippet,
+		Meta:        &meta,
+		Snippet:     feature.Snippet,
 		TestSnippet: feature.TestSnippet,
 	}
 

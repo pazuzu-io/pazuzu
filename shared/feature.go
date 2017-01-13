@@ -1,8 +1,8 @@
 package shared
 
 import (
-	"time"
 	"swaggen/models"
+	"time"
 )
 
 // FeatureMeta provides short information about the Feature.
@@ -23,7 +23,7 @@ type Feature struct {
 	TestSnippet string
 }
 
-func NewFeature(feature *models.Feature) Feature{
+func NewFeature(feature *models.Feature) Feature {
 	var f Feature
 	f.Meta = NewMeta(feature.Meta)
 	f.Snippet = feature.Snippet
@@ -31,23 +31,23 @@ func NewFeature(feature *models.Feature) Feature{
 	return f
 }
 
-func NewFeature_str(name string, desc string, auth string, dependencies []string, snippet string, testSnippet string) Feature{
+func NewFeature_str(name string, desc string, auth string, dependencies []string, snippet string, testSnippet string) Feature {
 	m := NewMeta_str(name, desc, auth, dependencies)
-	return Feature{Meta:m, Snippet:snippet, TestSnippet:testSnippet}
+	return Feature{Meta: m, Snippet: snippet, TestSnippet: testSnippet}
 }
 
-func NewMeta(meta *models.FeatureMeta) FeatureMeta{
+func NewMeta(meta *models.FeatureMeta) FeatureMeta {
 	var m FeatureMeta
 	m.Name = meta.Name
 	m.Description = meta.Description
 	m.Author = meta.Author
-	m.UpdatedAt,_ = time.Parse(meta.UpdatedAt, "2006-01-02T15:04:05-0700")
+	m.UpdatedAt, _ = time.Parse(meta.UpdatedAt, "2006-01-02T15:04:05-0700")
 	m.Dependencies = meta.Dependencies
 
 	return m
 }
 
-func NewMeta_str(name string, desc string, auth string, dependencies []string) FeatureMeta{
+func NewMeta_str(name string, desc string, auth string, dependencies []string) FeatureMeta {
 	var m FeatureMeta
 	m.Name = name
 	m.Description = desc

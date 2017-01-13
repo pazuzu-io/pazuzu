@@ -81,7 +81,7 @@ func TestConfigSetRegistry(t *testing.T) {
 
 	beforePort := config.Registry.Port
 	config.Registry.SetPort(8081)
-	if config.Registry.Port - beforePort != 1 {
+	if config.Registry.Port-beforePort != 1 {
 		t.Errorf("SetPort FAIL! [%v]", config.Registry.Port)
 	}
 }
