@@ -81,7 +81,9 @@ func (store *registryStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureM
 	result := []shared.FeatureMeta{}
 
 	params := feature_metas.NewGetAPIFeatureMetasParams()
-	params.Name = []string{name.String()}
+	if len(name.String()) > 0 {
+		params.Name = []string{name.String()}
+	}
 
 	metas, err := store.Metas.GetAPIFeatureMetas(params)
 
