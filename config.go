@@ -42,8 +42,6 @@ const (
 	// StorageTypeRegistry: pazuzu-registry storage
 	DefaultRegistryPort = 8080
 
-
-
 	// Default PostgreSQL connection string
 	ConnectionString = "user=pazuzu dbname=pazuzu sslmode=disable"
 )
@@ -69,7 +67,7 @@ type PostgreSQLConfig struct {
 // registryConfig : config structure for Registry-storage
 type RegistryConfig struct {
 	Hostname string `yaml:"hostname" setter:"SetHostname" help:"Hostname String"`
-	Port int  `yaml:"port" setter:"SetPort" help:"Port Integer"`
+	Port     int    `yaml:"port" setter:"SetPort" help:"Port Integer"`
 }
 
 // Config : actual config data structure.

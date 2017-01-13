@@ -21,7 +21,7 @@ const (
 		snippet TEXT,
 		test_snippet TEXT
 	);`
-	getFeatureQuery    = "SELECT * FROM features WHERE name = $1;"
+	getFeatureQuery   = "SELECT * FROM features WHERE name = $1;"
 	listFeaturesQuery = "SELECT * FROM features WHERE name ~ $1;"
 )
 
@@ -83,7 +83,6 @@ func createDBConnection(connectionString string) (*sql.DB, error) {
 	return db, nil
 }
 
-
 type postgresStorage struct {
 	connectionString string
 }
@@ -127,7 +126,6 @@ func (store *postgresStorage) listFeatures(db *sql.DB, name string) ([]shared.Fe
 
 	return fms, nil
 }
-
 
 func (store *postgresStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 	db, err := createDBConnection(store.connectionString)

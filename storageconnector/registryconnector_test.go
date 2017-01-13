@@ -3,16 +3,15 @@ package storageconnector
 import (
 	"testing"
 
-	"github.com/zalando-incubator/pazuzu/shared"
 	"fmt"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 var (
-	setupOk = false
+	setupOk  = false
 	hostname = "localhost"
-	port = 8080
+	port     = 8080
 	registry StorageReader
-
 )
 
 func InitRegistryTests() error {
@@ -25,7 +24,7 @@ func InitRegistryTests() error {
 	_ = registry2.AddFeature(featureE)
 	_ = registry2.AddFeature(featureF)
 
-	_,err = registry2.GetMeta("F")
+	_, err = registry2.GetMeta("F")
 
 	if err == nil {
 		setupOk = true
@@ -65,7 +64,7 @@ func TestRegistry_SearchMeta(t *testing.T) {
 	searchMetaAndFindNothingTest(t, "NotAFeature", storage)
 }
 
-func TestRegistry_ResolveOne(t *testing.T){
+func TestRegistry_ResolveOne(t *testing.T) {
 	if !setupOk {
 		t.Skipf("No endpoint listening at %v:%v", hostname, port)
 	}
@@ -74,9 +73,9 @@ func TestRegistry_ResolveOne(t *testing.T){
 	resolveEmptyFeaturesTest(t, registry)
 	resolveSingleFeatureWithoutDependenciesTest(t, "A", registry)
 	resolveFeaturesTest(t, "resolve single feature with deps", []string{"D"},
-		map[string]shared.Feature{"A":featureA, "B":featureB, "D":featureD}, registry)
+		map[string]shared.Feature{"A": featureA, "B": featureB, "D": featureD}, registry)
 
 	resolveFeaturesTest(t, "resolve features with intersecting deps", []string{"E", "F"},
-		map[string]shared.Feature{"A":featureA, "B":featureB, "C":featureC, "D":featureD, "E":featureE, "F":featureF}, registry)
+		map[string]shared.Feature{"A": featureA, "B": featureB, "C": featureC, "D": featureD, "E": featureE, "F": featureF}, registry)
 
 }

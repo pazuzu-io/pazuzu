@@ -1,8 +1,8 @@
 package storageconnector
 
 import (
-	"testing"
 	"github.com/zalando-incubator/pazuzu/shared"
+	"testing"
 )
 
 // TODO issue #159 -> method does not test regex contrary to specs
@@ -144,22 +144,22 @@ func TestMemoryResolve(t *testing.T) {
 	resolveFeaturesTest(t, "Resolve single feature", []string{"FeatureA"}, map[string]shared.Feature{
 		"FeatureA": {
 			Meta: shared.FeatureMeta{
-				Name:         "FeatureA",
+				Name: "FeatureA",
 			},
 		},
 		"FeatureB": {
 			Meta: shared.FeatureMeta{
-				Name:   "FeatureB",
+				Name: "FeatureB",
 			},
 		},
 		"FeatureC": {
 			Meta: shared.FeatureMeta{
-				Name:         "FeatureC",
+				Name: "FeatureC",
 			},
 		},
 		"FeatureD": {
 			Meta: shared.FeatureMeta{
-				Name:   "FeatureD",
+				Name: "FeatureD",
 			},
 		},
 	}, storage)
@@ -167,17 +167,17 @@ func TestMemoryResolve(t *testing.T) {
 	resolveFeaturesTest(t, "Resolve multiple features with the same dependencies", []string{"FeatureC", "FeatureE"}, map[string]shared.Feature{
 		"FeatureC": {
 			Meta: shared.FeatureMeta{
-				Name:   "FeatureC",
+				Name: "FeatureC",
 			},
 		},
 		"FeatureD": {
 			Meta: shared.FeatureMeta{
-				Name:   "FeatureD",
+				Name: "FeatureD",
 			},
 		},
 		"FeatureE": {
 			Meta: shared.FeatureMeta{
-				Name:   "FeatureE",
+				Name: "FeatureE",
 			},
 		},
 	}, storage)
@@ -185,12 +185,12 @@ func TestMemoryResolve(t *testing.T) {
 	resolveFeaturesTest(t, "Resolve multiple features with the circular dependencies", []string{"FeatureF", "FeatureG"}, map[string]shared.Feature{
 		"FeatureF": {
 			Meta: shared.FeatureMeta{
-				Name:         "FeatureF",
+				Name: "FeatureF",
 			},
 		},
 		"FeatureG": {
 			Meta: shared.FeatureMeta{
-				Name:         "FeatureG",
+				Name: "FeatureG",
 			},
 		},
 	}, storage)
