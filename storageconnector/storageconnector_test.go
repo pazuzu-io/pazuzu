@@ -1,7 +1,6 @@
 package storageconnector
 
 import (
-	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/zalando-incubator/pazuzu/shared"
@@ -24,15 +23,8 @@ func TestMain(m *testing.M) {
 		DisableCapacities:       true,
 		DisablePointerAddresses: true,
 	}
-	var err error
-	err = InitGitTest()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 
-	err = InitRegistryTests()
-	// err being non-nil doesn't matter
+	InitRegistryTests()
 
 	os.Exit(m.Run())
 }

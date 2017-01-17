@@ -11,10 +11,9 @@ import (
 )
 
 const (
-	PazuzufileName   = "Pazuzufile"
-	DockerfileName   = "Dockerfile"
-	TestSpecFileName = "test.bats"
-	directoryOption  = "directory"
+	PazuzufileName  = "Pazuzufile"
+	DockerfileName  = "Dockerfile"
+	directoryOption = "directory"
 )
 
 var cnfGetCmd = cli.Command{

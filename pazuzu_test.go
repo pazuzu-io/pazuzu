@@ -44,7 +44,6 @@ func TestGenerate(t *testing.T) {
 	}
 
 	err := pazuzu.Generate("ubuntu", []string{"python"})
-	defer pazuzu.Cleanup()
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
 	}
