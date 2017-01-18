@@ -56,8 +56,7 @@ func setConfig(c *cli.Context) error {
 		_ = cfg.Save()
 		return nil
 	}
-	fmt.Printf("FAIL [%v]\n", errSet)
-	return pazuzu.ErrNotFound
+	return errSet
 }
 
 func getConfig(c *cli.Context) error {
