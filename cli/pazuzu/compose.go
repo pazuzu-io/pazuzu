@@ -28,7 +28,6 @@ var composeAction = func(c *cli.Context) error {
 
 	pazuzufilePath := getAbsoluteFilePath(destination, PazuzufileName)
 	dockerfilePath := getAbsoluteFilePath(destination, DockerfileName)
-	testSpecPath := getAbsoluteFilePath(destination, TestSpecFileName)
 
 	pazuzuFile, success := readPazuzuFile(pazuzufilePath)
 	if success {
@@ -77,14 +76,6 @@ var composeAction = func(c *cli.Context) error {
 	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
 
 	err = writeFile(dockerfilePath, p.Dockerfile)
-	if err != nil {
-		return err
-	} else {
-		fmt.Println(" [DONE]")
-	}
-
-	fmt.Printf("Generating %s...", testSpecPath)
-	err = writeFile(testSpecPath, p.TestSpec)
 	if err != nil {
 		return err
 	} else {

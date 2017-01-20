@@ -51,21 +51,6 @@ func TestConfigSetStorageType(t *testing.T) {
 	}
 }
 
-func TestConfigGitSetURL(t *testing.T) {
-	config := getConfig(t)
-
-	beforeURL := config.Git.URL
-	config.Git.SetURL("foobarzoo")
-
-	if strings.Compare(config.Git.URL, "foobarzoo") != 0 {
-		t.Errorf("SetURL FAIL! [%v]", config.Git.URL)
-	}
-
-	if strings.Compare(config.Git.URL, beforeURL) == 0 {
-		t.Error("No changes made.")
-	}
-}
-
 func TestConfigSetRegistry(t *testing.T) {
 	config := getConfig(t)
 
@@ -96,16 +81,13 @@ func TestConfigSaveAndLoad(t *testing.T) {
 	defer os.Remove(tempFile.Name())
 
 	const ExpectBase = "MyBase"
-	const ExpectStorageType = "git"
-	const ExpectGitURL = "some-git-url"
+	const ExpectStorageType = "registry"
 
 	const UnexpectBase = "NotMyBase"
 	const UnexpectStorageType = "memory"
-	const UnexpectGitURL = "not-git-url"
 
 	config.SetBase(ExpectBase)
 	config.SetStorageType(ExpectStorageType)
-	config.Git.SetURL(ExpectGitURL)
 
 	errSave := config.SaveToFile(tempFile.Name())
 	if errSave != nil {
@@ -115,7 +97,6 @@ func TestConfigSaveAndLoad(t *testing.T) {
 
 	config.SetBase(UnexpectBase)
 	config.SetStorageType(UnexpectStorageType)
-	config.Git.SetURL(UnexpectGitURL)
 
 	config.LoadFromFile(tempFile.Name())
 
@@ -129,10 +110,6 @@ func TestConfigSaveAndLoad(t *testing.T) {
 			ExpectStorageType, config.StorageType)
 	}
 
-	if config.Git.URL != ExpectGitURL {
-		t.Fatalf("'Git.URL' config-val should be equals with [%s], but [%s]",
-			ExpectGitURL, config.Git.URL)
-	}
 }
 
 func TestConfigUserHomeDir(t *testing.T) {
@@ -151,56 +128,4 @@ func TestConfigUserConfigFilename(t *testing.T) {
 func getConfigMirror(t *testing.T) *ConfigMirror {
 	cfg := getConfig(t)
 	return cfg.InitConfigFieldMirrors()
-}
-
-func TestConfigMirrorGetRepr(t *testing.T) {
-	c := getConfigMirror(t)
-	strBase, err1 := c.GetRepr("base")
-	strGitURL, err2 := c.GetRepr("git.url")
-	if err1 != nil || err2 != nil {
-		t.Errorf("Error? base=%v or git.url=%v\n", err1, err2)
-	}
-	if true != (len(strBase) > 0 && len(strGitURL) > 0) {
-		t.Errorf("Unexpected base=[%s] or git.url=[%s]\n", strBase, strGitURL)
-	}
-}
-
-func TestConfigMirrorGetHelp(t *testing.T) {
-	c := getConfigMirror(t)
-	strBase, err1 := c.GetHelp("base")
-	strGitURL, err2 := c.GetHelp("git.url")
-	if err1 != nil || err2 != nil {
-		t.Errorf("Error? base=%v or git.url=%v\n", err1, err2)
-	}
-	if true != (len(strBase) > 0 && len(strGitURL) > 0) {
-		t.Errorf("Unexpected base=[%s] or git.url=[%s]\n", strBase, strGitURL)
-	}
-
-}
-
-func TestConfigMirrorGetKeys(t *testing.T) {
-	c := getConfigMirror(t)
-	keys := c.GetKeys()
-	count := 0
-	for _, k := range keys {
-		if k == "base" {
-			count++
-		}
-		if k == "git.url" {
-			count++
-		}
-	}
-	if count != 2 {
-		t.Errorf("Should be 2 == %v\n", count)
-	}
-}
-
-func TestConfigMirrorSetConfig(t *testing.T) {
-	c := getConfigMirror(t)
-	cfg := c.C
-	_ = c.SetConfig("base", "base123")
-	_ = c.SetConfig("git.url", "git.url.456")
-	if cfg.Base != "base123" || cfg.Git.URL != "git.url.456" {
-		t.Errorf("ConfigMirror SetConfig FAIL! [%v]\n", cfg)
-	}
 }

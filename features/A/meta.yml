@@ -1,4 +1,0 @@
-description: Java + Leiningen
-dependencies:
-  - java
-  - leiningen

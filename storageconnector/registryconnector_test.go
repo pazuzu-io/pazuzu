@@ -60,8 +60,8 @@ func TestRegistry_SearchMeta(t *testing.T) {
 		t.Skipf("No endpoint listening at %v:%v", hostname, port)
 	}
 
-	searchMetaAndFindResultTest(t, "D", []shared.FeatureMeta{featureA.Meta, featureB.Meta, featureD.Meta}, storage)
-	searchMetaAndFindNothingTest(t, "NotAFeature", storage)
+	searchMetaAndFindResultTest(t, "D", []shared.FeatureMeta{featureA.Meta, featureB.Meta, featureD.Meta}, registry)
+	searchMetaAndFindNothingTest(t, "NotAFeature", registry)
 }
 
 func TestRegistry_ResolveOne(t *testing.T) {

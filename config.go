@@ -15,25 +15,14 @@ import (
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
 
-	"github.com/zalando-incubator/pazuzu/shared"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 const (
 	UserConfigFilenamePart = ".pazuzu-cli.yaml"
 
-	// URL : default features-repo.
-	URL = "https://github.com/zalando-incubator/pazuzu.git"
 	// BaseImage : Base feature.
 	BaseImage = "ubuntu:14.04"
-
-	// StorageTypeGit : Git storage type.
-	StorageTypeGit = "git"
-	// StorageTypeMemory : Memory storage type.
-	StorageTypeMemory = "memory"
-
-	// StorageTypePostgres: Postgresql storage
-	StorageTypePG = "postgres"
 
 	// StorageTypeRegistry: pazuzu-registry storage
 	StorageTypeRegistry = "registry"
@@ -41,28 +30,9 @@ const (
 	DefaultRegistryHostname = "localhost"
 	// StorageTypeRegistry: pazuzu-registry storage
 	DefaultRegistryPort = 8080
-
-	// Default PostgreSQL connection string
-	ConnectionString = "user=pazuzu dbname=pazuzu sslmode=disable"
 )
 
 var config Config
-
-// GitConfig : config structure for Git-storage.
-type GitConfig struct {
-	URL string `yaml:"url" setter:"SetURL" help:"Git Repository URL."`
-}
-
-// MemoryConfig : config structure for Memory-storage.
-type MemoryConfig struct {
-	InitialiseRandom bool `yaml:"random_init" help:"???"`
-	RandomSetSize    int  `yaml:"random_size" help:"???"`
-}
-
-// PostgresConfig : config structure for PostgreSQL-storage
-type PostgreSQLConfig struct {
-	ConnectionString string `yaml:"connection" setter:"SetConnectionString" help:"PostgreSQL Connection String"`
-}
 
 // registryConfig : config structure for Registry-storage
 type RegistryConfig struct {
@@ -72,12 +42,9 @@ type RegistryConfig struct {
 
 // Config : actual config data structure.
 type Config struct {
-	Base        string           `yaml:"base" setter:"SetBase" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
-	StorageType string           `yaml:"storage" setter:"SetStorageType" help:"Storage-type ('git' or 'memory')"`
-	Git         GitConfig        `yaml:"git" help:"Git storage configs."`
-	Memory      MemoryConfig     `yaml:"memory" help:"Memory storage configs."`
-	PostgreSQL  PostgreSQLConfig `yaml:"pg" help:"PostgreSQ configs."`
-	Registry    RegistryConfig   `yaml:"registry" help:"Pazuzu-registry configs"`
+	Base        string         `yaml:"base" setter:"SetBase" help:"Base image name and tag (ex: 'ubuntu:14.04')"`
+	StorageType string         `yaml:"storage" setter:"SetStorageType" help:"Storage-type(registry) "`
+	Registry    RegistryConfig `yaml:"registry" help:"Pazuzu-registry configs"`
 }
 
 // SetBase : Setter of "Base".
@@ -90,16 +57,6 @@ func (c *Config) SetStorageType(storageType string) {
 	c.StorageType = storageType
 }
 
-// SetGit : Setter of Git-Storage specific configuration.
-func (c *Config) SetGit(git GitConfig) {
-	c.Git = git
-}
-
-// SetURL : Setter of GitConfig.URL.
-func (g *GitConfig) SetURL(url string) {
-	g.URL = url
-}
-
 // SetRegistryHostname : Setter of RegistryConfig.Hostname.
 func (r *RegistryConfig) SetHostname(hostname string) {
 	r.Hostname = hostname
@@ -110,19 +67,11 @@ func (r *RegistryConfig) SetPort(port int) {
 	r.Port = port
 }
 
-// SetConnectionString : Setter for PostgreSQLConfig.ConnectionString
-func (p *PostgreSQLConfig) SetConnectionString(connectionString string) {
-	p.ConnectionString = connectionString
-}
-
 // InitDefaultConfig : Initialize config variable with defaults. (Does not loading configuration file)
 func InitDefaultConfig() {
 	config = Config{
-		StorageType: "git",
+		StorageType: "registry",
 		Base:        BaseImage,
-		Git:         GitConfig{URL: URL},
-		Memory:      MemoryConfig{InitialiseRandom: false},
-		PostgreSQL:  PostgreSQLConfig{ConnectionString: ConnectionString},
 		Registry:    RegistryConfig{DefaultRegistryHostname, DefaultRegistryPort},
 	}
 }
@@ -144,27 +93,11 @@ func GetConfig() *Config {
 // GetStorageReader : create new StorageReader by StorageType of given config.
 func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	switch config.StorageType {
-	case StorageTypeMemory:
-		data := []shared.Feature{}
-		if config.Memory.InitialiseRandom {
-			data = generateRandomFeatures(config.Memory.RandomSetSize)
-		}
-
-		return storageconnector.NewMemoryStorage(data), nil // implement a generator of random list of features?
-	case StorageTypeGit:
-		return storageconnector.NewGitStorage(config.Git.URL)
-	case StorageTypePG:
-		return storageconnector.NewPostgresStorage(config.PostgreSQL.ConnectionString)
 	case StorageTypeRegistry:
 		return storageconnector.NewRegistryStorage(config.Registry.Hostname, config.Registry.Port, nil)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
-}
-
-func generateRandomFeatures(setsize int) []shared.Feature {
-	// TODO: implement in case of need
-	return []shared.Feature{}
 }
 
 func UserHomeDir() string {
