@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/satori/go.uuid"
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
+	"strings"
 )
 
 // Fetches and builds features into a docker image.
@@ -32,9 +34,11 @@ func buildFeatures(c *cli.Context) error {
 		Dockerfile:     dat,
 	}
 
-	name := "pazuzu image"
-	if c.String("name") == "" {
+	name := ""
+	if c.String("name") != "" {
 		name = c.String("name")
+	} else {
+		name = strings.Replace(uuid.NewV1().String(), "-", "", -1)
 	}
 	err2 := p.DockerBuild(name)
 	if err2 != nil {
