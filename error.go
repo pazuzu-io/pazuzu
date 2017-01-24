@@ -9,4 +9,5 @@ var (
 	ErrStopIteration          = errors.New("It's not an real error, sorry!")
 	ErrNotFound               = errors.New("Not found")
 	ErrInitAndAddAreSpecified = errors.New("Conflict: both `add` and `init` parameters are specified")
+	ErrInvalidConfigValue     = errors.New("Can not parse value to required type")
 )

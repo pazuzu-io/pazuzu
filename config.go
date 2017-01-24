@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/cevaris/ordered_map"
@@ -324,6 +325,17 @@ func (c *ConfigMirror) GetRepr(key string) (string, error) {
 	return "", ErrNotFound
 }
 
+func valToReflectValue(setter reflect.Value, val string) (reflect.Value, error) {
+	switch setter.Type().In(0).Kind() {
+	case reflect.Int:
+		integerArg, err := strconv.Atoi(val)
+		return reflect.ValueOf(integerArg), err
+
+	default:
+		return reflect.ValueOf(val), nil
+	}
+}
+
 func (c *ConfigMirror) SetConfig(key string, val string) error {
 	v, ok := c.M.Get(key)
 	if ok {
@@ -332,7 +344,11 @@ func (c *ConfigMirror) SetConfig(key string, val string) error {
 			fmt.Println("INVALID SETTER!!!")
 			return ErrNotImplemented
 		}
-		_ = setter.Call([]reflect.Value{reflect.ValueOf(val)})
+		arg, err := valToReflectValue(setter, val)
+		if err != nil {
+			return ErrInvalidConfigValue
+		}
+		setter.Call([]reflect.Value{arg})
 		return nil
 	}
 	return ErrNotFound

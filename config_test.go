@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -128,4 +129,17 @@ func TestConfigUserConfigFilename(t *testing.T) {
 func getConfigMirror(t *testing.T) *ConfigMirror {
 	cfg := getConfig(t)
 	return cfg.InitConfigFieldMirrors()
+}
+
+func dummySetterWithInteger(value int) {}
+
+func TestValueToReflectValue(t *testing.T) {
+	setter := reflect.ValueOf(dummySetterWithInteger)
+	val, err := valToReflectValue(setter, "10")
+	if err != nil {
+		t.Error("Couldn't handle integer parameter type")
+	}
+	if val.Int() != reflect.ValueOf(10).Int() {
+		t.Error("Couldn't parse integer correctly.")
+	}
 }
