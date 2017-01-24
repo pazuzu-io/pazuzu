@@ -20,7 +20,7 @@ type Feature struct {
 	// Docker file part to be used with that feature.
 	Snippet string `json:"snippet,omitempty"`
 
-	// how to test that feature is working
+	// How to test that feature is working.
 	TestSnippet string `json:"test_snippet,omitempty"`
 }
 
