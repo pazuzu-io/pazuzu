@@ -103,93 +103,19 @@ pazuzu build -n hellodocker -d /tmp
 
 ### Configuration
 
-`pazuzu config` provides a set of tools to configure pazuzu CLI. Configurations are stored in ` ~/.pazuzu/config` .
+`pazuzu config` provides a set of tools to configure pazuzu CLI. Configurations are stored in ` ~/pazuzu-cli.yaml` .
 
 ```bash
 pazuzu config list  # lists all configurations
-pazuzu config set git.url git@github.com:zalando-incubator/features-repository.git  # sets git.url parameter
-pazuzu confi get git.url  # gets value of git.url parameter
+pazuzu config set registry.port 8080 # sets value of registy.port parameter
+pazuzu confi get registy.port  # gets value of registy.port parameter
 ```
 
 ## Initial setup
 
-### Git repository
+Currenly pazuzu supports only registry as a storage. 
 
-Every pazuzu-compatible Git repository should contain a `features` folder with snippets meta-information inside:
-
-```text
-features/
-├── A
-│   └── meta.yml
-├── B
-│   └── meta.yml
-├── C-A-B
-│   └── meta.yml
-├── java
-│   ├── Dockerfile
-│   ├── meta.yml
-│   └── test.bats
-├── leiningen
-│   ├── Dockerfile
-│   ├── meta.yml
-│   └── test.bats
-└── node
-    ├── Dockerfile
-    ├── meta.yml
-    └── test.bats
-```
-
-There are 2 types of features: simple and composite.
-
-Every simple feature should contain:
-- a `Dockerfile` with docker steps,
-- a `test.bats` file with few test scenarios
-- a `meta.yml` file providing some meta information for a feature
-
-Composite feature should provide a proper `meta.yml` file which lists all the dependencies.
-
-You can check few example features inside `features` folder.
-
-#### Initial configurations
-
-```bash
-pazuzu config set git.url git@github.com:zalando-incubator/pazuzu.git  # Should be replaced with the proper Git repository
-pazuzu config set storage git
-```
-
-### PostgreSQL
-
-PostgreSQL repository stores the data inside a `features` table of given PostgreSQL database.
-The `features` table has the following schema:
-
-```sql
-CREATE TABLE features (
-	id serial primary key,
-	name TEXT,
-	description TEXT,
-	author TEXT,
-	lastupdate timestamptz,
-	dependencies TEXT,
-	snippet TEXT,
-	test_snippet TEXT
-);
-```
-
-Some sample snippets can be found inside `storageconnector/fixtures/fixtures.sql` file.
-
-When PostgreSQL is configured as a storage, the `features` table is created automatically
-if it doesn't exists after launching any pazuzu command which is using the DB connection, e.g.
-
-  ```bash
-  pazuzu search feature
-  ```
-
-#### Initial configurations
-
-```bash
-pazuzu set pg.connection "user=pazuzu dbname=pazuzu sslmode=disable"  # You can find more details in pq doc: https://godoc.org/github.com/lib/pq
-pazuzu set storage postgres
-```
+See: [Pazuzu Registry](https://github.com/zalando-incubator/pazuzu-registry) 
 
 ### Base image
 
