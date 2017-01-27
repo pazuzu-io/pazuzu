@@ -23,190 +23,185 @@ type Client struct {
 }
 
 /*
-DeleteAPIFeaturesName deletes feature
+DeleteFeaturesName deletes feature
 
-Delete this feature. If another features has links to this feature
-nothing will be deleted and error will be returned.
+Delete this feature. If another feature depends on this feature nothing will be deleted and an error will be
+returned.
 
 */
-func (a *Client) DeleteAPIFeaturesName(params *DeleteAPIFeaturesNameParams) (*DeleteAPIFeaturesNameNoContent, error) {
+func (a *Client) DeleteFeaturesName(params *DeleteFeaturesNameParams) (*DeleteFeaturesNameNoContent, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewDeleteAPIFeaturesNameParams()
+		params = NewDeleteFeaturesNameParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DeleteAPIFeaturesName",
+		ID:                 "DeleteFeaturesName",
 		Method:             "DELETE",
-		PathPattern:        "/api/features/{name}",
+		PathPattern:        "/features/{name}",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &DeleteAPIFeaturesNameReader{formats: a.formats},
+		Reader:             &DeleteFeaturesNameReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DeleteAPIFeaturesNameNoContent), nil
+	return result.(*DeleteFeaturesNameNoContent), nil
 
 }
 
 /*
-GetAPIFeatures gets all features
+GetDependencies topologicalies sorted list of features
 
-Returns all the features without its dependencies.
+Returns the list of features topologicaly sorted base on the dependencies base on list of top features.
 
 */
-func (a *Client) GetAPIFeatures(params *GetAPIFeaturesParams) (*GetAPIFeaturesOK, error) {
+func (a *Client) GetDependencies(params *GetDependenciesParams) (*GetDependenciesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetAPIFeaturesParams()
+		params = NewGetDependenciesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetAPIFeatures",
+		ID:                 "GetDependencies",
 		Method:             "GET",
-		PathPattern:        "/api/features",
+		PathPattern:        "/dependencies",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &GetAPIFeaturesReader{formats: a.formats},
+		Reader:             &GetDependenciesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetAPIFeaturesOK), nil
+	return result.(*GetDependenciesOK), nil
 
 }
 
 /*
-GetAPIFeaturesName gets single feature
+GetFeatures gets features
+
+Returns the features sorted by name.
+*/
+func (a *Client) GetFeatures(params *GetFeaturesParams) (*GetFeaturesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetFeaturesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetFeatures",
+		Method:             "GET",
+		PathPattern:        "/features",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &GetFeaturesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetFeaturesOK), nil
+
+}
+
+/*
+GetFeaturesName gets single feature
 
 Returns all the feature data without its dependencies.
-
 */
-func (a *Client) GetAPIFeaturesName(params *GetAPIFeaturesNameParams) (*GetAPIFeaturesNameOK, error) {
+func (a *Client) GetFeaturesName(params *GetFeaturesNameParams) (*GetFeaturesNameOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetAPIFeaturesNameParams()
+		params = NewGetFeaturesNameParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetAPIFeaturesName",
+		ID:                 "GetFeaturesName",
 		Method:             "GET",
-		PathPattern:        "/api/features/{name}",
+		PathPattern:        "/features/{name}",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{""},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &GetAPIFeaturesNameReader{formats: a.formats},
+		Reader:             &GetFeaturesNameReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetAPIFeaturesNameOK), nil
+	return result.(*GetFeaturesNameOK), nil
 
 }
 
 /*
-GetAPIResolvedFeatures resolves all features by name
+PostFeatures creates a new feature
 
-Returns all the features with all its dependencies in a single array.
-
+Creates a new feature with specified name, docker data, etc. Feature name is checked to be unique.
 */
-func (a *Client) GetAPIResolvedFeatures(params *GetAPIResolvedFeaturesParams) (*GetAPIResolvedFeaturesOK, error) {
+func (a *Client) PostFeatures(params *PostFeaturesParams) (*PostFeaturesCreated, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetAPIResolvedFeaturesParams()
+		params = NewPostFeaturesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetAPIResolvedFeatures",
-		Method:             "GET",
-		PathPattern:        "/api/resolved-features",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http"},
-		Params:             params,
-		Reader:             &GetAPIResolvedFeaturesReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*GetAPIResolvedFeaturesOK), nil
-
-}
-
-/*
-PostAPIFeatures creates a new feature
-
-Creates a new feature with specified name, docker data, etc. Feature
-name is checked to be unique.
-
-*/
-func (a *Client) PostAPIFeatures(params *PostAPIFeaturesParams) (*PostAPIFeaturesCreated, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPostAPIFeaturesParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PostAPIFeatures",
+		ID:                 "PostFeatures",
 		Method:             "POST",
-		PathPattern:        "/api/features",
+		PathPattern:        "/features",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &PostAPIFeaturesReader{formats: a.formats},
+		Reader:             &PostFeaturesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*PostAPIFeaturesCreated), nil
+	return result.(*PostFeaturesCreated), nil
 
 }
 
 /*
-PutAPIFeaturesName replaces this feature s content
+PutFeaturesName replaces this feature s content
 
 Replaces snippet, test_snippet and meta data for this feature.
-
 */
-func (a *Client) PutAPIFeaturesName(params *PutAPIFeaturesNameParams) (*PutAPIFeaturesNameOK, error) {
+func (a *Client) PutFeaturesName(params *PutFeaturesNameParams) (*PutFeaturesNameOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewPutAPIFeaturesNameParams()
+		params = NewPutFeaturesNameParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PutAPIFeaturesName",
+		ID:                 "PutFeaturesName",
 		Method:             "PUT",
-		PathPattern:        "/api/features/{name}",
+		PathPattern:        "/features/{name}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &PutAPIFeaturesNameReader{formats: a.formats},
+		Reader:             &PutFeaturesNameReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*PutAPIFeaturesNameOK), nil
+	return result.(*PutFeaturesNameOK), nil
 
 }
 

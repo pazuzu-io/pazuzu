@@ -14,19 +14,25 @@ import (
 // swagger:model FeatureMeta
 type FeatureMeta struct {
 
-	// Name of the feature author
+	// Name of the feature author.
 	Author string `json:"author,omitempty"`
 
-	// array of feature names
+	// Creation date in ISO 8601 format.
+	CreatedAt string `json:"created_at,omitempty"`
+
+	// Array of feature names.
 	Dependencies []string `json:"dependencies"`
 
-	// Description of the feature
+	// Description of the feature.
 	Description string `json:"description,omitempty"`
 
 	// Unique identifier representing a specific feature.
 	Name string `json:"name,omitempty"`
 
-	// Last update date in ISO 8601 format
+	// Status of the feature.
+	Status string `json:"status,omitempty"`
+
+	// Last update date in ISO 8601 format.
 	UpdatedAt string `json:"updated_at,omitempty"`
 }
 
