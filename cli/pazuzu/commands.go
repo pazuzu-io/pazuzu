@@ -166,6 +166,10 @@ var composeFlags = []cli.Flag{
 		Name:  "d, directory",
 		Usage: "Sets destination directory for Docketfile and Pazuzufile to `DESTINATION`",
 	},
+	cli.StringFlag{
+		Name:  "b, base",
+		Usage: "Sets the base docker image to `BASE`, instead of the one from the configuration",
+	},
 }
 
 var composeCmd = cli.Command{
