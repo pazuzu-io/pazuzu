@@ -15,19 +15,21 @@ import (
 type registryStorage struct {
 	Hostname string // localhost
 	Port     int    // 8080
+	Scheme   string // http
 	Token    string // OAUTH2 Token
 
 	Features  *features.Client
 	Transport runtime.ClientTransport
 }
 
-func (store *registryStorage) init(hostname string, port int, formats strfmt.Registry) {
+func (store *registryStorage) init(hostname string, port int, scheme string, formats strfmt.Registry) {
 	store.Hostname = hostname
 	store.Port = port
+	store.Scheme = scheme
 
 	host := hostname + ":" + strconv.Itoa(port)
 	path := "/api"
-	schemes := []string{"http"}
+	schemes := []string{scheme}
 
 	transport := httptransport.New(host, path, schemes)
 
@@ -35,13 +37,13 @@ func (store *registryStorage) init(hostname string, port int, formats strfmt.Reg
 	store.Features = features.New(transport, formats)
 }
 
-func NewRegistryStorage(hostname string, port int, formats strfmt.Registry) (*registryStorage, error) {
+func NewRegistryStorage(hostname string, port int, scheme string, formats strfmt.Registry) (*registryStorage, error) {
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
 	var rs registryStorage
-	rs.init(hostname, port, formats)
+	rs.init(hostname, port, scheme, formats)
 	return &rs, nil
 }
 
