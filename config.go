@@ -27,10 +27,12 @@ const (
 
 	// StorageTypeRegistry: pazuzu-registry storage
 	StorageTypeRegistry = "registry"
-	// Default hostnamefor the registry
+	// Default hostname for the registry
 	DefaultRegistryHostname = "localhost"
-	// StorageTypeRegistry: pazuzu-registry storage
+	// Default port for the registry
 	DefaultRegistryPort = 8080
+	// Default scheme for the registry
+	DefaultRegistryScheme = "http"
 )
 
 var config Config
@@ -39,6 +41,7 @@ var config Config
 type RegistryConfig struct {
 	Hostname string `yaml:"hostname" setter:"SetHostname" help:"Hostname String"`
 	Port     int    `yaml:"port" setter:"SetPort" help:"Port Integer"`
+	Scheme   string `yaml:"scheme" setter:"SetScheme" help:"Scheme String"`
 }
 
 // Config : actual config data structure.
@@ -68,12 +71,17 @@ func (r *RegistryConfig) SetPort(port int) {
 	r.Port = port
 }
 
+// SetRegistryScheme : Setter of RegistryConfig.Scheme.
+func (r *RegistryConfig) SetScheme(scheme string) {
+	r.Scheme = scheme
+}
+
 // InitDefaultConfig : Initialize config variable with defaults. (Does not loading configuration file)
 func InitDefaultConfig() {
 	config = Config{
 		StorageType: "registry",
 		Base:        BaseImage,
-		Registry:    RegistryConfig{DefaultRegistryHostname, DefaultRegistryPort},
+		Registry:    RegistryConfig{DefaultRegistryHostname, DefaultRegistryPort, DefaultRegistryScheme},
 	}
 }
 
@@ -95,7 +103,7 @@ func GetConfig() *Config {
 func GetStorageReader(config Config) (storageconnector.StorageReader, error) {
 	switch config.StorageType {
 	case StorageTypeRegistry:
-		return storageconnector.NewRegistryStorage(config.Registry.Hostname, config.Registry.Port, nil)
+		return storageconnector.NewRegistryStorage(config.Registry.Hostname, config.Registry.Port, config.Registry.Scheme, nil)
 	}
 
 	return nil, fmt.Errorf("unknown storage type '%s'", config.StorageType)
