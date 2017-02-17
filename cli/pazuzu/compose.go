@@ -14,7 +14,7 @@ var composeAction = func(c *cli.Context) error {
 		addFeatures        = getFeaturesList(c.String("add"))
 		destination        = c.String(directoryOption)
 		pazuzufileFeatures []string
-		baseImage          string
+		baseImage          = c.String("base")
 	)
 
 	if (c.String("add") == "") && (c.String("init") == "") {
@@ -34,7 +34,9 @@ var composeAction = func(c *cli.Context) error {
 	pazuzuFile, success := readPazuzuFile(pazuzufilePath)
 	if success {
 		pazuzufileFeatures = pazuzuFile.Features
-		baseImage = pazuzuFile.Base
+		if baseImage == "" {
+			baseImage = pazuzuFile.Base
+		}
 	}
 
 	featureNames, err := generateFeaturesList(pazuzufileFeatures, initFeatures, addFeatures)
