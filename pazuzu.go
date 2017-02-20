@@ -165,13 +165,13 @@ func (p *Pazuzu) DockerBuild(name string) error {
 
 	err2 := client.BuildImage(opts)
 	if err2 != nil {
-		fmt.Errorf("Error: %s", err2)
+		err = fmt.Errorf("Error: %s", err2)
 		return err
 	}
 
-	p.testDockerImage(name)
+	err = p.testDockerImage(name)
 
-	return nil
+	return err
 }
 
 func (p *Pazuzu) dockerExec(ID string, cmd string) error {
