@@ -9,6 +9,7 @@ after_success:
 - if [[ "$TRAVIS_PULL_REQUEST" -eq "false" ]] && [[ "$TRAVIS_TAG" =~ ^v[0-9.]+$ ]] && [[ "$TRAVIS_GO_VERSION" =~ ^1\.7 ]]; then ./publish.sh ; else echo "Release condition not met (${TRAVIS_PULL_REQUEST} / ${TRAVIS_TAG} / ${TRAVIS_GO_VERSION})"; fi
 deploy:
   provider: releases
+  skip_cleanup: true
   api_key:
     secure: Y3G44J0P/qeou4JkSEygqccBdXkz2ytJFEs7mpCVC9QRRb+8KW+mrNz9OSsk2D/D0hepyZmrS992A3X7OLweNbhc1Pl8ujpCvEahKwsJKQwtGj5nHEHq17Ohkyvjz/n9LPEkA63vZtlbZIV0fAoVXNGwkJNK1F7H4oGc3YDffvmAtKE4Xi7kqS1H75dTO72ICa6PXGhqY4InX5c1ZbT0SS25gpzg0QPyLkNCsZl8ObqbZ81GHg7gkKE4xUFrVM8pKbgcKEogd00h9hLNxOGKkNabi67MwtBcJHutXaWqwSS8PuKQdWU0f4g2XrYeHaJy6KsDD08FuiMcUNclBkVF9IM2OL4OchP/i2neNv2p2gF6JdHj/AEVddhLwXQrxeMQYuaqd/DExyZ3TA5FnKmNyDrD035PxV0F1hA0vaBCmWP1yHKf9pFO9FNGyEQKZZWs9vqaqiRehP5bNInN3p2Iq0v9ZrPpkAII6RnynW1AkTSAbM9AxeNtelBZoVF2VGQEHML4CxVq6aSe6oWmXzpW04wxGhB33vb+4D05azsJ9Qh+hYpf2fDPn7BfW5HIjO4sJ0xz1IuSDomA2xbZEUPJEmM1bI6csmmBH6eMWELgYG9Wv4tWoMN3rvJ27oWGG9qwKu5rz//L+5HoCCieQ2DPD5l90TG+nvd30ANiG4sqxgc=
   file_glob: true
