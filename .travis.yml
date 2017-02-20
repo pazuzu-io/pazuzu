@@ -6,7 +6,7 @@ go:
 - 1.7
 - tip
 after_success:
-- if [[ "$TRAVIS_PULL_REQUEST" -eq "false" ]] && [[ "$TRAVIS_TAG" =~ ^[0-9.]+ ]] && [[ "$TRAVIS_GO_VERSION" =~ ^1\.7\.[0-9]+$ ]]; then ./publish.sh ; fi
+- if [[ "$TRAVIS_PULL_REQUEST" -eq "false" ]] && [[ "$TRAVIS_TAG" =~ ^v[0-9.]+$ ]] && [[ "$TRAVIS_GO_VERSION" =~ ^1\.7 ]]; then ./publish.sh ; else echo "Release condition not met (${TRAVIS_PULL_REQUEST} / ${TRAVIS_TAG} / ${TRAVIS_GO_VERSION})"; fi
 deploy:
   provider: releases
   api_key:
