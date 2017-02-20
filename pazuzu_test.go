@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/zalando-incubator/pazuzu/shared"
+	"io/ioutil"
 )
 
 type TestStorage struct{}
@@ -89,9 +90,19 @@ func TestDockerBuild(t *testing.T) {
 		DockerEndpoint: "unix:///var/run/docker.sock",
 		Dockerfile: []byte(`FROM ubuntu:latest
 RUN apt-get update && apt-get install python --yes`),
-		testSpec: "test_spec.json",
+		TestSpec: []byte(`#!/usr/bin/env bats
+@test "Check echo" {
+	command echo
+}`),
 	}
-	err := pazuzu.DockerBuild("test")
+
+	// usually, this is composed in `pazuzu compose` phase
+	err := ioutil.WriteFile(shared.TestSpecFilename, pazuzu.TestSpec, 0644)
+	if err != nil {
+		t.Errorf("could not create tests.bat file: %s", err)
+	}
+
+	err = pazuzu.DockerBuild("test")
 	if err != nil {
 		t.Errorf("should not fail: %s", err)
 	}
