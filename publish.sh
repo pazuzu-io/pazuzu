@@ -7,6 +7,8 @@ RELEASE=pazuzu_${VERSION#v}
 
 mkdir -p $RELEASE/{darwin,linux,windows}_amd64/
 
+sed -i -e "s/^var Version =.*/var Version = \"${VERSION#v}\"/" ./cli/pazuzu/main.go 
+
 for i in darwin linux ; do
     GOOS=$i GOARCH=amd64 go build -v ./cli/pazuzu
     mv pazuzu ${RELEASE}/${i}_amd64
