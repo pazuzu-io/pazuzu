@@ -3,7 +3,7 @@ set -e
 
 cd ${TRAVIS_BUILD_DIR:?"Required ENV variable: TRAVIS_BUILD_DIR"}
 VERSION=${TRAVIS_TAG?"Required ENV variable: TRAVIS_TAG"}
-RELEASE=pazuzu_${VERSION}
+RELEASE=pazuzu_${VERSION#v}
 
 mkdir -p $RELEASE/{darwin,linux,windows}_amd64/
 
