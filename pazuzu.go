@@ -21,6 +21,13 @@ const (
 	mountPoint = "/pazuzu/"
 )
 
+
+const (
+	PazuzufileName  = "Pazuzufile"
+	DockerfileName  = "Dockerfile"
+)
+
+
 // Pazuzu defines pazuzu config.
 type Pazuzu struct {
 	StorageReader  storageconnector.StorageReader

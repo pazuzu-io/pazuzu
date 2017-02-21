@@ -1,14 +1,35 @@
-package main
+package build
 
 import (
-	"fmt"
-	"io/ioutil"
-
-	"github.com/satori/go.uuid"
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
+	"fmt"
+	"io/ioutil"
 	"strings"
+	"github.com/satori/go.uuid"
+	"github.com/zalando-incubator/pazuzu/cli/pazuzu/utils"
 )
+
+var Command = cli.Command{
+	Name:      "build",
+	Usage:     "Builds and tests Docker image from Dockerfile",
+	ArgsUsage: " ",
+	Flags:     buildFlags,
+	Action:    buildFeatures,
+}
+
+
+var buildFlags = []cli.Flag{
+	cli.StringFlag{
+		Name:  "d, directory",
+		Usage: "Sets source path where Docketfile are located.",
+	},
+	cli.StringFlag{
+		Name:  "n, name",
+		Usage: "Sets a name for docker image",
+	},
+}
+
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
@@ -18,12 +39,12 @@ func buildFeatures(c *cli.Context) error {
 		return fmt.Errorf("Error during storage setup:%s", err)
 	}
 
-	directory := c.String(directoryOption)
-	err = checkDestination(directory)
+	directory := c.String("directory")
+	err = utils.CheckDestination(directory)
 	if err != nil {
 		return fmt.Errorf("Error to access directory:%s\n%s", directory, err)
 	}
-	dockerFileName := getAbsoluteFilePath(directory, DockerfileName)
+	dockerFileName := utils.GetAbsoluteFilePath(directory, pazuzu.DockerfileName)
 	dat, err := ioutil.ReadFile(dockerFileName)
 	if err != nil {
 		return fmt.Errorf("Error during attempt to read docker file:%s", err)
