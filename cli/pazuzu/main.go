@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"github.com/zalando-incubator/pazuzu/cli/pazuzu/command"
 )
 
 // Version ...
@@ -24,10 +25,10 @@ func main() {
 	app.Version = Version
 	app.Usage = "Build Docker features from pazuzu-registry"
 	app.Commands = []cli.Command{
-		searchCmd,
-		composeCmd,
-		buildCmd,
-		configCmd,
+		command.Search,
+		command.Compose,
+		command.Build,
+		command.Config,
 	}
 
 	// global flags

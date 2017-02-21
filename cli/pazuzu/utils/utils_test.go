@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"github.com/zalando-incubator/pazuzu"
@@ -47,7 +47,7 @@ func TestGenerateFeaturesList(t *testing.T) {
 		var featuresToInit = []string{"a", "b"}
 		var featuresToAdd = []string{"c", "d"}
 
-		_, err := generateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
+		_, err := GenerateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
 		if err != pazuzu.ErrInitAndAddAreSpecified {
 			t.Error("No error is raised")
 		}
@@ -58,7 +58,7 @@ func TestGenerateFeaturesList(t *testing.T) {
 		var featuresToInit = []string{"a", "b"}
 		var featuresToAdd []string
 
-		result, err := generateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
+		result, err := GenerateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
 		if !reflect.DeepEqual(result, featuresToInit) || err != nil {
 			t.Errorf("Result differs from expected: %s", result)
 		}
@@ -69,7 +69,7 @@ func TestGenerateFeaturesList(t *testing.T) {
 		var featuresToInit []string
 		var featuresToAdd = []string{"c", "d"}
 
-		result, err := generateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
+		result, err := GenerateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
 		if !reflect.DeepEqual(result, featuresToAdd) || err != nil {
 			t.Errorf("Result differs from expected: %s", result)
 		}
@@ -81,7 +81,7 @@ func TestGenerateFeaturesList(t *testing.T) {
 		var featuresToAdd = []string{"c", "d"}
 		var expectedFeatures = append(pazuzufileFeatures, featuresToAdd...)
 
-		result, err := generateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
+		result, err := GenerateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
 		if !reflect.DeepEqual(result, expectedFeatures) || err != nil {
 			t.Errorf("Result differs from expected: %s", result)
 		}
@@ -93,31 +93,8 @@ func TestGenerateFeaturesList(t *testing.T) {
 		var featuresToAdd = []string{"a", "c", "d"}
 		var expectedFeatures = append(pazuzufileFeatures, "c", "d")
 
-		result, err := generateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
+		result, err := GenerateFeaturesList(pazuzufileFeatures, featuresToInit, featuresToAdd)
 		if !reflect.DeepEqual(result, expectedFeatures) || err != nil {
-			t.Errorf("Result differs from expected: %s", result)
-		}
-	})
-}
-
-func TestGetFeaturesList(t *testing.T) {
-	t.Run("Returns empty slice when nothing is specified", func(t *testing.T) {
-		var badExamples = []string{"", "    ", ", "}
-		for _, example := range badExamples {
-			result := getFeaturesList(example)
-			if len(result) != 0 {
-				t.Errorf("Result should be empty: %s", result)
-			}
-			t.Logf("%s Example \"%s\"", checkMark, example)
-		}
-	})
-
-	t.Run("Returns list of features", func(t *testing.T) {
-		var featureString = "node,   java,clojure  "
-		var expectedFeatures = []string{"node", "java", "clojure"}
-		var result = getFeaturesList(featureString)
-
-		if !reflect.DeepEqual(result, expectedFeatures) {
 			t.Errorf("Result differs from expected: %s", result)
 		}
 	})
