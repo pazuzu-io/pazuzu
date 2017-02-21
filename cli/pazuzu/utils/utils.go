@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"bufio"
@@ -7,26 +7,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
-
 	"github.com/zalando-incubator/pazuzu"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
-func getFeaturesList(featureString string) []string {
-	var features []string
-
-	featureString = strings.Trim(featureString, ", ")
-	if len(featureString) > 0 {
-		for _, element := range strings.Split(featureString, ",") {
-			features = append(features, strings.Trim(element, " "))
-		}
-	}
-
-	return features
-}
-
-func generateFeaturesList(pazuzufileFeatures []string, featuresToInit []string, featuresToAdd []string) ([]string, error) {
+func GenerateFeaturesList(pazuzufileFeatures []string, featuresToInit []string, featuresToAdd []string) ([]string, error) {
 	var features []string
 
 	if len(featuresToInit) > 0 && len(featuresToAdd) > 0 {
@@ -59,7 +44,7 @@ func appendIfMissing(slice []string, element string) []string {
 
 // Reads Pazuzufile
 // returns PazuzuFile struct and a success flag
-func readPazuzuFile(path string) (*pazuzu.PazuzuFile, bool) {
+func ReadPazuzuFile(path string) (*pazuzu.PazuzuFile, bool) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, false
@@ -75,11 +60,11 @@ func readPazuzuFile(path string) (*pazuzu.PazuzuFile, bool) {
 	return &pazuzuFile, true
 }
 
-func writePazuzuFile(path string, pazuzuFile *pazuzu.PazuzuFile) error {
+func WritePazuzuFile(path string, pazuzuFile *pazuzu.PazuzuFile) error {
 	// TODO: do it safer way (#108)
 	file, err := os.Create(path)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not create %v", PazuzufileName))
+		return errors.New(fmt.Sprintf("Could not create %v", pazuzu.PazuzufileName))
 	}
 	defer file.Close()
 
@@ -90,7 +75,7 @@ func writePazuzuFile(path string, pazuzuFile *pazuzu.PazuzuFile) error {
 	return nil
 }
 
-func writeFile(path string, contents []byte) error {
+func WriteFile(path string, contents []byte) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create %v", path))
@@ -104,7 +89,7 @@ func writeFile(path string, contents []byte) error {
 	return nil
 }
 
-func checkFeaturesInRepository(names []string, storage storageconnector.StorageReader) ([]string, error) {
+func CheckFeaturesInRepository(names []string, storage storageconnector.StorageReader) ([]string, error) {
 	var features []string
 
 	for _, name := range names {
@@ -120,7 +105,7 @@ func checkFeaturesInRepository(names []string, storage storageconnector.StorageR
 	return features, nil
 }
 
-func checkDestination(destination string) error {
+func CheckDestination(destination string) error {
 	if destination != "" {
 		destination, err := filepath.Abs(destination)
 		if err != nil {
@@ -138,7 +123,7 @@ func checkDestination(destination string) error {
 
 // Gets absolute file paths for Pazuzufile and Dockerfile
 // returns Pazuzufile, Dockerfile and test_spec file paths and an error
-func getAbsoluteFilePath(destination string, name string) string {
+func GetAbsoluteFilePath(destination string, name string) string {
 	var path = name
 
 	if destination != "" {
