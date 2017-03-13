@@ -15,7 +15,7 @@ import (
 type DependenciesList struct {
 
 	// Topologicaly sorted list of features resulting of the dependencies resolution.
-	Depedencies []*Feature `json:"depedencies"`
+	Dependencies []*Feature `json:"dependencies"`
 
 	// List of feature name for which dependencies have been requested.
 	RequestedFeatures []string `json:"requested_features"`
@@ -25,7 +25,7 @@ type DependenciesList struct {
 func (m *DependenciesList) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDepedencies(formats); err != nil {
+	if err := m.validateDependencies(formats); err != nil {
 		// prop
 		res = append(res, err)
 	}
@@ -41,21 +41,21 @@ func (m *DependenciesList) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *DependenciesList) validateDepedencies(formats strfmt.Registry) error {
+func (m *DependenciesList) validateDependencies(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Depedencies) { // not required
+	if swag.IsZero(m.Dependencies) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.Depedencies); i++ {
+	for i := 0; i < len(m.Dependencies); i++ {
 
-		if swag.IsZero(m.Depedencies[i]) { // not required
+		if swag.IsZero(m.Dependencies[i]) { // not required
 			continue
 		}
 
-		if m.Depedencies[i] != nil {
+		if m.Dependencies[i] != nil {
 
-			if err := m.Depedencies[i].Validate(formats); err != nil {
+			if err := m.Dependencies[i].Validate(formats); err != nil {
 				return err
 			}
 		}
