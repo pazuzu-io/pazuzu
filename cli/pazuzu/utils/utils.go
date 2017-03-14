@@ -95,11 +95,11 @@ func CheckFeaturesInRepository(names []string, storage storageconnector.StorageR
 	for _, name := range names {
 		log.Printf("Checking: %v\n", name)
 
-		_, err := storage.GetMeta(name)
+		meta, err := storage.GetMeta(name)
 		if err != nil {
 			return features, errors.New(fmt.Sprintf("Feature %v not found", name))
 		}
-		features = append(features, fmt.Sprintf("%v", name))
+		features = append(features, fmt.Sprintf("%v", meta.Name))
 	}
 
 	return features, nil
