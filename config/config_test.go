@@ -1,4 +1,4 @@
-package pazuzu
+package config
 
 import (
 	"fmt"

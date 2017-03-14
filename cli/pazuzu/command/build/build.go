@@ -3,6 +3,7 @@ package build
 import (
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
+	"github.com/zalando-incubator/pazuzu/config"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -33,8 +34,7 @@ var buildFlags = []cli.Flag{
 
 // Fetches and builds features into a docker image.
 func buildFeatures(c *cli.Context) error {
-	config := pazuzu.GetConfig()
-	storageReader, err := pazuzu.GetStorageReader(*config)
+	storageReader, err := config.GetStorageReader(*config.GetConfig())
 	if err != nil {
 		return fmt.Errorf("Error during storage setup:%s", err)
 	}

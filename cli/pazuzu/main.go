@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu"
+	"github.com/zalando-incubator/pazuzu/config"
 	"io/ioutil"
 	"log"
 	"os"
@@ -49,7 +49,7 @@ func main() {
 		}
 
 		// Init config struct.
-		errCnf := pazuzu.NewConfig()
+		errCnf := config.NewConfig()
 		if errCnf != nil {
 			fmt.Println(errCnf)
 			os.Exit(1)

@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
+	"github.com/zalando-incubator/pazuzu/config"
 	"fmt"
 )
 
@@ -41,8 +42,8 @@ func setConfig(c *cli.Context) error {
 	//
 	givenPath := a.Get(0)
 	givenValRepr := a.Get(1)
-	cfg := pazuzu.GetConfig()
-	cfgMirror := pazuzu.GetConfigMirror()
+	cfg := config.GetConfig()
+	cfgMirror := config.GetConfigMirror()
 	errSet := cfgMirror.SetConfig(givenPath, givenValRepr)
 	if errSet == nil {
 		// Oh, it's nice.
@@ -59,7 +60,7 @@ func getConfig(c *cli.Context) error {
 	}
 	//
 	givenPath := a.Get(0)
-	cfgMirror := pazuzu.GetConfigMirror()
+	cfgMirror := config.GetConfigMirror()
 	repr, err := cfgMirror.GetRepr(givenPath)
 	if err == nil {
 		fmt.Println(repr)
@@ -69,7 +70,7 @@ func getConfig(c *cli.Context) error {
 }
 
 func helpConfigs(c *cli.Context) error {
-	cfgMirror := pazuzu.GetConfigMirror()
+	cfgMirror := config.GetConfigMirror()
 	fmt.Println("Pazuzu CLI Config related commands:")
 	fmt.Println("\tpazuzu config list\t -- Listing of configuration.")
 	fmt.Println("\tpazuzu config help\t-- This help documentation.")
@@ -86,7 +87,7 @@ func helpConfigs(c *cli.Context) error {
 }
 
 func listConfigs(c *cli.Context) error {
-	cfgMirror := pazuzu.GetConfigMirror()
+	cfgMirror := config.GetConfigMirror()
 	for _, k := range cfgMirror.GetKeys() {
 		repr, errRepr := cfgMirror.GetRepr(k)
 		if errRepr == nil {
