@@ -4,7 +4,9 @@ services:
 - docker
 go:
 - 1.7
+- 1.8
 - tip
+install: ./install-dependencies.sh
 after_success:
 - if [[ "$TRAVIS_PULL_REQUEST" -eq "false" ]] && [[ "$TRAVIS_TAG" =~ ^v[0-9.]+$ ]] && [[ "$TRAVIS_GO_VERSION" =~ ^1\.7 ]]; then ./publish.sh ; else echo "Release condition not met (${TRAVIS_PULL_REQUEST} / ${TRAVIS_TAG} / ${TRAVIS_GO_VERSION})"; fi
 deploy:

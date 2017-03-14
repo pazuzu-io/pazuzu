@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"swaggen/models"
+	"github.com/zalando-incubator/pazuzu/swagger/models"
 	"time"
 )
 

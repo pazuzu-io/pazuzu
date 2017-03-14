@@ -21,3 +21,6 @@ test.bats
 
 !features/*/Dockerfile
 !features/*/test_spec.json
+
+vendor/*/
+swagger/*/
