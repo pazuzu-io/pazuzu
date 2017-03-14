@@ -2,7 +2,7 @@ package search
 
 import (
 	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu"
+	"github.com/zalando-incubator/pazuzu/config"
 	"regexp"
 	"fmt"
 	"text/tabwriter"
@@ -17,7 +17,7 @@ var Command = cli.Command{
 }
 
 var searchAction = func(c *cli.Context) error {
-	sc, err := pazuzu.GetStorageReader(*pazuzu.GetConfig())
+	sc, err := config.GetStorageReader(*config.GetConfig())
 	if err != nil {
 		return err // TODO: process properly into human-readable message
 	}

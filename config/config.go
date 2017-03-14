@@ -1,4 +1,4 @@
-package pazuzu
+package config
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ import (
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
 
+	"github.com/zalando-incubator/pazuzu"
 	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
@@ -322,7 +323,7 @@ func (c *ConfigMirror) GetHelp(key string) (string, error) {
 	if ok {
 		return v.(*ConfigFieldMirror).Help, nil
 	}
-	return "", ErrNotFound
+	return "", pazuzu.ErrNotFound
 }
 
 func (c *ConfigMirror) GetRepr(key string) (string, error) {
@@ -330,7 +331,7 @@ func (c *ConfigMirror) GetRepr(key string) (string, error) {
 	if ok {
 		return v.(*ConfigFieldMirror).Repr, nil
 	}
-	return "", ErrNotFound
+	return "", pazuzu.ErrNotFound
 }
 
 func valToReflectValue(setter reflect.Value, val string) (reflect.Value, error) {
@@ -350,14 +351,14 @@ func (c *ConfigMirror) SetConfig(key string, val string) error {
 		setter := v.(*ConfigFieldMirror).Setter
 		if !setter.IsValid() {
 			fmt.Println("INVALID SETTER!!!")
-			return ErrNotImplemented
+			return pazuzu.ErrNotImplemented
 		}
 		arg, err := valToReflectValue(setter, val)
 		if err != nil {
-			return ErrInvalidConfigValue
+			return pazuzu.ErrInvalidConfigValue
 		}
 		setter.Call([]reflect.Value{arg})
 		return nil
 	}
-	return ErrNotFound
+	return pazuzu.ErrNotFound
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"github.com/zalando-incubator/pazuzu"
+	"github.com/zalando-incubator/pazuzu/config"
 	"github.com/zalando-incubator/pazuzu/shared"
 	"errors"
 	"strings"
@@ -80,8 +81,7 @@ var composeAction = func(c *cli.Context) error {
 	}
 	fmt.Printf("Resolving the following features: %s\n", featureNames)
 
-	config := pazuzu.GetConfig()
-	storageReader, err := pazuzu.GetStorageReader(*config)
+	storageReader, err := config.GetStorageReader(*config.GetConfig())
 	if err != nil {
 		return err // TODO: process properly into human-readable message
 	}
@@ -92,7 +92,7 @@ var composeAction = func(c *cli.Context) error {
 	}
 
 	if baseImage == "" || c.String("init") != "" {
-		baseImage = config.Base
+		baseImage = config.GetConfig().Base
 	}
 
 	fmt.Printf("Generating %s...", pazuzufilePath)
