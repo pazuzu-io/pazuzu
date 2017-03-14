@@ -111,7 +111,7 @@ func (store *registryStorage) Resolve(names ...string) ([]string, map[string]sha
 	var slice []string
 	result := map[string]shared.Feature{}
 
-	for _, feature := range features.Payload.Depedencies {
+	for _, feature := range features.Payload.Dependencies {
 		feature2 := shared.NewFeature(feature)
 		name := feature2.Meta.Name
 		result[name] = feature2
