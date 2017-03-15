@@ -19,6 +19,20 @@ var Command = cli.Command{
 		" and creates both Pazuzufile and Dockerfile.",
 	Flags:  composeFlags,
 	Action: composeAction,
+	Subcommands: []cli.Command{
+		{
+			Name:  "list",
+			Aliases: []string{"l"},
+			Usage: "Lists features in Pazuzufile",
+			Action: listFeaturesAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "d, directory",
+					Usage: "Sets destination directory for Dockerfile and Pazuzufile to `DESTINATION`",
+				},
+			},
+		},
+	},
 }
 
 
@@ -125,6 +139,23 @@ var composeAction = func(c *cli.Context) error {
 		fmt.Println(" [DONE]")
 	}
 
+	return nil
+}
+
+var listFeaturesAction = func(c *cli.Context) error {
+	destination := c.String("directory")
+	err := utils.CheckDestination(destination)
+	if err != nil {
+		return err
+	}
+	pazuzufilePath := utils.GetAbsoluteFilePath(destination, pazuzu.PazuzufileName)
+	pazuzuFile, success := utils.ReadPazuzuFile(pazuzufilePath)
+	if success {
+		pazuzufileFeatures := pazuzuFile.Features
+		for _, feature := range pazuzufileFeatures {
+			fmt.Println(feature)
+		}
+	}
 	return nil
 }
 
