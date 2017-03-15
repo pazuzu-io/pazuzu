@@ -10,8 +10,7 @@ import (
 
 var Command = cli.Command{
   Name: "clean",
-  Aliases: []string{"cl"},
-  Usage: "remove Pazuzufile and Dockerfile",
+  Usage: "Remove Pazuzufile and Dockerfile",
   Action: cleanAction,
 }
 

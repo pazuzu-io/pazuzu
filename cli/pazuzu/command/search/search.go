@@ -11,7 +11,7 @@ import (
 
 var Command = cli.Command{
 	Name:      "search",
-	Usage:     "search for features in registry",
+	Usage:     "Search for features in registry",
 	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
 	Action: searchAction,
 }
@@ -48,4 +48,3 @@ var searchAction = func(c *cli.Context) error {
 
 	return nil
 }
-
