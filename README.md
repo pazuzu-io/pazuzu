@@ -21,21 +21,38 @@ NPM installs).
   git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
   ```
 
-3. Make sure that the tests are passing:
+3. Install govendor and go-swagger:
   ```bash
-  $GOPATH/src/github.com/zalando-incubator/pazuzu/
+  go get -u github.com/kardianos/govendor
+  go get -u github.com/go-swagger/go-swagger/cmd/swagger
+  ```
+
+4. Sync vendor packages:
+  ```bash
+  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/
+  govendor sync
+  ```
+
+5. Generate code from swagger.yaml:
+  ```bash
+  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/swagger
+  swagger generate client -f swagger.yaml
+  ```  
+
+6. Make sure that the tests are passing:
+  ```bash
+  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/
   go get -t -v
   go test -v ./...
   ```
 
-4. Build command-line utilities:
+7. Build command-line utilities:
   ```bash
-  $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
-  go get -v
+  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
   go build
   ```
 
-5. Install pazuzu command globally [Optional]:
+8. Install pazuzu command globally [Optional]:
   ```bash
   go install
   ```
@@ -113,9 +130,9 @@ pazuzu confi get registy.port  # gets value of registy.port parameter
 
 ## Initial setup
 
-Currenly pazuzu supports only registry as a storage. 
+Currenly pazuzu supports only registry as a storage.
 
-See: [Pazuzu Registry](https://github.com/zalando-incubator/pazuzu-registry) 
+See: [Pazuzu Registry](https://github.com/zalando-incubator/pazuzu-registry)
 
 ### Base image
 
