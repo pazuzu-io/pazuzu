@@ -32,6 +32,19 @@ var Command = cli.Command{
 				},
 			},
 		},
+		{
+			Name: "remove",
+			Aliases: []string{"rm", "d"},
+			Description: "Removes provided list of features from Pazuzufile",
+			Usage: "remove feature,...",
+			Action: removeFeaturesAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "d, directory",
+					Usage: "Sets destination directory for Dockerfile and Pazuzufile to `DESTINATION`",
+				},
+			},
+		},
 	},
 }
 
@@ -78,8 +91,6 @@ var composeAction = func(c *cli.Context) error {
 	}
 
 	pazuzufilePath := utils.GetAbsoluteFilePath(destination, pazuzu.PazuzufileName)
-	dockerfilePath := utils.GetAbsoluteFilePath(destination, pazuzu.DockerfileName)
-	testSpecPath := utils.GetAbsoluteFilePath(destination, shared.TestSpecFilename)
 
 	pazuzuFile, success := utils.ReadPazuzuFile(pazuzufilePath)
 	if success {
@@ -93,50 +104,14 @@ var composeAction = func(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Resolving the following features: %s\n", featureNames)
-
-	storageReader, err := config.GetStorageReader(*config.GetConfig())
-	if err != nil {
-		return err // TODO: process properly into human-readable message
-	}
-
-	features, err := utils.CheckFeaturesInRepository(featureNames, storageReader)
-	if err != nil {
-		return err
-	}
 
 	if baseImage == "" || c.String("init") != "" {
 		baseImage = config.GetConfig().Base
 	}
 
-	fmt.Printf("Generating %s...", pazuzufilePath)
-
-	pazuzuFile = &pazuzu.PazuzuFile{
-		Base:     baseImage,
-		Features: features,
-	}
-
-	err = utils.WritePazuzuFile(pazuzufilePath, pazuzuFile)
+	err = generateFiles(destination, baseImage, featureNames)
 	if err != nil {
 		return err
-	} else {
-		fmt.Println(" [DONE]")
-	}
-
-	fmt.Printf("Generating %s...", dockerfilePath)
-
-	p := pazuzu.Pazuzu{StorageReader: storageReader}
-	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
-
-	err = utils.WriteFile(dockerfilePath, p.Dockerfile)
-
-	fmt.Printf("Generating %s...", testSpecPath)
-	err = utils.WriteFile(testSpecPath, p.TestSpec)
-
-	if err != nil {
-		return err
-	} else {
-		fmt.Println(" [DONE]")
 	}
 
 	return nil
@@ -159,6 +134,47 @@ var listFeaturesAction = func(c *cli.Context) error {
 	return nil
 }
 
+var removeFeaturesAction = func(c *cli.Context) error {
+	destination := c.String("directory")
+	if !c.Args().Present(){
+		return errors.New("ERROR: no features to remove")
+	}
+	features := strings.Split(c.Args().First(), ",")
+
+	err := utils.CheckDestination(destination)
+	if err != nil {
+		return err
+	}
+
+	pazuzufilePath := utils.GetAbsoluteFilePath(destination, pazuzu.PazuzufileName)
+	pazuzuFile, success := utils.ReadPazuzuFile(pazuzufilePath)
+	if !success {
+		return nil
+	}
+
+	newFeatures := pazuzuFile.Features
+	baseImage := pazuzuFile.Base
+
+	loop:
+	for i := 0; i < len(newFeatures); i++ {
+		f1 := newFeatures[i]
+		for _, f2 := range features {
+			if f1 == f2 {
+				newFeatures = append(newFeatures[:i], newFeatures[i+1:]...)
+				i--
+				continue loop
+			}
+		}
+	}
+
+	err = generateFiles(destination, baseImage, newFeatures)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getFeaturesList(featureString string) []string {
 	var features []string
 
@@ -170,4 +186,52 @@ func getFeaturesList(featureString string) []string {
 	}
 
 	return features
+}
+
+func generateFiles(destination string, baseImage string, featureNames []string) error {
+	err := utils.CheckDestination(destination)
+	if err != nil {
+		return err
+	}
+	pazuzufilePath := utils.GetAbsoluteFilePath(destination, pazuzu.PazuzufileName)
+	dockerfilePath := utils.GetAbsoluteFilePath(destination, pazuzu.DockerfileName)
+	testSpecPath := utils.GetAbsoluteFilePath(destination, shared.TestSpecFilename)
+
+	storageReader, err := config.GetStorageReader(*config.GetConfig())
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Resolving the following features: %s\n", featureNames)
+	features, err := utils.CheckFeaturesInRepository(featureNames, storageReader)
+	if err != nil {
+		return err
+	}
+	if baseImage == "" {
+		baseImage = config.GetConfig().Base
+	}
+
+	fmt.Printf("Generating %s...\n", pazuzufilePath)
+	pazuzuFile := &pazuzu.PazuzuFile{
+		Base: baseImage,
+		Features: features,
+	}
+	err = utils.WritePazuzuFile(pazuzufilePath, pazuzuFile)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Generating %s...\n", dockerfilePath)
+	p := pazuzu.Pazuzu{StorageReader: storageReader}
+	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
+	err = utils.WriteFile(dockerfilePath, p.Dockerfile)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Generating %s...\n", testSpecPath)
+	err = utils.WriteFile(testSpecPath, p.TestSpec)
+	if err != nil {
+		return err
+	}
+	fmt.Println("[DONE]")
+
+	return nil
 }
