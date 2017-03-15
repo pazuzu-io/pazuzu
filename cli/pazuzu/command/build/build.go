@@ -4,6 +4,7 @@ import (
 	"github.com/urfave/cli"
 	"github.com/zalando-incubator/pazuzu"
 	"github.com/zalando-incubator/pazuzu/config"
+	"github.com/zalando-incubator/pazuzu/shared"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -44,16 +45,35 @@ func buildFeatures(c *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Error to access directory:%s\n%s", directory, err)
 	}
-	dockerFileName := utils.GetAbsoluteFilePath(directory, pazuzu.DockerfileName)
-	dat, err := ioutil.ReadFile(dockerFileName)
+
+	pazuzufilePath := utils.GetAbsoluteFilePath(directory, pazuzu.PazuzufileName)
+	dockerfilePath := utils.GetAbsoluteFilePath(directory, pazuzu.DockerfileName)
+	testSpecPath := utils.GetAbsoluteFilePath(directory, shared.TestSpecFilename)
+	pazuzuFile, success := utils.ReadPazuzuFile(pazuzufilePath)
+	if !success {
+		return fmt.Errorf("Can not read configuration: %s\n", pazuzufilePath)
+	}
+
+	p := pazuzu.Pazuzu{StorageReader: storageReader}
+	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
+	fmt.Printf("Generating %s...\n", dockerfilePath)
+	err = utils.WriteFile(dockerfilePath, p.Dockerfile)
+	if err != nil {
+		return fmt.Errorf("Can not write Dockerfile: %s\n%s", dockerfilePath, err)
+	}
+	fmt.Printf("Generating %s...\n", testSpecPath)
+	err = utils.WriteFile(testSpecPath, p.TestSpec)
+	if err != nil {
+		return fmt.Errorf("Can not write TestSpec: %s\n%s", testSpecPath, err)
+	}
+
+	dat, err := ioutil.ReadFile(dockerfilePath)
 	if err != nil {
 		return fmt.Errorf("Error during attempt to read docker file:%s", err)
 	}
 
-	p := pazuzu.Pazuzu{StorageReader: storageReader,
-		DockerEndpoint: "unix:///var/run/docker.sock",
-		Dockerfile:     dat,
-	}
+	p.DockerEndpoint = "unix:///var/run/docker.sock"
+	p.Dockerfile = dat
 
 	name := ""
 	if c.String("name") != "" {
