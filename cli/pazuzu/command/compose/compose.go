@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/zalando-incubator/pazuzu"
 	"github.com/zalando-incubator/pazuzu/config"
-	"github.com/zalando-incubator/pazuzu/shared"
 	"errors"
 	"strings"
 	"github.com/zalando-incubator/pazuzu/cli/pazuzu/utils"
@@ -194,9 +193,6 @@ func generateFiles(destination string, baseImage string, featureNames []string) 
 		return err
 	}
 	pazuzufilePath := utils.GetAbsoluteFilePath(destination, pazuzu.PazuzufileName)
-	dockerfilePath := utils.GetAbsoluteFilePath(destination, pazuzu.DockerfileName)
-	testSpecPath := utils.GetAbsoluteFilePath(destination, shared.TestSpecFilename)
-
 	storageReader, err := config.GetStorageReader(*config.GetConfig())
 	if err != nil {
 		return err
@@ -216,18 +212,6 @@ func generateFiles(destination string, baseImage string, featureNames []string) 
 		Features: features,
 	}
 	err = utils.WritePazuzuFile(pazuzufilePath, pazuzuFile)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Generating %s...\n", dockerfilePath)
-	p := pazuzu.Pazuzu{StorageReader: storageReader}
-	p.Generate(pazuzuFile.Base, pazuzuFile.Features)
-	err = utils.WriteFile(dockerfilePath, p.Dockerfile)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("Generating %s...\n", testSpecPath)
-	err = utils.WriteFile(testSpecPath, p.TestSpec)
 	if err != nil {
 		return err
 	}
