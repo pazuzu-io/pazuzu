@@ -105,6 +105,13 @@ the new one based on the given features and default base image specified in the 
   In the given example, Node.js feature will be added to the list of features specified in `/tmp/Pazuzufile`
   (if it exists) and the output files will be saved back to `/tmp/`
 
+### Clean
+
+`pazuzu clean` step removes `Pazuzufile`, `Dockerfile` and `test.bats`.
+
+  ```bash
+  pazuzu clean
+  ```
 
 ### Build Docker image
 
