@@ -60,10 +60,9 @@ NPM installs).
 ## Usage
 
 Basically, pazuzu CLI tool has 4 subcommands:
-- `search` - search for available features inside the repository
-- `compose` - compose `Pazuzufile`, `Dockerfile` and `test.bats` files with desired features
-- `build` - create a Docker image based on `Dockerfile`
 - `config` - configure pazuzu tool
+- `project` - configure and build project image
+- `search` - search for available features inside the repository
 
 ### Search features
 
@@ -76,30 +75,30 @@ Basically, pazuzu CLI tool has 4 subcommands:
   pazuzu search ja*
   ```
 
-### Compose features
+### Configure project features
 
-`pazuzu compose` step creates `Pazuzufile`, `Dockerfile` and `test.bats` for the specified set of features.
+`pazuzu project` command is used to configure the project definition.
 
   ```bash
-  pazuzu compose -i node,java
+  pazuzu project add node,java
   ```
 
-If `Pazuzufile` already exists in the directory, `pazuzu compose` takes it as a base. If not, it generates
+If `Pazuzufile` already exists in the directory, `pazuzu project` takes it as a base. If not, it generates
 the new one based on the given features and default base image specified in the configuration.
 
-`-i` (or `--init`) flag forces pazuzu to generate files with a new set of features.
-
-`-a` (or `--add`) flag adds features to an existing set of features.
+`add` subcommand adds features to an existing set of features.
+`remove` subcommand removes features from an existing set of features.
+`list` subcommand lists an existing set of features.
 
   ```bash
-  pazuzu compose -i node       # initializes a Pazuzufile, Dockerfile and test.bats with Node.js feature
-  pazuzu compose -a java,lein  # adds Java and Leiningen to an existing set of features
+  pazuzu project add node,java  # add node and java features to a project
+  pazuzu project remove java    # remove java from a project
   ```
 
 `-d` (or `--directory`) option sets the working directory to a specified path.
 
   ```bash
-  pazuzu compose -a node -d /tmp
+  pazuzu project add node -d /tmp
   ```
 
   In the given example, Node.js feature will be added to the list of features specified in `/tmp/Pazuzufile`
@@ -107,18 +106,18 @@ the new one based on the given features and default base image specified in the 
 
 ### Clean
 
-`pazuzu clean` step removes `Pazuzufile`, `Dockerfile` and `test.bats`.
+`pazuzu project clean` step removes `Pazuzufile`, `Dockerfile` and `test.bats`.
 
   ```bash
-  pazuzu clean
+  pazuzu project clean
   ```
 
 ### Build Docker image
 
-`pazuzu build` is responsible for a final step - building and validating the Docker image.
+`pazuzu project build` is responsible for a final step - building and validating the Docker image.
 
 ```
-pazuzu build -n hellodocker -d /tmp
+pazuzu project build -n hellodocker -d /tmp
 ```
 
 `-n` (or `--name`) option sets the name for the created Docker image.
@@ -153,7 +152,7 @@ pazuzu config set base ubuntu:16.04
 
 - Switch on verbose mode using `-v/--verbose`:
   ```bash
-	pazuzu -v compose -a node,npm
+	pazuzu -v project add node,npm
 	```
 - Getting help message:
 	```bash

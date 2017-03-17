@@ -25,11 +25,9 @@ func main() {
 	app.Version = Version
 	app.Usage = "Build Docker features from pazuzu-registry"
 	app.Commands = []cli.Command{
-		command.Clean,
-		command.Search,
-		command.Compose,
-		command.Build,
 		command.Config,
+		command.Project,
+		command.Search,
 	}
 
 	// global flags
