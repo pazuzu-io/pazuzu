@@ -21,12 +21,18 @@ const (
 	mountPoint = "/pazuzu/"
 )
 
-
 const (
-	PazuzufileName  = "Pazuzufile"
-	DockerfileName  = "Dockerfile"
-)
+	PazuzufileName = "Pazuzufile"
+	DockerfileName = "Dockerfile"
 
+	// Default docker endpoint
+	DefaultDockerEndpoint = "unix:///var/run/docker.sock"
+
+	// Shell to perform all the docker related commands
+	// for the testing purposes
+	DefaultShell   = "/bin/bash"
+	NoShellCommand = ""
+)
 
 // Pazuzu defines pazuzu config.
 type Pazuzu struct {
@@ -42,6 +48,14 @@ type Pazuzu struct {
 type PazuzuFile struct {
 	Base     string
 	Features []string
+}
+
+func MakeShellCommand(command string) []string {
+	if command == NoShellCommand {
+		return []string{DefaultShell}
+	} else {
+		return []string{DefaultShell, "-c", command}
+	}
 }
 
 func Read(reader io.Reader) (PazuzuFile, error) {
@@ -144,7 +158,7 @@ func (p *Pazuzu) DockerBuild(name string) error {
 	inputBuf := bytes.NewBuffer(nil)
 	tr := tar.NewWriter(inputBuf)
 	err = tr.WriteHeader(&tar.Header{
-		Name:       "Dockerfile",
+		Name:       DockerfileName,
 		Size:       int64(len(p.Dockerfile)),
 		ModTime:    t,
 		AccessTime: t,
@@ -187,12 +201,8 @@ func (p *Pazuzu) dockerExec(ID string, cmd string) error {
 		AttachStdin:  false,
 		AttachStdout: true,
 		AttachStderr: true,
-		Cmd: []string{
-			"/bin/bash",
-			"-c",
-			cmd,
-		},
-		Tty: true,
+		Cmd:          MakeShellCommand(cmd),
+		Tty:          true,
 	}
 	exec, err := p.docker.CreateExec(execOpts)
 	if err != nil {
@@ -237,9 +247,7 @@ func (p *Pazuzu) dockerStart(image string) (*docker.Container, error) {
 		Config: &docker.Config{
 			Image: image,
 			Tty:   true,
-			Cmd: []string{
-				"/bin/sh",
-			},
+			Cmd:   MakeShellCommand(NoShellCommand),
 		},
 		HostConfig: &docker.HostConfig{
 			Binds: []string{
