@@ -8,7 +8,6 @@ import (
 	"github.com/zalando-incubator/pazuzu"
 	"github.com/zalando-incubator/pazuzu/cli/pazuzu/utils"
 	"github.com/zalando-incubator/pazuzu/config"
-	"github.com/zalando-incubator/pazuzu/shared"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -23,7 +22,7 @@ func ProjectClean(c *cli.Context) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = os.Remove(shared.TestSpecFilename)
+	err = os.Remove(pazuzu.TestSpecFilename)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -39,7 +38,7 @@ func ProjectBuild(c *cli.Context) error {
 
 	pazuzufilePath := utils.GetAbsoluteFilePath(directory, pazuzu.PazuzufileName)
 	dockerfilePath := utils.GetAbsoluteFilePath(directory, pazuzu.DockerfileName)
-	testSpecPath := utils.GetAbsoluteFilePath(directory, shared.TestSpecFilename)
+	testSpecPath := utils.GetAbsoluteFilePath(directory, pazuzu.TestSpecFilename)
 	pazuzuFile, success := utils.ReadPazuzuFile(pazuzufilePath)
 	if !success {
 		return fmt.Errorf("Can not read configuration: %s\n", pazuzufilePath)
