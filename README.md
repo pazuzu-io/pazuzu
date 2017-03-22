@@ -66,13 +66,11 @@ Basically, pazuzu CLI tool has 4 subcommands:
 
 ### Search features
 
-`pazuzu search` is used to check which features are actually available in configured repository:
+`pazuzu search` is used to check which features are actually available in configured repository (substring matching is used to match features names):
 
   ```bash
-  pazuzu search [regexp]
-
   pazuzu search node
-  pazuzu search ja*
+  pazuzu search ja
   ```
 
 ### Configure project features

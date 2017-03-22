@@ -8,6 +8,6 @@ import (
 var Command = cli.Command{
 	Name:      "search",
 	Usage:     "Search for features in registry",
-	ArgsUsage: "[regexp] - Regexp to be used for feature lookup",
+	ArgsUsage: "[query] - query to be used for feature lookup for substring search in features names",
 	Action:    actions.Search,
 }
