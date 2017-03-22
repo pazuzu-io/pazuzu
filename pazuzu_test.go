@@ -6,13 +6,14 @@ import (
 	"testing"
 
 	"github.com/zalando-incubator/pazuzu/shared"
+	"github.com/zalando-incubator/pazuzu/mock"
 	"io/ioutil"
 )
 
 // Test generating a Dockerfile from a list of features.
 func TestGenerate(t *testing.T) {
 	pazuzu := Pazuzu{
-		StorageReader: &TestStorage{},
+		StorageReader: &mock.TestStorage{},
 		testSpec:      "test_spec.json",
 	}
 

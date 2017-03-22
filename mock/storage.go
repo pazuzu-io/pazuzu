@@ -1,4 +1,4 @@
-package pazuzu
+package mock
 
 import (
 	"regexp"

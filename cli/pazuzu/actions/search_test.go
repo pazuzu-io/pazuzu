@@ -4,17 +4,17 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/zalando-incubator/pazuzu"
 	"github.com/zalando-incubator/pazuzu/shared"
+	"github.com/zalando-incubator/pazuzu/mock"
 )
 
 func TestSearchHandler(t *testing.T) {
 	type args struct {
 		feature string
-		storage *pazuzu.TestStorage
+		storage *mock.TestStorage
 	}
 
-	featureMeta := pazuzu.GetTestFeatureMeta()
+	featureMeta := mock.GetTestFeatureMeta()
 
 	tests := []struct {
 		name    string
@@ -22,9 +22,9 @@ func TestSearchHandler(t *testing.T) {
 		want    []shared.FeatureMeta
 		wantErr bool
 	}{
-		{"Plain argument", args{"python", &pazuzu.TestStorage{}}, []shared.FeatureMeta{featureMeta}, false},
-		{"Regex argument", args{"pyth*", &pazuzu.TestStorage{}}, []shared.FeatureMeta{featureMeta}, false},
-		{"Incorrect regex", args{"pyth)", &pazuzu.TestStorage{}}, nil, true},
+		{"Plain argument", args{"python", &mock.TestStorage{}}, []shared.FeatureMeta{featureMeta}, false},
+		{"Regex argument", args{"pyth*", &mock.TestStorage{}}, []shared.FeatureMeta{featureMeta}, false},
+		{"Incorrect regex", args{"pyth)", &mock.TestStorage{}}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
