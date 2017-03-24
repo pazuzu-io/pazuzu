@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/zalando-incubator/pazuzu/shared"
 	"github.com/zalando-incubator/pazuzu/mock"
 	"io/ioutil"
 )
@@ -70,7 +69,7 @@ RUN apt-get update && apt-get install python --yes`),
 	}
 
 	// usually, this is composed in `pazuzu compose` phase
-	err := ioutil.WriteFile(shared.TestSpecFilename, pazuzu.TestSpec, 0644)
+	err := ioutil.WriteFile(TestSpecFilename, pazuzu.TestSpec, 0644)
 	if err != nil {
 		t.Errorf("could not create tests.bat file: %s", err)
 	}

@@ -19,11 +19,13 @@ import (
 const (
 	tempDir    = "/tmp/pazuzu/"
 	mountPoint = "/pazuzu/"
+	shebang    = "#!/usr/bin/env bats"
 )
 
 const (
 	PazuzufileName = "Pazuzufile"
 	DockerfileName = "Dockerfile"
+	TestSpecFilename = "test.bats"
 
 	// Default docker endpoint
 	DefaultDockerEndpoint = "unix:///var/run/docker.sock"
@@ -284,7 +286,7 @@ func (p *Pazuzu) dockerStop(ID string) error {
 
 func (p *Pazuzu) generateTestSpec(features []shared.Feature) error {
 	var buffer = bytes.NewBufferString("")
-	if err := shared.WriteTestSpec(buffer, features); err != nil {
+	if err := WriteTestSpec(buffer, features); err != nil {
 		return err
 	}
 	p.TestSpec = buffer.Bytes()
@@ -311,7 +313,7 @@ func (p *Pazuzu) testDockerImage(image string) error {
 		fmt.Println("Couldn't delete master.zip")
 		return err
 	}
-	if err := exec.Command("cp", shared.TestSpecFilename, tempDir).Run(); err != nil {
+	if err := exec.Command("cp", TestSpecFilename, tempDir).Run(); err != nil {
 		fmt.Println("Couldn't copy test.bats file to " + tempDir)
 		return err
 	}
@@ -325,7 +327,7 @@ func (p *Pazuzu) testDockerImage(image string) error {
 
 	if err := p.dockerExec(
 		container.ID,
-		fmt.Sprintf("%sbats-master/install.sh /usr/local && /usr/local/bin/bats -p %s%s", mountPoint, mountPoint, shared.TestSpecFilename)); err != nil {
+		fmt.Sprintf("%sbats-master/install.sh /usr/local && /usr/local/bin/bats -p %s%s", mountPoint, mountPoint, TestSpecFilename)); err != nil {
 		fmt.Println("Couldn't exec test commands on container")
 		fmt.Println(err)
 		return err
@@ -339,6 +341,23 @@ func (p *Pazuzu) testDockerImage(image string) error {
 	if err := os.RemoveAll(tempDir); err != nil {
 		fmt.Println("Couldn't delete " + tempDir)
 		return err
+	}
+
+	return nil
+}
+
+func WriteTestSpec(writer io.Writer, features []shared.Feature) error {
+	var lines = []string{shebang}
+
+	for _, feature := range features {
+		lines = append(lines, feature.TestSnippet)
+	}
+
+	for _, line := range lines {
+		_, err := fmt.Fprintf(writer, "%s\n\n", line)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
