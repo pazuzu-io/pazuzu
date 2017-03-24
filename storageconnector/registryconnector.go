@@ -12,6 +12,11 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 )
 
+const (
+	DefaultApiPath = "/api"
+)
+
+
 type registryStorage struct {
 	Hostname string // localhost
 	Port     int    // 8080
@@ -28,7 +33,7 @@ func (store *registryStorage) init(hostname string, port int, scheme string, for
 	store.Scheme = scheme
 
 	host := hostname + ":" + strconv.Itoa(port)
-	path := "/api"
+	path := DefaultApiPath
 	schemes := []string{scheme}
 
 	transport := httptransport.New(host, path, schemes)

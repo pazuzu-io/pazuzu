@@ -68,7 +68,7 @@ func ProjectBuild(c *cli.Context) error {
 		return fmt.Errorf("Error during attempt to read docker file:%s", err)
 	}
 
-	p.DockerEndpoint = "unix:///var/run/docker.sock"
+	p.DockerEndpoint = pazuzu.DefaultDockerEndpoint
 	p.Dockerfile = dat
 
 	name := ""
