@@ -7,7 +7,7 @@ echo "Starting to build man page from README.md"
 
 if [ $(which pandoc) ]
 then
-    pandoc -s -t man README.md -o pazuzu.1
+    pandoc -s -t man README.md -o pazuzu.1 --filter=man_filters.py
 else
    echo $INSTALL_PANDOC
 fi

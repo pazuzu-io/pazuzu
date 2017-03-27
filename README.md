@@ -24,6 +24,8 @@ NPM installs).
 3. Install govendor and go-swagger:
   ```bash
   go get -u github.com/kardianos/govendor
+  ```
+  ```bash
   go get -u github.com/go-swagger/go-swagger/cmd/swagger
   ```
 
@@ -36,19 +38,27 @@ NPM installs).
 5. Generate code from swagger.yaml:
   ```bash
   cd $GOPATH/src/github.com/zalando-incubator/pazuzu/swagger
+  ```
+  ```bash
   swagger generate client -f swagger.yaml
-  ```  
+  ```
 
 6. Make sure that the tests are passing:
   ```bash
   cd $GOPATH/src/github.com/zalando-incubator/pazuzu/
+  ```
+  ```bash
   go get -t -v
+  ```
+  ```bash
   go test -v ./...
   ```
 
 7. Build command-line utilities:
   ```bash
   cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  ```
+  ```bash
   go build
   ```
 
@@ -70,6 +80,8 @@ Basically, pazuzu CLI tool has 4 subcommands:
 
   ```bash
   pazuzu search node
+  ```
+  ```bash
   pazuzu search ja
   ```
 
@@ -90,6 +102,8 @@ the new one based on the given features and default base image specified in the 
 
   ```bash
   pazuzu project add node,java  # add node and java features to a project
+  ```
+  ```bash
   pazuzu project remove java    # remove java from a project
   ```
 
@@ -128,7 +142,11 @@ pazuzu project build -n hellodocker -d /tmp
 
 ```bash
 pazuzu config list  # lists all configurations
+```
+```bash
 pazuzu config set registry.port 8080 # sets value of registy.port parameter
+```
+```bash
 pazuzu confi get registy.port  # gets value of registy.port parameter
 ```
 
@@ -168,21 +186,25 @@ pazuzu config set base ubuntu:16.04
   $ go version
   ```
 
-- Set up `$GOPATH` variable in your profile (e.g. to `~/go`)
+- Set up `\$GOPATH` variable in your profile (e.g. to `~/go`)
 
 - Clone Pazuzu repository:
   ```bash
-  $ git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
+  git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
   ```
 - Build command-line tools
   ```bash
-  $ cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
-  $ go build
+  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  ```
+  ```bash
+  go build
   ```
 - Run tests
   ```bash
-  $ cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
-  $ go test ./...  
+  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  ```
+  ```bash
+  go test ./...
   ```
 
 
