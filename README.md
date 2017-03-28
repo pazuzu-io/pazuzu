@@ -1,7 +1,5 @@
 # pazuzu
 [![Travis BuildStatus](https://travis-ci.org/zalando-incubator/pazuzu.svg?branch=master)](https://travis-ci.org/zalando-incubator/pazuzu)
-[![Stories in Ready](https://badge.waffle.io/zalando/pazuzu.png?label=ready&title=Ready)](https://waffle.io/zalando/pazuzu)
-
 
 # What is Pazuzu?
 Pazuzu is a tool that builds Docker images from feature snippets, while
