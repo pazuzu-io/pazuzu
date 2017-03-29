@@ -23,4 +23,4 @@ test.bats
 !features/*/test_spec.json
 
 vendor/*/
-swagger/*/
+swagger/
