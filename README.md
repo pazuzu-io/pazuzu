@@ -20,29 +20,12 @@ NPM installs).
   git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
   ```
 
-3. Install govendor and go-swagger:
+3. Install needed dependencies:
   ```bash
-  go get -u github.com/kardianos/govendor
-  ```
-  ```bash
-  go get -u github.com/go-swagger/go-swagger/cmd/swagger
+  ./install-dependencies.sh
   ```
 
-4. Sync vendor packages:
-  ```bash
-  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/
-  govendor sync
-  ```
-
-5. Generate code from swagger.yaml:
-  ```bash
-  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/swagger
-  ```
-  ```bash
-  swagger generate client -f swagger.yaml
-  ```
-
-6. Make sure that the tests are passing:
+4. Make sure that the tests are passing:
   ```bash
   cd $GOPATH/src/github.com/zalando-incubator/pazuzu/
   ```
@@ -53,7 +36,7 @@ NPM installs).
   go test -v ./...
   ```
 
-7. Build command-line utilities:
+5. Build command-line utilities:
   ```bash
   cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
   ```
@@ -61,7 +44,7 @@ NPM installs).
   go build
   ```
 
-8. Install pazuzu command globally [Optional]:
+6. Install pazuzu command globally [Optional]:
   ```bash
   go install
   ```
