@@ -9,17 +9,17 @@ import (
 type TestStorage struct{}
 
 var pythonFeatureMeta = shared.FeatureMeta{
-    Name:        "python",
-    Description: "Use `python -V`",
+	Name:        "python",
+	Description: "Use `python -V`",
 }
 
 func GetTestFeatureMeta() shared.FeatureMeta {
-    return pythonFeatureMeta
+	return pythonFeatureMeta
 }
 
 func (s *TestStorage) GetFeature(feature string) (shared.Feature, error) {
 	return shared.Feature{
-		Meta: pythonFeatureMeta,
+		Meta:    pythonFeatureMeta,
 		Snippet: "RUN apt-get update && apt-get install python --yes",
 	}, nil
 }
@@ -29,7 +29,7 @@ func (s *TestStorage) GetMeta(name string) (shared.FeatureMeta, error) {
 }
 
 func (s *TestStorage) SearchMeta(name *regexp.Regexp) ([]shared.FeatureMeta, error) {
-	return []shared.FeatureMeta {pythonFeatureMeta}, nil
+	return []shared.FeatureMeta{pythonFeatureMeta}, nil
 }
 
 func (s *TestStorage) Resolve(names ...string) ([]string, map[string]shared.Feature, error) {

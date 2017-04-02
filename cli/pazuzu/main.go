@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/urfave/cli"
+	"github.com/zalando-incubator/pazuzu/cli/pazuzu/command"
 	"github.com/zalando-incubator/pazuzu/config"
 	"io/ioutil"
 	"log"
 	"os"
-	"github.com/zalando-incubator/pazuzu/cli/pazuzu/command"
 )
 
 // Version ...

@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/zalando-incubator/pazuzu"
+	"github.com/zalando-incubator/pazuzu/storageconnector"
 	"log"
 	"os"
 	"path/filepath"
-	"github.com/zalando-incubator/pazuzu"
-	"github.com/zalando-incubator/pazuzu/storageconnector"
 )
 
 func GenerateFeaturesList(pazuzufileFeatures []string, featuresToInit []string, featuresToAdd []string) ([]string, error) {

@@ -53,5 +53,5 @@ func SearchHandler(feature string, storage storage.StorageReader) ([]shared.Feat
 		return nil, errors.New("Can't execute search request")
 	}
 
-    return features, nil
+	return features, nil
 }
