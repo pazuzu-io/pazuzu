@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/zalando-incubator/pazuzu/shared"
 	"github.com/zalando-incubator/pazuzu/mock"
+	"github.com/zalando-incubator/pazuzu/shared"
 )
 
 func TestSearchHandler(t *testing.T) {

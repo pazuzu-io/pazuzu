@@ -16,7 +16,6 @@ const (
 	DefaultApiPath = "/api"
 )
 
-
 type registryStorage struct {
 	Hostname string // localhost
 	Port     int    // 8080

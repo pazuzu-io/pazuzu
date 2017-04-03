@@ -23,8 +23,8 @@ const (
 )
 
 const (
-	PazuzufileName = "Pazuzufile"
-	DockerfileName = "Dockerfile"
+	PazuzufileName   = "Pazuzufile"
+	DockerfileName   = "Dockerfile"
 	TestSpecFilename = "test.bats"
 
 	// Default docker endpoint
