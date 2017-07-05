@@ -17,7 +17,7 @@ NPM installs).
 
 2. Clone Pazuzu repository:
   ```bash
-  git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
+  git clone git@github.com:pazuzu-io/pazuzu.git  $GOPATH/src/github.com/pazuzu-io/pazuzu
   ```
 
 3. Install needed dependencies:
@@ -27,7 +27,7 @@ NPM installs).
 
 4. Make sure that the tests are passing:
   ```bash
-  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/
+  cd $GOPATH/src/github.com/pazuzu-io/pazuzu/
   ```
   ```bash
   go get -t -v
@@ -38,7 +38,7 @@ NPM installs).
 
 5. Build command-line utilities:
   ```bash
-  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  cd $GOPATH/src/github.com/pazuzu-io/pazuzu/cli/pazuzu
   ```
   ```bash
   go build
@@ -136,7 +136,7 @@ pazuzu confi get registy.port  # gets value of registy.port parameter
 
 Currenly pazuzu supports only registry as a storage.
 
-See: [Pazuzu Registry](https://github.com/zalando-incubator/pazuzu-registry)
+See: [Pazuzu Registry](https://github.com/pazuzu-io/pazuzu-registry)
 
 ### Base image
 
@@ -172,18 +172,18 @@ pazuzu config set base ubuntu:16.04
 
 - Clone Pazuzu repository:
   ```bash
-  git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/zalando-incubator/pazuzu
+  git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/pazuzu-io/pazuzu
   ```
 - Build command-line tools
   ```bash
-  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  cd $GOPATH/src/github.com/pazuzu-io/pazuzu/cli/pazuzu
   ```
   ```bash
   go build
   ```
 - Run tests
   ```bash
-  cd $GOPATH/src/github.com/zalando-incubator/pazuzu/cli/pazuzu
+  cd $GOPATH/src/github.com/pazuzu-io/pazuzu/cli/pazuzu
   ```
   ```bash
   go test ./...
