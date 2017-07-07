@@ -2,7 +2,7 @@ package search
 
 import (
 	"github.com/urfave/cli"
-	"github.com/zalando-incubator/pazuzu/cli/pazuzu/actions"
+	"github.com/pazuzu-io/pazuzu/cli/pazuzu/actions"
 )
 
 var Command = cli.Command{
