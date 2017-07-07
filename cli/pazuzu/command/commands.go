@@ -1,9 +1,9 @@
 package command
 
 import (
-	"github.com/zalando-incubator/pazuzu/cli/pazuzu/command/config"
-	"github.com/zalando-incubator/pazuzu/cli/pazuzu/command/project"
-	"github.com/zalando-incubator/pazuzu/cli/pazuzu/command/search"
+	"github.com/pazuzu-io/pazuzu/cli/pazuzu/command/config"
+	"github.com/pazuzu-io/pazuzu/cli/pazuzu/command/project"
+	"github.com/pazuzu-io/pazuzu/cli/pazuzu/command/search"
 )
 
 var (
