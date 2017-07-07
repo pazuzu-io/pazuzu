@@ -1,5 +1,5 @@
 # pazuzu
-[![Travis BuildStatus](https://travis-ci.org/pazuzu-io/pazuzu.svg?branch=master)](https://travis-ci.org/zalando-incubator/pazuzu)
+[![Travis BuildStatus](https://travis-ci.org/pazuzu-io/pazuzu.svg?branch=master)](https://travis-ci.org/pazuzu-io/pazuzu)
 [![Go Report Card](https://goreportcard.com/badge/github.com/pazuzu-io/pazuzu)](https://goreportcard.com/report/github.com/pazuzu-io/pazuzu)
 
 # What is Pazuzu?
@@ -172,7 +172,7 @@ pazuzu config set base ubuntu:16.04
 
 - Clone Pazuzu repository:
   ```bash
-  git clone git@github.com:zalando-incubator/pazuzu.git  $GOPATH/src/github.com/pazuzu-io/pazuzu
+  git clone git@github.com:pazuzu-io/pazuzu.git  $GOPATH/src/github.com/pazuzu-io/pazuzu
   ```
 - Build command-line tools
   ```bash
