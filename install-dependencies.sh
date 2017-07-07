@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
-PAZUZU_DIR=$GOPATH/src/github.com/zalando-incubator/pazuzu
+PAZUZU_DIR=$GOPATH/src/github.com/pazuzu-io/pazuzu
 SWAGGER_DIR=$PAZUZU_DIR/swagger
 SWAGGER_FILE=$SWAGGER_DIR/swagger.yaml
 PAZUZU_REGISTRY_DIR=$PAZUZU_DIR/../pazuzu-registry/
 PAZUZU_REGISTRY_SWAGGER_LOCAL=$PAZUZU_REGISTRY_DIR/src/main/resources/api/swagger.yaml
-PAZUZU_REGISTRY_SWAGGER_UPSTREAM="https://raw.githubusercontent.com/zalando-incubator/pazuzu-registry/master/src/main/resources/api/swagger.yaml"
+PAZUZU_REGISTRY_SWAGGER_UPSTREAM="https://raw.githubusercontent.com/pazuzu-io/pazuzu-registry/master/src/main/resources/api/swagger.yaml"
 
 get_swagger_api_definition() {
   if [ ! -d $SWAGGER_DIR ]
